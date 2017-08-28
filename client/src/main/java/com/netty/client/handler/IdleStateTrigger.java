@@ -1,0 +1,38 @@
+package com.netty.client.handler;
+
+import com.netty.client.core.threadpool.MessageSendExecutor;
+import com.netty.client.core.threadpool.MessageSendTask;
+import com.netty.client.msg.ChatProto;
+import com.netty.client.msg.Header;
+import com.netty.client.msg.PingProto;
+import com.netty.client.msg.SendMsg;
+import com.netty.client.utils.L;
+
+import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
+
+@Sharable
+public class IdleStateTrigger extends ChannelInboundHandlerAdapter {
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if (evt instanceof IdleStateEvent) {
+            IdleState state = ((IdleStateEvent) evt).state();
+            if (state == IdleState.WRITER_IDLE) {
+                MessageSendExecutor.submit(new MessageSendTask(ctx, new SendMsg(Header.PING)));
+
+                ChatProto.Chat chat = ChatProto.Chat.newBuilder()
+                        .setAddress(ctx.channel().localAddress().toString())
+                .setContent("你好，哈哈哈").build();
+                MessageSendExecutor.submit(new MessageSendTask(ctx, new SendMsg(Header.CHAT_MSG, chat)));
+            } else if (state == IdleState.READER_IDLE) {
+                L.print("server " + ctx.channel().remoteAddress() + " lose");
+                ctx.channel().close();//server失联，关闭channel，一定要关闭连接，否则userEventTriggered会被不停调用
+            }
+        } else {
+            super.userEventTriggered(ctx, evt);
+        }
+    }
+}
