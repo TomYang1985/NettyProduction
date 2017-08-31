@@ -1,23 +1,30 @@
 package com.netty.client.core.threadpool;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * Created by xiaoguochang on 2017/8/27.
  */
 
 public class MessageSendExecutor {
-    private static Executor mSendExecutor;
+    private static ThreadPoolExecutor mExecutor;
 
     public static void submit(MessageSendTask task){
-        if(mSendExecutor == null){
+        if(mExecutor == null){
             synchronized (MessageSendExecutor.class){
-                if(mSendExecutor == null){
-                    mSendExecutor = RpcThreadPool.getSendExecutor();
+                if(mExecutor == null){
+                    mExecutor = RpcThreadPool.getSendExecutor();
                 }
             }
         }
 
-        mSendExecutor.execute(task);
+        mExecutor.execute(task);
+    }
+
+    public static void shutdownNow(){
+        if(mExecutor != null){
+            mExecutor.shutdownNow();
+        }
     }
 }

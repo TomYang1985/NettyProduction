@@ -134,7 +134,7 @@ public class DefaultServerAcceptor extends NettyServerAcceptor implements Channe
                             bind();
                         }
                     } else {
-                        Log.d(Config.TAG, throwable.toString());
+                        L.print(throwable.toString());
                         //bind();
                     }
                 }

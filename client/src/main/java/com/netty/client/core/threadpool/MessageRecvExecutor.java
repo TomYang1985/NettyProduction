@@ -1,13 +1,14 @@
 package com.netty.client.core.threadpool;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * Created by xiaoguochang on 2017/8/27.
  */
 
 public class MessageRecvExecutor {
-    private static Executor mExecutor;
+    private static ThreadPoolExecutor mExecutor;
 
     public static void submit(MessageRecvTask task){
         if(mExecutor == null){
@@ -19,5 +20,11 @@ public class MessageRecvExecutor {
         }
 
         mExecutor.execute(task);
+    }
+
+    public static void shutdownNow(){
+        if(mExecutor != null){
+            mExecutor.shutdownNow();
+        }
     }
 }

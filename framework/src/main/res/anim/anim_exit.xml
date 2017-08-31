@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--a启动b anim_exit - android:activityOpenExitAnimation：A结束的动画效果：-->
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--"@android:integer/config_mediumAnimTime"-->
+    <scale android:duration="3000" android:pivotX="69.999999%" android:pivotY="100.0%"
+           android:fromXScale="1.0" android:toXScale="0.0" android:fromYScale="1.0" android:toYScale="0.0" />
+    <alpha android:duration="3000" android:fromAlpha="1.0" android:toAlpha="0.0"/>
+</set>

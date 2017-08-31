@@ -5,6 +5,8 @@ import android.content.Context;
 import com.netty.client.codec.ProtobufDecoder;
 import com.netty.client.codec.ProtobufEncoder;
 import com.netty.client.common.ConnectionWatchdog;
+import com.netty.client.core.threadpool.MessageRecvExecutor;
+import com.netty.client.core.threadpool.MessageSendExecutor;
 import com.netty.client.handler.ConnectionManagerHandler;
 import com.netty.client.handler.IdleStateTrigger;
 import com.netty.client.handler.MessageRecvHandler;
@@ -157,6 +159,8 @@ public class DefaultClientConnector extends NettyClientConnector implements Chan
     public void onDestory(){
         mStatus.getAndSet(STATUS_NONE);
         shutdownGracefully();
+        MessageRecvExecutor.shutdownNow();
+        MessageSendExecutor.shutdownNow();
         mWatchdog.onDestory();
     }
 }

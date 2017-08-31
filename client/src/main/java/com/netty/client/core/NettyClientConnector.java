@@ -4,12 +4,14 @@ import java.util.concurrent.ThreadFactory;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.DefaultMessageSizeEstimator;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.DefaultThreadFactory;
+import io.netty.util.internal.PlatformDependent;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -33,6 +35,14 @@ public abstract class NettyClientConnector implements ClientConnector {
     protected void initInner() {
         ThreadFactory workerFactory = new DefaultThreadFactory("client.connector");
         worker = new NioEventLoopGroup(nWorkers, workerFactory);
+
+        //使用池化的directBuffer
+        /**
+         * 一般高性能的场景下,使用的堆外内存，也就是直接内存，使用堆外内存的好处就是减少内存的拷贝，和上下文的切换，缺点是
+         * 堆外内存处理的不好容易发生堆外内存OOM
+         * 当然也要看当前的JVM是否只是使用堆外内存，换而言之就是是否能够获取到Unsafe对象#PlatformDependent.directBufferPreferred()
+         */
+        allocator = new PooledByteBufAllocator(PlatformDependent.directBufferPreferred());
 
         bootstrap = new Bootstrap().group(worker).
                 option(ChannelOption.ALLOCATOR, allocator)

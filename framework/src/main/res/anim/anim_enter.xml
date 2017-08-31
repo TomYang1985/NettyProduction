@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--a启动b anim_enter - Android:activityOpenEnterAnimation ：B进入的动画效果：-->
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--<scale android:duration="@android:integer/config_mediumAnimTime" android:pivotX="69.999999%" android:pivotY="100.0%"-->
+           <!--android:fromXScale="0.0" android:toXScale="1.0" android:fromYScale="0.0" android:toYScale="1.0"/>-->
+    <!--<alpha android:duration="@android:integer/config_mediumAnimTime" android:fromAlpha="0.0" android:toAlpha="1.0"/>-->
+    <scale android:duration="@android:integer/config_mediumAnimTime" android:pivotX="50%" android:pivotY="50.0%"
+           android:fromXScale="1.2" android:toXScale="1.0" android:fromYScale="1.2" android:toYScale="1.0"/>
+    <alpha android:duration="@android:integer/config_mediumAnimTime" android:fromAlpha="0.0" android:toAlpha="1.0"/>
+</set>

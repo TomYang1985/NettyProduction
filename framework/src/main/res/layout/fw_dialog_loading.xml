@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center">
+
+    <RelativeLayout
+        android:layout_width="130dp"
+        android:layout_height="120dp"
+        android:background="@drawable/fw_shape_loading_bg"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center"
+            android:orientation="vertical">
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                style="?android:attr/progressBarStyleInverse"
+                android:layout_width="48.0dp"
+                android:layout_height="48.0dp"
+                android:layout_gravity="center_horizontal"
+                android:indeterminateDrawable="@anim/fw_rotate_loading"
+                android:indeterminateDuration="600" />
+
+            <TextView
+                android:id="@+id/text_msg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10.0dp"
+                android:ellipsize="end"
+                android:lines="1"
+                android:text="正在检查更新"
+                android:textSize="14.0sp"
+                android:textColor="#566173"/>
+
+        </LinearLayout>
+    </RelativeLayout>
+
+</LinearLayout>

@@ -10,19 +10,19 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class RpcThreadPool {
-    public static Executor getRecvQuickExecutor(){
+    public static ThreadPoolExecutor getRecvQuickExecutor(){
         String name = "RpcClientQuickPoll";
         return new ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(),
                 new NamedThreadFactory(name, true), new AbortPolicyWithReport(name));
     }
 
-    public static Executor getRecvHeavyExecutor(int threads){
+    public static ThreadPoolExecutor getRecvHeavyExecutor(int threads){
         String name = "RpcClientHeavyPoll";
         return new ThreadPoolExecutor(threads, threads, 0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(),
                 new NamedThreadFactory(name, true), new AbortPolicyWithReport(name));
     }
 
-    public static Executor getSendExecutor(){
+    public static ThreadPoolExecutor getSendExecutor(){
         String name = "RpcClientSendPoll";
         return new ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(),
                 new NamedThreadFactory(name, true), new AbortPolicyWithReport(name));
