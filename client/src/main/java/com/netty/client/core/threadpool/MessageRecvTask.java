@@ -1,12 +1,9 @@
 package com.netty.client.core.threadpool;
 
 
-
-import com.netty.client.msg.ChatProto;
+import com.netty.client.msg.EMCallbackTaskMessage;
 import com.netty.client.msg.Header;
-import com.netty.client.msg.ReceiveMsg;
-import com.netty.client.msg.SendMsg;
-import com.netty.client.utils.L;
+import com.netty.client.msg.RecvMsg;
 
 import io.netty.channel.ChannelHandlerContext;
 
@@ -16,20 +13,22 @@ import io.netty.channel.ChannelHandlerContext;
 
 public class MessageRecvTask implements Runnable {
     private ChannelHandlerContext mChannelHandlerContext;
-    private ReceiveMsg mReceiveMsg;
+    private RecvMsg mRecvMsg;
 
-    public MessageRecvTask(ChannelHandlerContext channelHandlerContext, ReceiveMsg receiveMsg) {
+    public MessageRecvTask(ChannelHandlerContext channelHandlerContext, RecvMsg recvMsg) {
         mChannelHandlerContext = channelHandlerContext;
-        mReceiveMsg = receiveMsg;
+        mRecvMsg = recvMsg;
     }
 
     @Override
     public void run() {
-        if(mReceiveMsg != null){
-            switch (mReceiveMsg.msgType){
-                case Header.CHAT_MSG:
-                    ChatProto.Chat recvChat = (ChatProto.Chat) mReceiveMsg.data;
-                    L.print("recv " + recvChat.getContent() +  "msg from" + recvChat.getAddress());
+        if (mRecvMsg != null) {
+            switch (mRecvMsg.msgType) {
+                case Header.PAYLOAD:
+                    String remoteAddress = mChannelHandlerContext.channel().remoteAddress().toString();
+                    ExecutorFactory.submitCallbackTask(new CallbackTask(new EMCallbackTaskMessage(mRecvMsg), remoteAddress));
+                    //ChatProto.Chat recvChat = (ChatProto.Chat) mRecvMsg.data;
+                    //L.print("recv " + recvChat.getContent() + "msg from" + recvChat.getAddress());
                     break;
             }
         }

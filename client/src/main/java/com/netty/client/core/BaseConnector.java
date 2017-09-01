@@ -19,14 +19,14 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * Created by robincxiao on 2017/8/24.
  */
 
-public abstract class NettyClientConnector implements ClientConnector {
+public abstract class BaseConnector implements Connector {
     public static final int AVAILABLE_PROCESSORS = Runtime.getRuntime().availableProcessors();
     private Bootstrap bootstrap;
     private EventLoopGroup worker;
     private int nWorkers;
     protected volatile ByteBufAllocator allocator;
 
-    public NettyClientConnector() {
+    protected BaseConnector() {
         nWorkers = AVAILABLE_PROCESSORS << 1;
 
         initInner();

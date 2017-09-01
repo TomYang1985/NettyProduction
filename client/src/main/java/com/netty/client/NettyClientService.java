@@ -7,7 +7,7 @@ import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
-import com.netty.client.core.DefaultClientConnector;
+import com.netty.client.core.EMClient;
 import com.netty.client.multicast.ScanDevice;
 
 /**
@@ -15,7 +15,7 @@ import com.netty.client.multicast.ScanDevice;
  */
 
 public class NettyClientService extends Service {
-    private DefaultClientConnector mClientConnector;
+    private EMClient mClientConnector;
     private WifiManager.MulticastLock mMulticastLock;
 
     @Override
@@ -23,18 +23,18 @@ public class NettyClientService extends Service {
         super.onCreate();
 
         WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
-        mMulticastLock = wifiManager.createMulticastLock("multicast.test");
+        mMulticastLock = wifiManager.createMulticastLock("multicast.lock");
         mMulticastLock.acquire();
 
-        mClientConnector = new DefaultClientConnector();
-        //mClientConnector.init(this);
+        mClientConnector = EMClient.getInstance();
+        mClientConnector.init(this);
 
         ScanDevice.getInstance().init(this);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        //mClientConnector.connect();
+        mClientConnector.connect();
         ScanDevice.getInstance().start();
         return super.onStartCommand(intent, flags, startId);
     }
@@ -47,6 +47,7 @@ public class NettyClientService extends Service {
 
     @Override
     public void onDestroy() {
+        mMulticastLock.release();
         mClientConnector.onDestory();
         ScanDevice.getInstance().onDestory();
         super.onDestroy();

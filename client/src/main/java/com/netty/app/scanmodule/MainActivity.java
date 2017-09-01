@@ -9,9 +9,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.netty.app.common.template.WhiteTitleTemplate;
 import com.netty.app.scanmodule.adapter.DeviceListAdapter;
 import com.netty.app.widget.RecycleViewDivider;
 import com.netty.client.R;
+import com.netty.client.core.EMClient;
 import com.netty.client.multicast.Device;
 import com.netty.client.multicast.ScanDevice;
 import com.netty.client.utils.L;
@@ -22,9 +24,8 @@ import butterknife.BindView;
 import xiao.framework.activity.BaseFragmentActivity;
 import xiao.framework.adapter.XGCOnRVItemClickListener;
 import xiao.framework.template.BaseTemplate;
-import xiao.framework.template.impl.EmptyTemplate;
 
-public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemClickListener{
+public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemClickListener {
     private static final int MSG_FINDED_DEVICES = 1;
     private static final int MSG_FIND_ONE_DEVICE = 2;
     private static final int MSG_DISCONNECT_DEVICES = 3;
@@ -39,9 +40,14 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
     TextView mHintText;
     private DeviceListAdapter mAdpter;
     private LinearLayoutManager mLinearLayoutManager;
+    private WhiteTitleTemplate mTemplate;
     private Handler mHandler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
+            if(mAdpter == null || mHintText == null){
+                return true;
+            }
+
             switch (msg.what) {
                 case MSG_FINDED_DEVICES:
                     ArrayList<Device> findedDevices = msg.getData().getParcelableArrayList("devices");
@@ -167,7 +173,10 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
 
     @Override
     protected BaseTemplate createTemplate() {
-        return new EmptyTemplate(this);
+        mTemplate = new WhiteTitleTemplate(this);
+        mTemplate.setTitleText("设备列表");
+        mTemplate.setImageResource(R.mipmap.ic_back);
+        return mTemplate;
     }
 
     @Override
@@ -178,5 +187,12 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
     @Override
     public void onRVItemClick(ViewGroup parent, View itemView, int position) {
         L.d(mAdpter.getDatas().get(position));
+        EMClient.getInstance().setHost(mAdpter.getDatas().get(position).ip);
+    }
+
+    @Override
+    protected void onDestroy() {
+        ScanDevice.getInstance().setScanListener(null);
+        super.onDestroy();
     }
 }

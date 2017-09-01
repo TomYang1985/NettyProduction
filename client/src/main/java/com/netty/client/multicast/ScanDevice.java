@@ -41,7 +41,7 @@ public class ScanDevice implements Runnable {
     private static final int STATUS_NONE = 1;
     private static final int STATUS_RUNNING = 2;
     private static final int STATUS_STOPING = 3;
-    private static ScanDevice sInstance;
+    private volatile static ScanDevice sInstance;
     //定义广播的IP地址
     private InetAddress broadcastAddress = null;
     //定义接收网络数据的字符数组
@@ -67,15 +67,7 @@ public class ScanDevice implements Runnable {
     };
 
     private ScanDevice() {
-        mStatus = new AtomicInteger(STATUS_NONE);
-        mMonitorThreadStatus = new AtomicInteger(STATUS_NONE);
-        try {
-            broadcastAddress = InetAddress.getByName(BROADCAST_IP);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
 
-        mDevicesMap = new ConcurrentHashMap<>();
     }
 
     public static ScanDevice getInstance() {
@@ -92,7 +84,8 @@ public class ScanDevice implements Runnable {
 
     public void setScanListener(ScanListener listener) {
         this.mScanListener = listener;
-        if (mDevicesMap.size() > 0) {
+        //目的是为了更快的返回设备别表
+        if (mDevicesMap != null && mDevicesMap.size() > 0 && mScanListener != null) {
             ArrayList<Device> deviceList = new ArrayList<>();
             deviceList.addAll(mDevicesMap.values());
             mScanListener.findedDevice(deviceList);
@@ -102,6 +95,15 @@ public class ScanDevice implements Runnable {
     public void init(Context context) {
         mContext = context;
         mNetChangeReceiver = new NetChangeReceiver();
+        mStatus = new AtomicInteger(STATUS_NONE);
+        mMonitorThreadStatus = new AtomicInteger(STATUS_NONE);
+        try {
+            broadcastAddress = InetAddress.getByName(BROADCAST_IP);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+
+        mDevicesMap = new ConcurrentHashMap<>();
     }
 
     public void start() {
@@ -117,9 +119,6 @@ public class ScanDevice implements Runnable {
         IntentFilter filter = new IntentFilter();
         filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
-        //filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-//        filter.addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
-//        filter.addAction(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
         mContext.registerReceiver(mNetChangeReceiver, filter);
         mDevicesMap.clear();
         try {

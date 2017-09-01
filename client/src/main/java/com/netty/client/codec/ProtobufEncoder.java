@@ -4,7 +4,6 @@ import com.google.protobuf.MessageLite;
 import com.netty.client.msg.ChatProto;
 import com.netty.client.msg.Header;
 import com.netty.client.msg.PingProto;
-import com.netty.client.utils.L;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -48,7 +47,7 @@ public class ProtobufEncoder extends MessageToByteEncoder<MessageLite> {
         if(msg instanceof PingProto.Ping){
             return Header.PING;
         }else if(msg instanceof ChatProto.Chat){
-            return Header.CHAT_MSG;
+            return Header.PAYLOAD;
         }
 
         return 0;

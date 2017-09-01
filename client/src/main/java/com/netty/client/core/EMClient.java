@@ -1,15 +1,17 @@
 package com.netty.client.core;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.netty.client.codec.ProtobufDecoder;
 import com.netty.client.codec.ProtobufEncoder;
 import com.netty.client.common.ConnectionWatchdog;
-import com.netty.client.core.threadpool.MessageRecvExecutor;
-import com.netty.client.core.threadpool.MessageSendExecutor;
+import com.netty.client.core.threadpool.ExecutorFactory;
 import com.netty.client.handler.ConnectionManagerHandler;
 import com.netty.client.handler.IdleStateTrigger;
 import com.netty.client.handler.MessageRecvHandler;
+import com.netty.client.listener.EMConnectionListener;
+import com.netty.client.listener.EMMessageListener;
 import com.netty.client.utils.L;
 
 import java.util.concurrent.TimeUnit;
@@ -26,8 +28,8 @@ import io.netty.handler.timeout.IdleStateHandler;
  * Created by robincxiao on 2017/8/24.
  */
 
-public class DefaultClientConnector extends NettyClientConnector implements ChannelHandlerHolder {
-    private static final String DEAULT_HOST = "192.168.1.112";
+public class EMClient extends BaseConnector implements ChannelHandlerHolder {
+    //private static final String DEAULT_HOST = "192.168.1.112";
     private static final int DEAULT_PORT = 9987;
     private static final int STATUS_NONE = 1;
     private static final int STATUS_CONNECTING = 2;
@@ -37,11 +39,50 @@ public class DefaultClientConnector extends NettyClientConnector implements Chan
     private static final int TRIGGER_FROM_DIRECT = 1;//直连启动
     private static final int TRIGGER_FROM_DISCONNECT_RETRY = 2;//断线重连
     private static final int TRIGGER_FROM_TIMER_DETECTION = 3;//定时检测
+    private volatile static EMClient sInstance;
     private ConnectionWatchdog mWatchdog;
     private AtomicInteger mStatus;
+    private String mHost;
 
-    public DefaultClientConnector() {
+    private EMClient() {
         super();
+    }
+
+    public static EMClient getInstance() {
+        if (sInstance == null) {
+            synchronized (EMClient.class) {
+                if (sInstance == null) {
+                    sInstance = new EMClient();
+                }
+            }
+        }
+
+        return sInstance;
+    }
+
+    public String getHost() {
+        return mHost;
+    }
+
+    public void setHost(String mHost) {
+        this.mHost = mHost;
+        connect();
+    }
+
+    public void addMessageListener(EMMessageListener listener){
+        EMMessageManager.getInstance().addListener(listener);
+    }
+
+    public void removeMessageListener(EMMessageListener listener){
+        EMMessageManager.getInstance().removeListener(listener);
+    }
+
+    public void addConnectListener(EMConnectionListener listener){
+        EMConnectManager.getInstance().addListener(listener);
+    }
+
+    public void removeConnectListener(EMConnectionListener listener){
+        EMConnectManager.getInstance().removeListener(listener);
     }
 
     public void init(Context context) {
@@ -76,9 +117,14 @@ public class DefaultClientConnector extends NettyClientConnector implements Chan
         connect(TRIGGER_FROM_DIRECT);
     }
 
-    public void connect(final int triggerType) {
+    private void connect(final int triggerType) {
         if (mStatus.compareAndSet(STATUS_CONNECTING, STATUS_CONNECTING) || mStatus.compareAndSet(STATUS_CONNECTED, STATUS_CONNECTED)) {
             L.print("return when connecting or connected , triggerType = " + triggerType);
+            return;
+        }
+
+        if (TextUtils.isEmpty(mHost)) {
+            L.print("ip null , triggerType = " + triggerType);
             return;
         }
 
@@ -94,7 +140,7 @@ public class DefaultClientConnector extends NettyClientConnector implements Chan
                     ch.pipeline().addLast(handlers());
                 }
             });
-            future = bootstrap().connect(DEAULT_HOST, DEAULT_PORT);
+            future = bootstrap().connect(mHost, DEAULT_PORT);
         }
 
         future.addListener(new ChannelFutureListener() {
@@ -156,11 +202,10 @@ public class DefaultClientConnector extends NettyClientConnector implements Chan
         super.shutdownGracefully();
     }
 
-    public void onDestory(){
+    public void onDestory() {
         mStatus.getAndSet(STATUS_NONE);
         shutdownGracefully();
-        MessageRecvExecutor.shutdownNow();
-        MessageSendExecutor.shutdownNow();
+        ExecutorFactory.shutdownNow();
         mWatchdog.onDestory();
     }
 }

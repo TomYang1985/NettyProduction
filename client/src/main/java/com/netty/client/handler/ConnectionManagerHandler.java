@@ -1,5 +1,8 @@
 package com.netty.client.handler;
 
+import com.netty.client.core.threadpool.CallbackTask;
+import com.netty.client.core.threadpool.ExecutorFactory;
+import com.netty.client.msg.EMCallbackTaskMessage;
 import com.netty.client.utils.L;
 
 import io.netty.channel.ChannelDuplexHandler;
@@ -16,12 +19,14 @@ public class ConnectionManagerHandler extends ChannelDuplexHandler {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
         L.print("ConnectionManagerHandler_channelActive_" + ctx.channel().localAddress());
+        ExecutorFactory.submitCallbackTask(new CallbackTask(new EMCallbackTaskMessage(EMCallbackTaskMessage.MSG_TYPE_ACTIVE)));
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
         L.print("ConnectionManagerHandler_channelInactive_" + ctx.channel().localAddress());
+        ExecutorFactory.submitCallbackTask(new CallbackTask(new EMCallbackTaskMessage(EMCallbackTaskMessage.MSG_TYPE_INACTIVE)));
     }
 
     @Override

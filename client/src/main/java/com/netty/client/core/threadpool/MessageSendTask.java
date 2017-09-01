@@ -2,7 +2,7 @@ package com.netty.client.core.threadpool;
 
 import com.netty.client.msg.Header;
 import com.netty.client.msg.PingProto;
-import com.netty.client.msg.ReceiveMsg;
+import com.netty.client.msg.RecvMsg;
 import com.netty.client.msg.SendMsg;
 import com.netty.client.utils.L;
 
@@ -15,12 +15,12 @@ import io.netty.channel.ChannelHandlerContext;
 
 public class MessageSendTask implements Runnable {
     private ChannelHandlerContext mChannelHandlerContext;
-    private ReceiveMsg mReceiveMsg;
+    private RecvMsg mRecvMsg;
     private SendMsg mSendMsg;
 
-    public MessageSendTask(ChannelHandlerContext channelHandlerContext, ReceiveMsg receiveMsg) {
+    public MessageSendTask(ChannelHandlerContext channelHandlerContext, RecvMsg recvMsg) {
         mChannelHandlerContext = channelHandlerContext;
-        mReceiveMsg = receiveMsg;
+        mRecvMsg = recvMsg;
     }
 
     public MessageSendTask(ChannelHandlerContext channelHandlerContext, SendMsg sendMsg) {
@@ -30,7 +30,7 @@ public class MessageSendTask implements Runnable {
 
     @Override
     public void run() {
-        if (mChannelHandlerContext == null) {
+        if (mChannelHandlerContext == null || mChannelHandlerContext.channel() == null) {
             L.print("MessageSendTask mChannelHandlerContext = null");
             return;
         }
@@ -50,14 +50,14 @@ public class MessageSendTask implements Runnable {
                     L.print("MessageSendTask send ping to" + channel.remoteAddress());
                     channel.writeAndFlush(PingProto.Ping.newBuilder().build());
                     break;
-                case Header.CHAT_MSG:
+                case Header.PAYLOAD:
                     L.print("MessageSendTask send chatMsg to" + channel.remoteAddress());
                     channel.writeAndFlush(mSendMsg.data);
                     break;
             }
         }
 
-        if(mReceiveMsg != null){
+        if(mRecvMsg != null){
 
         }
     }

@@ -1,6 +1,6 @@
 package com.netty.server.nettymulticast;
 
-import com.netty.client.msg.DeviceProto;
+
 import com.netty.server.utils.L;
 
 import java.net.InetSocketAddress;
@@ -22,9 +22,9 @@ public class MulticastIdleStateTrigger extends ChannelInboundHandlerAdapter {
             IdleState state = ((IdleStateEvent) evt).state();
             if (state == IdleState.WRITER_IDLE) {
                 L.d("MulticastIdleStateTrigger WRITER_IDLE");
-                DeviceProto.Device device = DeviceProto.Device.newBuilder()
-                        .setName("test")
-                        .setAddress("192.168.1.110").build();
+//                DeviceProto.Device device = DeviceProto.Device.newBuilder()
+//                        .setName("test")
+//                        .setAddress("192.168.1.110").build();
 
 
                 DatagramPacket packet = new DatagramPacket(Unpooled.copiedBuffer("QOTM?", CharsetUtil.UTF_8),
