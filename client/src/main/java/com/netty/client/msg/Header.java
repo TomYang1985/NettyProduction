@@ -25,11 +25,4 @@ public class Header {
     public class BusynessType{
 
     }
-
-    public static final byte COMMOND = 1;//控制消息
-    public static final byte PAYLOAD = 2;//透传消息
-
-    public static final byte PING = 100;
-    public static final byte PONG = 101;
-    public static final byte ACK = 102;
 }

@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
 import io.netty.util.TimerTask;
+import xiao.framework.util.NetUtils;
 
 /**
  * Created by robincxiao on 2017/8/29.
@@ -40,7 +41,7 @@ public class ScanDevice implements Runnable {
     private static final int MONITOR_DURATION = 3000;//监控扫描周期
     private static final int STATUS_NONE = 1;
     private static final int STATUS_RUNNING = 2;
-    private static final int STATUS_STOPING = 3;
+    //private static final int STATUS_STOPING = 3;
     private volatile static ScanDevice sInstance;
     //定义广播的IP地址
     private InetAddress broadcastAddress = null;
@@ -49,7 +50,7 @@ public class ScanDevice implements Runnable {
     //以指定字节数组创建准备接受的DatagramPacket对象
     private DatagramPacket inPacket = new DatagramPacket(inBuff, inBuff.length);
     private MulticastSocket socket = null;
-    private ConcurrentHashMap<String, Device> mDevicesMap;
+    private ConcurrentHashMap<String, EMDevice> mDevicesMap;
     private ScanListener mScanListener;
     private AtomicInteger mStatus;
     private AtomicInteger mMonitorThreadStatus;
@@ -60,7 +61,7 @@ public class ScanDevice implements Runnable {
     private TimerTask mTimerTask = new TimerTask() {
         @Override
         public void run(Timeout timeout) throws Exception {
-            if(mScanListener != null && mDevicesMap != null && mDevicesMap.size() == 0){
+            if (mScanListener != null && mDevicesMap != null && mDevicesMap.size() == 0) {
                 mScanListener.timeout();
             }
         }
@@ -86,9 +87,9 @@ public class ScanDevice implements Runnable {
         this.mScanListener = listener;
         //目的是为了更快的返回设备别表
         if (mDevicesMap != null && mDevicesMap.size() > 0 && mScanListener != null) {
-            ArrayList<Device> deviceList = new ArrayList<>();
-            deviceList.addAll(mDevicesMap.values());
-            mScanListener.findedDevice(deviceList);
+            ArrayList<EMDevice> EMDeviceList = new ArrayList<>();
+            EMDeviceList.addAll(mDevicesMap.values());
+            mScanListener.findedDevice(EMDeviceList);
         }
     }
 
@@ -107,7 +108,12 @@ public class ScanDevice implements Runnable {
     }
 
     public void start() {
-        if (mStatus.compareAndSet(STATUS_RUNNING, STATUS_RUNNING) || mStatus.compareAndSet(STATUS_STOPING, STATUS_STOPING)) {
+        if (mContext != null && !NetUtils.isWifi(mContext)) {
+            L.print("ScanDevice return when net is not wifi");
+            return;
+        }
+
+        if (mStatus.compareAndSet(STATUS_RUNNING, STATUS_RUNNING)) {
             L.print("socket thread return when running or stoping");
             L.writeFile("socket thread return when running or stoping");
             return;
@@ -140,7 +146,7 @@ public class ScanDevice implements Runnable {
     }
 
     private void startMonitorThread() {
-        if (mMonitorThreadStatus.compareAndSet(STATUS_RUNNING, STATUS_RUNNING) || mMonitorThreadStatus.compareAndSet(STATUS_STOPING, STATUS_STOPING)) {
+        if (mMonitorThreadStatus.compareAndSet(STATUS_RUNNING, STATUS_RUNNING)) {
             L.print("MonitorThread return when running or stoping");
             L.writeFile("MonitorThread return when running or stoping");
             return;
@@ -153,7 +159,7 @@ public class ScanDevice implements Runnable {
 
     private void closeSocket() {
         if (mStatus != null) {
-            mStatus.getAndSet(STATUS_STOPING);
+            mStatus.getAndSet(STATUS_NONE);
         }
         if (socket != null) {
             socket.close();
@@ -163,12 +169,12 @@ public class ScanDevice implements Runnable {
     public void onDestory() {
         closeSocket();
         if (mMonitorThreadStatus != null) {
-            mMonitorThreadStatus.getAndSet(STATUS_STOPING);
+            mMonitorThreadStatus.getAndSet(STATUS_NONE);
         }
         if (mContext != null) {
             mContext.unregisterReceiver(mNetChangeReceiver);
         }
-        if(mTimer != null) {
+        if (mTimer != null) {
             mTimer.stop();
         }
         sInstance = null;
@@ -181,11 +187,11 @@ public class ScanDevice implements Runnable {
                 //读取Socket中的数据
                 socket.receive(inPacket);
             } catch (IOException e) {
-                mStatus.getAndSet(STATUS_STOPING);
+                mStatus.getAndSet(STATUS_NONE);
                 e.printStackTrace();
             }
 
-            if (mStatus.compareAndSet(STATUS_STOPING, STATUS_NONE)) {
+            if (mStatus.compareAndSet(STATUS_NONE, STATUS_NONE)) {
                 L.print("receive thread closeSocket");
                 L.writeFile("receive thread closeSocket");
                 return;
@@ -199,24 +205,23 @@ public class ScanDevice implements Runnable {
 
             MulticastMsg multicastMsg = GsonUtils.genarateBean(recvData, MulticastMsg.class);
 
-            Device device;
+            EMDevice EMDevice;
             if (mDevicesMap.containsKey(ip)) {
-                device = mDevicesMap.get(ip);
-                device.lastActiveTime = System.currentTimeMillis();
-                mDevicesMap.put(ip, device);
-                L.print("update device :: " + device.toString());
-                L.writeFile("update device :: " + device.toString());
+                EMDevice = mDevicesMap.get(ip);
+                EMDevice.lastActiveTime = System.currentTimeMillis();
+                mDevicesMap.put(ip, EMDevice);
+                L.print("update EMDevice :: " + EMDevice.toString());
+                L.writeFile("update EMDevice :: " + EMDevice.toString());
             } else {
                 mTimer.stop();//发现设备后停止超时设置
-                device = new Device(ip, multicastMsg.deviceName, System.currentTimeMillis());
-                mDevicesMap.put(ip, device);
-                L.print("find device :: " + device.toString());
-                L.writeFile("find device :: " + device.toString());
+                EMDevice = new EMDevice(ip, multicastMsg.deviceName, System.currentTimeMillis());
+                mDevicesMap.put(ip, EMDevice);
+                L.print("find EMDevice :: " + EMDevice.toString());
+                L.writeFile("find EMDevice :: " + EMDevice.toString());
                 if (mScanListener != null) {
-                    mScanListener.findOneDevice(device);
+                    mScanListener.findOneDevice(EMDevice);
                 }
             }
-
         }
     }
 
@@ -230,7 +235,7 @@ public class ScanDevice implements Runnable {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                if (mMonitorThreadStatus.compareAndSet(STATUS_STOPING, STATUS_NONE)) {
+                if (mMonitorThreadStatus.compareAndSet(STATUS_NONE, STATUS_NONE)) {
                     L.print("monitor thread close");
                     L.writeFile("monitor thread close");
                     return;
@@ -242,22 +247,22 @@ public class ScanDevice implements Runnable {
                     return;
                 }
 
-                ArrayList<Device> disconnectDeviceList = new ArrayList<>();
+                ArrayList<EMDevice> disconnectEMDeviceList = new ArrayList<>();
 
                 Enumeration<String> keys = mDevicesMap.keys();
                 while (keys.hasMoreElements()) {
                     String ip = keys.nextElement();
                     if (System.currentTimeMillis() - mDevicesMap.get(ip).lastActiveTime > LOSE_DURATION) {
                         L.print("disconnect device :: " + mDevicesMap.get(ip).toString());
-                        disconnectDeviceList.add(mDevicesMap.get(ip));
+                        disconnectEMDeviceList.add(mDevicesMap.get(ip));
                         mDevicesMap.remove(ip);
                     }
                 }
 
-                if (mScanListener != null && disconnectDeviceList.size() > 0) {
+                if (mScanListener != null && disconnectEMDeviceList.size() > 0) {
                     L.print("mScanListener.disconnectDevices");
                     L.writeFile("mScanListener.disconnectDevices");
-                    mScanListener.disconnectDevices(disconnectDeviceList);
+                    mScanListener.disconnectDevices(disconnectEMDeviceList);
                 }
             }
         }
@@ -318,7 +323,7 @@ public class ScanDevice implements Runnable {
                             L.print("Wifi connected = " + wifiName);
                             L.writeFile("Wifi connected = " + wifiName);
                             //如果两次连接的不同网络，则清空设备列表
-                            if(!TextUtils.isEmpty(mLastWifiName) && !mLastWifiName.equals(wifiName)){
+                            if (!TextUtils.isEmpty(mLastWifiName) && !mLastWifiName.equals(wifiName)) {
                                 L.writeFile("Wifi name change clear deviceMap");
                                 mDevicesMap.clear();
                             }
@@ -332,9 +337,9 @@ public class ScanDevice implements Runnable {
                                  * 场景：网络出现闪端后快速又建立连接，这时快速返回设备列表
                                  */
                                 if (mDevicesMap.size() > 0) {
-                                    ArrayList<Device> deviceList = new ArrayList<>();
-                                    deviceList.addAll(mDevicesMap.values());
-                                    mScanListener.findedDevice(deviceList);
+                                    ArrayList<EMDevice> EMDeviceList = new ArrayList<>();
+                                    EMDeviceList.addAll(mDevicesMap.values());
+                                    mScanListener.findedDevice(EMDeviceList);
                                 }
                             }
                         }
@@ -350,21 +355,21 @@ public class ScanDevice implements Runnable {
          *
          * @param devices
          */
-        void findedDevice(ArrayList<Device> devices);
+        void findedDevice(ArrayList<EMDevice> devices);
 
         /**
          * 发现一台新设备
          *
          * @param device
          */
-        void findOneDevice(Device device);
+        void findOneDevice(EMDevice device);
 
         /**
          * 失连的设备
          *
          * @param devices
          */
-        void disconnectDevices(ArrayList<Device> devices);
+        void disconnectDevices(ArrayList<EMDevice> devices);
 
         /**
          * wifi已连接上

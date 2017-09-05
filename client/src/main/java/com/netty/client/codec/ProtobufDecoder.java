@@ -1,8 +1,8 @@
 package com.netty.client.codec;
 
 import com.google.protobuf.MessageLite;
-import com.netty.client.msg.ChatProto;
 import com.netty.client.msg.Header;
+import com.netty.client.msg.PayloadProto;
 import com.netty.client.msg.RecvMsg;
 import com.netty.client.utils.L;
 
@@ -41,7 +41,7 @@ public class ProtobufDecoder extends ByteToMessageDecoder {
                 return;
             }
 
-            if (msgType == Header.PONG) {//心跳pong
+            if (msgType == Header.MsgType.PONG) {//心跳pong
                 L.print("recv server pong");
                 RecvMsg msg = new RecvMsg();
                 msg.msgType = msgType;
@@ -89,8 +89,8 @@ public class ProtobufDecoder extends ByteToMessageDecoder {
      * @throws Exception
      */
     public MessageLite decodeBody(byte msgType, byte busynissType, byte[] array, int offset, int length) throws Exception {
-        if (msgType == Header.PAYLOAD) {
-            return ChatProto.Chat.getDefaultInstance().
+        if (msgType == Header.MsgType.PAYLOAD) {
+            return PayloadProto.Payload.getDefaultInstance().
                     getParserForType().parseFrom(array, offset, length);
 
         }

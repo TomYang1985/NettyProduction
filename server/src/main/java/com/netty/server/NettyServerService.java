@@ -7,15 +7,18 @@ import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
-import com.netty.server.core.DefaultServerAcceptor;
+import com.netty.server.core.EMAcceptor;
+import com.netty.server.listener.EMConnectionListener;
+import com.netty.server.listener.EMMessageListener;
+import com.netty.server.msg.EMMessage;
 import com.netty.server.multicast.MulticastServer;
+import com.netty.server.utils.L;
 
 /**
  * Created by robincxiao on 2017/8/23.
  */
 
 public class NettyServerService extends Service{
-    public static DefaultServerAcceptor mServerAcceptor;
     private MulticastServer mMulticastServer;
     private WifiManager.MulticastLock mMulticastLock;
 
@@ -24,14 +27,10 @@ public class NettyServerService extends Service{
         super.onCreate();
 
         WifiManager wifiManager=(WifiManager)this.getSystemService(Context.WIFI_SERVICE);
-        mMulticastLock=wifiManager.createMulticastLock("multicast.test");
+        mMulticastLock=wifiManager.createMulticastLock("multicast.server");
         mMulticastLock.acquire();
 
-        mServerAcceptor = new DefaultServerAcceptor();
-        mServerAcceptor.init(this);
-
-//        mMulticastServer = new MulticastServer();
-//        mMulticastServer.bind();
+        EMAcceptor.getInstance().init(this);
 
         mMulticastServer = new MulticastServer();
         mMulticastServer.start();
@@ -39,7 +38,7 @@ public class NettyServerService extends Service{
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        mServerAcceptor.start();
+        EMAcceptor.getInstance().start();
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -52,7 +51,7 @@ public class NettyServerService extends Service{
     @Override
     public void onDestroy() {
         mMulticastLock.release();
-        mServerAcceptor.onDestory();
+        EMAcceptor.getInstance().onDestory();
         mMulticastServer.stop();
         super.onDestroy();
     }

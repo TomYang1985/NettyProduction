@@ -19,7 +19,6 @@ public class IdleStateTrigger extends ChannelInboundHandlerAdapter {
         if (evt instanceof IdleStateEvent) {
             IdleState state = ((IdleStateEvent) evt).state();
             if (state == IdleState.READER_IDLE) {
-                L.print("client " + ctx.channel().remoteAddress() + " lose");
                 ctx.channel().close();//client失联，关闭channel
             }
         } else {

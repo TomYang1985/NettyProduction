@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#ffffff</color>
-    <color name="colorPrimaryDark">#000000</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimary">#2476F6</color>
+    <color name="colorPrimaryDark">#2476F6</color>
+    <color name="colorAccent">#2476F6</color>
     <color name="c_fafcff">#fafcff</color>
     <color name="c_1a2089FC">#1a2089FC</color>
     <color name="c_divide">#33707F95</color>
     <color name="c_page_bg">#FAFCFF</color>
+    <color name="c_4D4D4D">#4D4D4D</color>
+    <color name="c_AAAAAA">#AAAAAA</color>
+    <color name="c_C1C1C1">#C1C1C1</color>
+    <color name="c_00DD32">#00DD32</color>
+    <color name="c_566173">#566173</color>
 </resources>

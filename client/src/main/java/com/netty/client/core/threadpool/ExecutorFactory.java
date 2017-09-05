@@ -15,7 +15,7 @@ public class ExecutorFactory {
         if(mRecvExecutor == null){
             synchronized (ExecutorFactory.class){
                 if(mRecvExecutor == null){
-                    mRecvExecutor = RpcThreadPool.getRecvHeavyExecutor(Runtime.getRuntime().availableProcessors() << 1);
+                    mRecvExecutor = RpcThreadPool.getRecvExecutor(Runtime.getRuntime().availableProcessors() << 1);
                 }
             }
         }
@@ -50,6 +50,12 @@ public class ExecutorFactory {
     public static void shutdownNow(){
         if(mRecvExecutor != null){
             mRecvExecutor.shutdownNow();
+        }
+        if(mSendExecutor != null){
+            mSendExecutor.shutdownNow();
+        }
+        if(mCallbackExecutor != null){
+            mCallbackExecutor.shutdownNow();
         }
     }
 }

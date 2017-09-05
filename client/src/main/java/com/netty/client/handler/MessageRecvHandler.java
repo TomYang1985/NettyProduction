@@ -17,7 +17,7 @@ public class MessageRecvHandler extends SimpleChannelInboundHandler<RecvMsg>{
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, RecvMsg recvMsg) throws Exception {
         switch (recvMsg.msgType){
-            case Header.PAYLOAD:
+            case Header.MsgType.PAYLOAD:
                 ExecutorFactory.submitRecvTask(new MessageRecvTask(channelHandlerContext, recvMsg));
                 break;
         }

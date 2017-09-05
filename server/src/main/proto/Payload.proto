@@ -1,0 +1,9 @@
+syntax = "proto2";
+package com.netty.server;
+
+option java_package = "com.netty.server.msg";
+option java_outer_classname = "PayloadProto";
+
+message Payload{
+    required string content = 1;
+}

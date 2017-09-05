@@ -9,12 +9,5 @@ public class EMCallbackTaskMessage {
     public static final int MSG_TYPE_INACTIVE = 2 ;
     public int type;
     public RecvMsg mRecvMsg;
-
-    public EMCallbackTaskMessage(int type) {
-        this.type = type;
-    }
-
-    public EMCallbackTaskMessage(RecvMsg recvMsg) {
-        this.mRecvMsg = recvMsg;
-    }
+    public String from;
 }

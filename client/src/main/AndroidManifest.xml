@@ -17,7 +17,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.netty.app.chatmodule.ChatActivity"
+            android:name="com.netty.app.scanmodule.MainActivity"
             android:theme="@style/SlideActivityAnim">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,7 +27,7 @@
         </activity>
 
         <activity
-            android:name="com.netty.app.scanmodule.MainActivity"
+            android:name="com.netty.app.chatmodule.ChatActivity"
             android:theme="@style/SlideActivityAnim1" />
 
         <service android:name=".NettyClientService" />

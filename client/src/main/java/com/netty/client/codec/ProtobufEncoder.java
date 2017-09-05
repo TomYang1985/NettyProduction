@@ -1,8 +1,8 @@
 package com.netty.client.codec;
 
 import com.google.protobuf.MessageLite;
-import com.netty.client.msg.ChatProto;
 import com.netty.client.msg.Header;
+import com.netty.client.msg.PayloadProto;
 import com.netty.client.msg.PingProto;
 
 import io.netty.buffer.ByteBuf;
@@ -19,13 +19,13 @@ public class ProtobufEncoder extends MessageToByteEncoder<MessageLite> {
     @Override
     protected void encode(ChannelHandlerContext channelHandlerContext, MessageLite messageLite, ByteBuf byteBuf) throws Exception {
         byte[] body = messageLite.toByteArray();
-        if(body.length > 0){
+        if (body.length > 0) {
             body = encryptBody(body);//AES编码
         }
         byte[] header = encodeHeader(messageLite, (short) body.length);
 
         byteBuf.writeBytes(header);
-        if(body != null && body.length > 0) {
+        if (body != null && body.length > 0) {
             byteBuf.writeBytes(body);
         }
 
@@ -43,17 +43,17 @@ public class ProtobufEncoder extends MessageToByteEncoder<MessageLite> {
         return header;
     }
 
-    private byte getMsgType(MessageLite msg){
-        if(msg instanceof PingProto.Ping){
-            return Header.PING;
-        }else if(msg instanceof ChatProto.Chat){
-            return Header.PAYLOAD;
+    private byte getMsgType(MessageLite msg) {
+        if (msg instanceof PingProto.Ping) {
+            return Header.MsgType.PING;
+        } else if (msg instanceof PayloadProto.Payload) {
+            return Header.MsgType.PAYLOAD;
         }
 
         return 0;
     }
 
-    private byte[] encryptBody(byte[] body){
+    private byte[] encryptBody(byte[] body) {
         return Algorithm.encryptAES(body);
     }
 }

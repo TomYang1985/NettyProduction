@@ -7,8 +7,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.netty.app.scanmodule.adapter.DeviceListAdapter;
+import com.netty.app.scanmodule.entity.Device;
 import com.netty.client.R;
-import com.netty.client.multicast.Device;
+import com.netty.client.multicast.EMDevice;
 
 import butterknife.BindView;
 import xiao.framework.viewholder.XGCRecyclerViewHolderExt;
@@ -24,6 +25,8 @@ public class DeviceListHolder extends XGCRecyclerViewHolderExt<Device, DeviceLis
     TextView mDeviceNameText;
     @BindView(R.id.text_ip)
     TextView mDeviceAddressText;
+    @BindView(R.id.text_status)
+    TextView mStatusText;
     /**
      * 子类必须要实现
      *
@@ -40,7 +43,15 @@ public class DeviceListHolder extends XGCRecyclerViewHolderExt<Device, DeviceLis
     @Override
     public void setData(Device data) {
         mDeviceNameText.setText(data.name);
-        mDeviceAddressText.setText(data.ip);
+        mDeviceAddressText.setText(data.id);
+
+        if(data.isConnected){
+            mStatusText.setText("已连接");
+            mStatusText.setTextColor(mContext.getResources().getColor(R.color.c_00DD32));
+        }else {
+            mStatusText.setText("未连接");
+            mStatusText.setTextColor(mContext.getResources().getColor(R.color.c_C1C1C1));
+        }
     }
 
     @Override

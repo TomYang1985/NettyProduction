@@ -15,7 +15,7 @@ public class RpcThreadPool {
      * @param threads
      * @return
      */
-    public static ThreadPoolExecutor getRecvHeavyExecutor(int threads){
+    public static ThreadPoolExecutor getRecvExecutor(int threads){
         String name = "RpcClientRecvPoll";
         return new ThreadPoolExecutor(threads, threads, 0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(),
                 new NamedThreadFactory(name, true), new AbortPolicyWithReport(name));

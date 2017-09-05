@@ -38,6 +38,6 @@ public class EMConnectManager {
     }
 
     public void removeListener(EMConnectionListener listener){
-        mListeners.add(listener);
+        mListeners.remove(listener);
     }
 }

@@ -1,7 +1,6 @@
 package com.netty.client.core;
 
 import android.content.Context;
-import android.text.TextUtils;
 
 import com.netty.client.codec.ProtobufDecoder;
 import com.netty.client.codec.ProtobufEncoder;
@@ -11,7 +10,8 @@ import com.netty.client.handler.ConnectionManagerHandler;
 import com.netty.client.handler.IdleStateTrigger;
 import com.netty.client.handler.MessageRecvHandler;
 import com.netty.client.listener.EMConnectionListener;
-import com.netty.client.listener.EMMessageListener;
+import com.netty.client.multicast.EMDevice;
+import com.netty.client.utils.HostUtils;
 import com.netty.client.utils.L;
 
 import java.util.concurrent.TimeUnit;
@@ -23,6 +23,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.handler.timeout.IdleStateHandler;
+import xiao.framework.util.NetUtils;
 
 /**
  * Created by robincxiao on 2017/8/24.
@@ -40,9 +41,23 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
     private static final int TRIGGER_FROM_DISCONNECT_RETRY = 2;//断线重连
     private static final int TRIGGER_FROM_TIMER_DETECTION = 3;//定时检测
     private volatile static EMClient sInstance;
+    private Context mContext;
+    private ChannelFuture mFuture;
     private ConnectionWatchdog mWatchdog;
     private AtomicInteger mStatus;
-    private String mHost;
+    private EMDevice mDevice;//当前连接设备
+    //创建连接的监听回调，用于EMClient内部业务出路
+    private EMConnectionListener mConnectionListener = new EMConnectionListener() {
+        @Override
+        public void onConnected(String id) {
+
+        }
+
+        @Override
+        public void onDisconnected(String id) {
+            mStatus.getAndSet(STATUS_NONE);//断线后需要重新设置状态，这样Watchdog才能重连(这个设置很重要)
+        }
+    };
 
     private EMClient() {
         super();
@@ -60,39 +75,53 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
         return sInstance;
     }
 
-    public String getHost() {
-        return mHost;
+    public void connectDevice(EMDevice newDevice) {
+        if (mDevice == null) {
+            this.mDevice = newDevice;
+            connect();
+        } else {
+            //如果连接的新设备与以前的设备相同，则直接连接
+            if (mDevice.id.equals(newDevice.id)) {
+                connect();
+            } else {
+                //如果连接的不同设备，先关闭当前连接，再连接新设备
+                shutdownGracefully();
+                this.mDevice = newDevice;
+                connect();
+            }
+        }
     }
 
-    public void setHost(String mHost) {
-        this.mHost = mHost;
-        connect();
+    public EMDevice getDevice() {
+        return mDevice;
     }
 
-    public void addMessageListener(EMMessageListener listener){
-        EMMessageManager.getInstance().addListener(listener);
+    public EMMessageManager getEMMessageManager() {
+        return EMMessageManager.getInstance();
     }
 
-    public void removeMessageListener(EMMessageListener listener){
-        EMMessageManager.getInstance().removeListener(listener);
+    public EMConnectManager getEMConnectManager() {
+        return EMConnectManager.getInstance();
     }
 
-    public void addConnectListener(EMConnectionListener listener){
-        EMConnectManager.getInstance().addListener(listener);
-    }
+    public String localHost() {
+        if (mFuture != null) {
+            return HostUtils.parseHostPort(mFuture.channel().localAddress().toString());
+        }
 
-    public void removeConnectListener(EMConnectionListener listener){
-        EMConnectManager.getInstance().removeListener(listener);
+        return "";
     }
 
     public void init(Context context) {
+        mContext = context;
         mStatus = new AtomicInteger(STATUS_NONE);
+
+        getEMConnectManager().addListener(mConnectionListener);
 
         mWatchdog = new ConnectionWatchdog(context);
         mWatchdog.setListener(new ConnectionWatchdog.WatchdogListener() {
             @Override
             public void disconnectRetry() {
-                mStatus.getAndSet(STATUS_NONE);//断线重连需要重新设置状态
                 connect(TRIGGER_FROM_DISCONNECT_RETRY);
             }
 
@@ -109,7 +138,7 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
      * @return
      */
     public boolean isActive() {
-        return mStatus.compareAndSet(STATUS_CONNECTED, STATUS_CONNECTED);
+        return mStatus != null && mStatus.compareAndSet(STATUS_CONNECTED, STATUS_CONNECTED);
     }
 
     @Override
@@ -118,21 +147,25 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
     }
 
     private void connect(final int triggerType) {
-        if (mStatus.compareAndSet(STATUS_CONNECTING, STATUS_CONNECTING) || mStatus.compareAndSet(STATUS_CONNECTED, STATUS_CONNECTED)) {
-            L.print("return when connecting or connected , triggerType = " + triggerType);
-            return;
-        }
-
-        if (TextUtils.isEmpty(mHost)) {
-            L.print("ip null , triggerType = " + triggerType);
-            return;
-        }
-
-        L.print("connecting.....................");
-        mStatus.getAndSet(STATUS_CONNECTING);
-        ChannelFuture future = null;
-
         synchronized (bootstrap()) {
+            if (!NetUtils.isWifi(mContext)) {
+                L.print("return when net is not wifi , triggerType = " + triggerType);
+                return;
+            }
+
+            if (mStatus.compareAndSet(STATUS_CONNECTING, STATUS_CONNECTING) || mStatus.compareAndSet(STATUS_CONNECTED, STATUS_CONNECTED)) {
+                L.print("return when connecting or connected , triggerType = " + triggerType);
+                return;
+            }
+
+            if (mDevice == null) {
+                L.print("mDevice = null , triggerType = " + triggerType);
+                return;
+            }
+
+            L.print("connecting.....................");
+            mStatus.getAndSet(STATUS_CONNECTING);
+
             bootstrap().handler(new ChannelInitializer<Channel>() {
 
                 @Override
@@ -140,10 +173,11 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
                     ch.pipeline().addLast(handlers());
                 }
             });
-            future = bootstrap().connect(mHost, DEAULT_PORT);
+            mFuture = bootstrap().connect(mDevice.id, DEAULT_PORT);
         }
 
-        future.addListener(new ChannelFutureListener() {
+
+        mFuture.addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture channelFuture) throws Exception {
                 if (channelFuture.isSuccess()) {
@@ -203,7 +237,7 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
     }
 
     public void onDestory() {
-        mStatus.getAndSet(STATUS_NONE);
+        getEMConnectManager().removeListener(mConnectionListener);
         shutdownGracefully();
         ExecutorFactory.shutdownNow();
         mWatchdog.onDestory();

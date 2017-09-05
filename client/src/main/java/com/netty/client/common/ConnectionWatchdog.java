@@ -24,7 +24,7 @@ import io.netty.util.TimerTask;
  */
 @ChannelHandler.Sharable
 public class ConnectionWatchdog extends ChannelInboundHandlerAdapter implements TimerTask {
-    private static final int ALARM_TIMEOUT = 60000;
+    private static final int ALARM_TIMEOUT = 5000;
     private static final int MAX_RETRY_NUM = 4;
     private Context mContext;
     private int mCounter = 0;

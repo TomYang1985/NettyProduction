@@ -1,9 +1,9 @@
 package com.netty.server.codec;
 
 import com.google.protobuf.MessageLite;
-import com.netty.client.msg.ChatProto;
 import com.netty.server.msg.Header;
-import com.netty.server.msg.ReceiveMsg;
+import com.netty.server.msg.PayloadProto;
+import com.netty.server.msg.RecvMsg;
 import com.netty.server.utils.L;
 
 import java.util.List;
@@ -41,13 +41,13 @@ public class ProtobufDecoder extends ByteToMessageDecoder {
                 return;
             }
 
-            if(msgType == Header.PING){//心跳ping
+            if (msgType == Header.MsgType.PING) {//心跳ping
                 L.print("recv client" + ctx.channel().remoteAddress() + " ping");
-                ReceiveMsg msg = new ReceiveMsg();
+                RecvMsg msg = new RecvMsg();
                 msg.msgType = msgType;
 
                 out.add(msg);
-            }else {
+            } else {
                 // 读取body
                 ByteBuf bodyByteBuf = in.readBytes(bodyLength);
 
@@ -69,7 +69,7 @@ public class ProtobufDecoder extends ByteToMessageDecoder {
 
                 //反序列化
                 MessageLite result = decodeBody(msgType, busynissType, array, 0, array.length);
-                ReceiveMsg msg = new ReceiveMsg();
+                RecvMsg msg = new RecvMsg();
                 msg.msgType = msgType;
                 msg.data = result;
 
@@ -89,8 +89,8 @@ public class ProtobufDecoder extends ByteToMessageDecoder {
      * @throws Exception
      */
     public MessageLite decodeBody(byte msgType, byte busynissType, byte[] array, int offset, int length) throws Exception {
-        if (msgType == Header.CHAT_MSG) {
-            return ChatProto.Chat.getDefaultInstance().
+        if (msgType == Header.MsgType.PAYLOAD) {
+            return PayloadProto.Payload.getDefaultInstance().
                     getParserForType().parseFrom(array, offset, length);
 
         }

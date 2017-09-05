@@ -1,17 +1,16 @@
 package com.netty.app.scanmodule.adapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.netty.app.scanmodule.entity.Device;
 import com.netty.app.scanmodule.holder.DeviceListHolder;
 import com.netty.client.R;
-import com.netty.client.multicast.Device;
+import com.netty.client.multicast.EMDevice;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import xiao.framework.adapter.XGCRecyclerViewAdapter;
 
@@ -38,8 +37,8 @@ public class DeviceListAdapter extends XGCRecyclerViewAdapter<Device, DeviceList
     @Override
     public void addLastItem(Device model) {
         boolean contain = false;
-        for (Device existDevice : getDatas()) {
-            if (existDevice.ip.equals(model.ip)) {
+        for (Device device : getDatas()) {
+            if (device.id.equals(model.id)) {
                 contain = true;
             }
         }
@@ -51,11 +50,48 @@ public class DeviceListAdapter extends XGCRecyclerViewAdapter<Device, DeviceList
 
 
     public void removeAll(ArrayList<Device> devices) {
-        for (Device disconnectDevice : devices) {
+        for (Device disconnectEMDevice : devices) {
             for (int i = 0; i < getDatas().size(); i++) {
-                if(getDatas().get(i).ip.equalsIgnoreCase(disconnectDevice.ip)){
+                if(getDatas().get(i).id.equalsIgnoreCase(disconnectEMDevice.id)){
                     getDatas().remove(i);
                 }
+            }
+        }
+
+        notifyDataSetChanged();
+    }
+
+    /**
+     * 设置一连接设备的状态
+     * @param connectDevice
+     */
+    public void setConnectedDevice(Device connectDevice){
+        /**
+         * 因为建立TCP连接的速度可能比扫描速度快，所以如果设备列表中没有该设备时，则直接添加
+         * 场景：网络断开后且设备也不存在与扫描缓存列表中，开启网络后就会出现以上bug
+         */
+        boolean flag = false;
+        for (Device device : getDatas()) {
+            if (device.id.equals(connectDevice.id)) {
+                device.isConnected = true;
+                flag = true;
+            }else {
+                device.isConnected = false;
+            }
+        }
+
+        if(!flag){
+            addLastItem(connectDevice);
+        }
+
+        notifyDataSetChanged();
+    }
+
+    public void setDisconnectedDevice(String id){
+        for (Device device : getDatas()) {
+            if (device.id.equals(id)) {
+                device.isConnected = false;
+                break;
             }
         }
 

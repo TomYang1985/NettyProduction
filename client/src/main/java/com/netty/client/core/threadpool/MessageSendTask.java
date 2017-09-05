@@ -14,45 +14,47 @@ import io.netty.channel.ChannelHandlerContext;
  */
 
 public class MessageSendTask implements Runnable {
-    private ChannelHandlerContext mChannelHandlerContext;
+    private Channel mChannel;
     private RecvMsg mRecvMsg;
     private SendMsg mSendMsg;
 
-    public MessageSendTask(ChannelHandlerContext channelHandlerContext, RecvMsg recvMsg) {
-        mChannelHandlerContext = channelHandlerContext;
+    public MessageSendTask(Channel channel, RecvMsg recvMsg) {
+        mChannel = channel;
         mRecvMsg = recvMsg;
+        mSendMsg = null;
     }
 
-    public MessageSendTask(ChannelHandlerContext channelHandlerContext, SendMsg sendMsg) {
-        mChannelHandlerContext = channelHandlerContext;
+    public MessageSendTask(Channel channel, SendMsg sendMsg) {
+        mChannel = channel;
         mSendMsg = sendMsg;
+        mRecvMsg = null;
     }
 
     @Override
     public void run() {
-        if (mChannelHandlerContext == null || mChannelHandlerContext.channel() == null) {
-            L.print("MessageSendTask mChannelHandlerContext = null");
+        if (mChannel == null) {
+            L.print("MessageSendTask mChannel = null");
             return;
         }
-        Channel channel = mChannelHandlerContext.channel();
-        if (!channel.isActive()) {
+
+        if (!mChannel.isActive()) {
             L.print("MessageSendTask channel != Active");
             return;
         }
-        if (!channel.isWritable()) {
+        if (!mChannel.isWritable()) {
             L.print("MessageSendTask channel is not Writable");
             return;
         }
 
         if(mSendMsg != null) {
             switch (mSendMsg.msgType) {
-                case Header.PING:
-                    L.print("MessageSendTask send ping to" + channel.remoteAddress());
-                    channel.writeAndFlush(PingProto.Ping.newBuilder().build());
+                case Header.MsgType.PING:
+                    L.print("MessageSendTask send ping to" + mChannel.remoteAddress());
+                    mChannel.writeAndFlush(PingProto.Ping.newBuilder().build());
                     break;
-                case Header.PAYLOAD:
-                    L.print("MessageSendTask send chatMsg to" + channel.remoteAddress());
-                    channel.writeAndFlush(mSendMsg.data);
+                case Header.MsgType.PAYLOAD:
+                    L.print("MessageSendTask send payload to" + mChannel.remoteAddress());
+                    mChannel.writeAndFlush(mSendMsg.data);
                     break;
             }
         }
