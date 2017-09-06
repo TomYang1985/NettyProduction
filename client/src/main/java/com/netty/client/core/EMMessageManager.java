@@ -66,6 +66,11 @@ public class EMMessageManager {
             return;
         }
 
+        if (!mChannel.isActive() || !mChannel.isWritable()) {
+            L.print("sendPayload mChannel not active or not writable");
+            return;
+        }
+
         if (TextUtils.isEmpty(content)) {
             L.print("sendPayload content == null");
             return;

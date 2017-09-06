@@ -40,6 +40,7 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
     private static final int TRIGGER_FROM_DIRECT = 1;//直连启动
     private static final int TRIGGER_FROM_DISCONNECT_RETRY = 2;//断线重连
     private static final int TRIGGER_FROM_TIMER_DETECTION = 3;//定时检测
+    private static final int TRIGGER_FROM_NET_RECONNECTED = 4;//设备网络重新建立
     private volatile static EMClient sInstance;
     private Context mContext;
     private ChannelFuture mFuture;
@@ -109,12 +110,12 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
         mWatchdog.setListener(new ConnectionWatchdog.WatchdogListener() {
             @Override
             public void channelActive(ChannelHandlerContext ctx) {
-                L.print("Watchdog channelActive");
+
             }
 
             @Override
             public void channelInActive(ChannelHandlerContext ctx) {
-                L.print("Watchdog channelInActive");
+
                 mStatus.getAndSet(STATUS_NONE);//断线后需要重新设置状态，这样Watchdog才能重连(这个设置很重要)
             }
 
@@ -174,7 +175,10 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
             mFuture = bootstrap().connect(mDevice.id, DEAULT_PORT);
         }
 
-
+        /**
+         * 注：进行connect连接时，如果连接成功则会调用设置的handler中的channelActive方法
+         * 但是连接未成功时，是不会调用设置的handler中的channelInActive方法，因为连接并不是从已连接到断开的过程
+         */
         mFuture.addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture channelFuture) throws Exception {
@@ -182,28 +186,28 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
                     mStatus.getAndSet(STATUS_CONNECTED);
                     switch (triggerType) {
                         case TRIGGER_FROM_DIRECT:
-                            L.print("直连成功");
+                            L.d("直连成功");
                             break;
                         case TRIGGER_FROM_DISCONNECT_RETRY:
-                            L.print("断线重连成功");
+                            L.d("断线重连成功");
                             break;
                         case TRIGGER_FROM_TIMER_DETECTION:
-                            L.print("定时重连成功");
+                            L.d("定时重连成功");
                             break;
                     }
                 } else {
                     mStatus.getAndSet(STATUS_NONE);
                     switch (triggerType) {
                         case TRIGGER_FROM_DIRECT:
-                            L.print("直连失败，启动断线重连");
-                            channelFuture.channel().pipeline().fireChannelInactive();
+                            L.d("直连失败，启动断线重连");
+                            mWatchdog.retry();
                             break;
                         case TRIGGER_FROM_DISCONNECT_RETRY:
-                            L.print("断线重连失败");
-                            channelFuture.channel().pipeline().fireChannelInactive();
+                            L.d("断线重连失败");
+                            mWatchdog.retry();
                             break;
                         case TRIGGER_FROM_TIMER_DETECTION:
-                            L.print("定时重连失败");
+                            L.d("定时重连失败");
                             break;
                     }
                     Throwable throwable = channelFuture.cause();

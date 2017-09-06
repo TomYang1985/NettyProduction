@@ -45,6 +45,7 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter implements 
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        L.print("ConnectionWatchdog.channelActive");
         mCounter = 0;
         if (mWatchdogListener != null) {
             mWatchdogListener.channelActive(ctx);
@@ -54,15 +55,20 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter implements 
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        L.print("ConnectionWatchdog.channelInactive");
         if (mWatchdogListener != null) {
             mWatchdogListener.channelInActive(ctx);
         }
+        retry();
+        ctx.fireChannelInactive();
+    }
+
+    public void retry(){
         if (mCounter++ < MAX_RETRY_NUM) {
             //重连的间隔时间会越来越长
             int timeout = 2 << mCounter;
             mTimer.newTimeout(this, timeout, TimeUnit.SECONDS);
         }
-        ctx.fireChannelInactive();
     }
 
     @Override

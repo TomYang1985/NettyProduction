@@ -1,5 +1,6 @@
 package com.netty.app.chatmodule;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -17,6 +18,7 @@ import com.netty.client.listener.EMMessageListener;
 import com.netty.client.msg.EMMessage;
 import com.netty.client.multicast.EMDevice;
 import com.netty.client.utils.L;
+import com.netty.client.utils.T;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -47,7 +49,13 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
 
         @Override
         public void onDisconnected(String id) {
-
+            mContext.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    T.showShort(mContext, mConnnectedDevice.id + "已断开");
+                    ((Activity)mContext).finish();
+                }
+            });
         }
     };
 

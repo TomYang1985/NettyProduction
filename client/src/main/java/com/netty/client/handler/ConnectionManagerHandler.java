@@ -22,6 +22,7 @@ public class ConnectionManagerHandler extends ChannelDuplexHandler {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
+        L.print("ConnectionManagerHandler.channelActive");
 
         EMMessageManager.getInstance().setChannel(ctx.channel());//设置消息管理的channel
 
@@ -38,6 +39,7 @@ public class ConnectionManagerHandler extends ChannelDuplexHandler {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
+        L.print("ConnectionManagerHandler.channelInactive");
         /**
          * channelInactive方法将会在如下情况下被调用多次
          * 1.已连接的状态下断开，会调用
