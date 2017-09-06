@@ -88,14 +88,7 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
     @Override
     protected BaseTemplate createTemplate() {
         mTemplate = new WhiteTitleTemplate(this);
-        mTemplate.mLeftImg.setImageResource(R.mipmap.ic_back);
-        mTemplate.mLeftImg.setVisibility(View.VISIBLE);
-        mTemplate.mLeftImg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(ChatActivity.this, MainActivity.class));
-            }
-        });
+        mTemplate.setImageResource(R.mipmap.ic_back);
         return mTemplate;
     }
 

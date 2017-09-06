@@ -1,8 +1,6 @@
 package com.netty.server.multicast;
 
 
-import android.content.Context;
-import android.net.ConnectivityManager;
 import android.text.TextUtils;
 
 import com.netty.server.utils.GsonUtils;
@@ -72,18 +70,5 @@ public class MulticastServer implements Runnable {
                 e.printStackTrace();
             }
         }
-    }
-
-    /**
-     * 判断是否是wifi连接
-     */
-    public boolean isWifi(Context context) {
-        ConnectivityManager cm = (ConnectivityManager) context
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        if (cm == null || cm.getActiveNetworkInfo() == null)
-            return false;
-        return cm.getActiveNetworkInfo().getType() == ConnectivityManager.TYPE_WIFI;
-
     }
 }

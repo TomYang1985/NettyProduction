@@ -122,7 +122,6 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
 
         @Override
         public void onConnected(String id) {
-            L.d("连接成功=" + id);
             if (mHandler != null) {
                 Message msg = mHandler.obtainMessage(MSG_CONNECTED);
                 Bundle bundle = new Bundle();
@@ -137,7 +136,6 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
 
         @Override
         public void onDisconnected(String id) {
-            L.d("连接断开=" + id);
             if (mConnectLoadingDialog != null) {
                 mConnectLoadingDialog.dismiss();
             }

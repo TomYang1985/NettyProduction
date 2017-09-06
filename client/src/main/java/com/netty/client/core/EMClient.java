@@ -9,7 +9,6 @@ import com.netty.client.core.threadpool.ExecutorFactory;
 import com.netty.client.handler.ConnectionManagerHandler;
 import com.netty.client.handler.IdleStateTrigger;
 import com.netty.client.handler.MessageRecvHandler;
-import com.netty.client.listener.EMConnectionListener;
 import com.netty.client.multicast.EMDevice;
 import com.netty.client.utils.HostUtils;
 import com.netty.client.utils.L;
@@ -21,6 +20,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.handler.timeout.IdleStateHandler;
 import xiao.framework.util.NetUtils;
@@ -46,18 +46,6 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
     private ConnectionWatchdog mWatchdog;
     private AtomicInteger mStatus;
     private EMDevice mDevice;//当前连接设备
-    //创建连接的监听回调，用于EMClient内部业务出路
-    private EMConnectionListener mConnectionListener = new EMConnectionListener() {
-        @Override
-        public void onConnected(String id) {
-
-        }
-
-        @Override
-        public void onDisconnected(String id) {
-            mStatus.getAndSet(STATUS_NONE);//断线后需要重新设置状态，这样Watchdog才能重连(这个设置很重要)
-        }
-    };
 
     private EMClient() {
         super();
@@ -84,8 +72,9 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
             if (mDevice.id.equals(newDevice.id)) {
                 connect();
             } else {
-                //如果连接的不同设备，先关闭当前连接，再连接新设备
+                //如果连接的不同设备，先关闭当前连接，然后再初始化
                 shutdownGracefully();
+                initInner();
                 this.mDevice = newDevice;
                 connect();
             }
@@ -116,10 +105,19 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
         mContext = context;
         mStatus = new AtomicInteger(STATUS_NONE);
 
-        getEMConnectManager().addListener(mConnectionListener);
-
         mWatchdog = new ConnectionWatchdog(context);
         mWatchdog.setListener(new ConnectionWatchdog.WatchdogListener() {
+            @Override
+            public void channelActive(ChannelHandlerContext ctx) {
+                L.print("Watchdog channelActive");
+            }
+
+            @Override
+            public void channelInActive(ChannelHandlerContext ctx) {
+                L.print("Watchdog channelInActive");
+                mStatus.getAndSet(STATUS_NONE);//断线后需要重新设置状态，这样Watchdog才能重连(这个设置很重要)
+            }
+
             @Override
             public void disconnectRetry() {
                 connect(TRIGGER_FROM_DISCONNECT_RETRY);
@@ -184,28 +182,28 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
                     mStatus.getAndSet(STATUS_CONNECTED);
                     switch (triggerType) {
                         case TRIGGER_FROM_DIRECT:
-                            L.d("直连成功");
+                            L.print("直连成功");
                             break;
                         case TRIGGER_FROM_DISCONNECT_RETRY:
-                            L.d("断线重连成功");
+                            L.print("断线重连成功");
                             break;
                         case TRIGGER_FROM_TIMER_DETECTION:
-                            L.d("定时重连成功");
+                            L.print("定时重连成功");
                             break;
                     }
                 } else {
                     mStatus.getAndSet(STATUS_NONE);
                     switch (triggerType) {
                         case TRIGGER_FROM_DIRECT:
-                            L.d("直连失败，启动断线重连");
+                            L.print("直连失败，启动断线重连");
                             channelFuture.channel().pipeline().fireChannelInactive();
                             break;
                         case TRIGGER_FROM_DISCONNECT_RETRY:
-                            L.d("断线重连失败");
+                            L.print("断线重连失败");
                             channelFuture.channel().pipeline().fireChannelInactive();
                             break;
                         case TRIGGER_FROM_TIMER_DETECTION:
-                            L.d("定时重连失败");
+                            L.print("定时重连失败");
                             break;
                     }
                     Throwable throwable = channelFuture.cause();
@@ -237,7 +235,6 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
     }
 
     public void onDestory() {
-        getEMConnectManager().removeListener(mConnectionListener);
         shutdownGracefully();
         ExecutorFactory.shutdownNow();
         mWatchdog.onDestory();

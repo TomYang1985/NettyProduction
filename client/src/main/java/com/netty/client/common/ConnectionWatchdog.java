@@ -45,14 +45,18 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter implements 
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        L.print("ConnectionWatchdog_channelActive");
         mCounter = 0;
+        if (mWatchdogListener != null) {
+            mWatchdogListener.channelActive(ctx);
+        }
         ctx.fireChannelActive();
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        L.print("ConnectionWatchdog_channelInactive");
+        if (mWatchdogListener != null) {
+            mWatchdogListener.channelInActive(ctx);
+        }
         if (mCounter++ < MAX_RETRY_NUM) {
             //重连的间隔时间会越来越长
             int timeout = 2 << mCounter;
@@ -97,6 +101,11 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter implements 
     }
 
     public interface WatchdogListener {
+        //连接的监听回调，用于EMClient内部业务处理
+        void channelActive(ChannelHandlerContext ctx);
+        //连接的监听回调，用于EMClient内部业务处理
+        void channelInActive(ChannelHandlerContext ctx);
+
         //连接断开重连
         void disconnectRetry();
 

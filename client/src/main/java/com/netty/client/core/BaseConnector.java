@@ -28,14 +28,6 @@ public abstract class BaseConnector implements Connector {
 
     protected BaseConnector() {
         nWorkers = AVAILABLE_PROCESSORS << 1;
-
-        initInner();
-    }
-
-    protected void initInner() {
-        ThreadFactory workerFactory = new DefaultThreadFactory("client.connector");
-        worker = new NioEventLoopGroup(nWorkers, workerFactory);
-
         //使用池化的directBuffer
         /**
          * 一般高性能的场景下,使用的堆外内存，也就是直接内存，使用堆外内存的好处就是减少内存的拷贝，和上下文的切换，缺点是
@@ -43,6 +35,15 @@ public abstract class BaseConnector implements Connector {
          * 当然也要看当前的JVM是否只是使用堆外内存，换而言之就是是否能够获取到Unsafe对象#PlatformDependent.directBufferPreferred()
          */
         allocator = new PooledByteBufAllocator(PlatformDependent.directBufferPreferred());
+        initInner();
+    }
+
+    /**
+     * 在切换连接设备的过程中会被多次调用
+     */
+    protected void initInner() {
+        ThreadFactory workerFactory = new DefaultThreadFactory("client.connector");
+        worker = new NioEventLoopGroup(nWorkers, workerFactory);
 
         bootstrap = new Bootstrap().group(worker).
                 option(ChannelOption.ALLOCATOR, allocator)
