@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.NetworkInterface;
 
 /**
  * Created by robincxiao on 2017/8/29.
@@ -17,7 +18,7 @@ import java.net.MulticastSocket;
 
 public class MulticastServer implements Runnable {
     public static final String BROADCAST_IP = "239.255.255.200";
-    public static final int BOADCAST_PORT = 30001;
+    public static final int BOADCAST_PORT = 30003;
     private static final int BOADCAST_DURATION = 15000;
     //定义广播的IP地址
     private InetAddress broadcastAddress = null;
@@ -30,9 +31,8 @@ public class MulticastServer implements Runnable {
         try {
             broadcastAddress = InetAddress.getByName(BROADCAST_IP);
             socket = new MulticastSocket(BOADCAST_PORT);
-            //socket.setNetworkInterface(NetworkInterface.getByName("wlan0"));
             socket.joinGroup(broadcastAddress);
-
+            //socket.setNetworkInterface(NetworkInterface.getByName("wlan0"));
             MulticastMsg mMulticastMsg = new MulticastMsg();
             mMulticastMsg.deviceName = TextUtils.isEmpty(android.os.Build.MODEL) ? "智能电视" : android.os.Build.MODEL;
             mMulticastData = GsonUtils.toJson(mMulticastMsg);

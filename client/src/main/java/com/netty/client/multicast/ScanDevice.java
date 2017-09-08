@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.NetworkInterface;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -36,7 +37,7 @@ import xiao.framework.util.NetUtils;
 
 public class ScanDevice implements Runnable {
     public static final String BROADCAST_IP = "239.255.255.200";
-    public static final int BOADCAST_PORT = 30001;
+    public static final int BOADCAST_PORT = 30003;
     private static final int DATA_LEN = 3 * 1024;
     private static final int LOSE_DURATION = 30000;
     private static final int MONITOR_DURATION = 3000;//监控扫描周期
