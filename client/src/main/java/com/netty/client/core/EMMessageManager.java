@@ -7,7 +7,7 @@ import com.netty.client.core.threadpool.MessageSendTask;
 import com.netty.client.listener.EMMessageListener;
 import com.netty.client.msg.Header;
 import com.netty.client.msg.PayloadProto;
-import com.netty.client.msg.SendMsg;
+import com.netty.client.msg.SendMessage;
 import com.netty.client.utils.L;
 
 import java.util.ArrayList;
@@ -78,6 +78,6 @@ public class EMMessageManager {
 
         PayloadProto.Payload payload = PayloadProto.Payload.newBuilder()
                 .setContent(content).build();
-        ExecutorFactory.submitSendTask(new MessageSendTask(mChannel, new SendMsg(Header.MsgType.PAYLOAD, payload)));
+        ExecutorFactory.submitSendTask(new MessageSendTask(mChannel, new SendMessage(Header.MsgType.PAYLOAD, payload)));
     }
 }

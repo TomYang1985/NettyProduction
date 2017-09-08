@@ -1,27 +1,24 @@
 package com.netty.client.core.threadpool;
 
 
-import android.text.TextUtils;
-
+import com.netty.client.common.ConnectCode;
 import com.netty.client.core.EMConnectManager;
 import com.netty.client.core.EMMessageManager;
 import com.netty.client.listener.EMConnectionListener;
 import com.netty.client.listener.EMMessageListener;
-import com.netty.client.msg.EMCallbackTaskMessage;
+import com.netty.client.msg.CallbackTaskMessage;
 import com.netty.client.msg.EMMessage;
 import com.netty.client.msg.Header;
 import com.netty.client.msg.PayloadProto;
-import com.netty.client.multicast.EMDevice;
-import com.netty.client.utils.HostUtils;
 
 /**
  * Created by xiaoguochang on 2017/8/27.
  */
 
 public class CallbackTask implements Runnable {
-    private EMCallbackTaskMessage message;
+    private CallbackTaskMessage message;
 
-    public CallbackTask(EMCallbackTaskMessage message) {
+    public CallbackTask(CallbackTaskMessage message) {
         this.message = message;
     }
 
@@ -31,24 +28,60 @@ public class CallbackTask implements Runnable {
             return;
         }
 
-        if (message.type == EMCallbackTaskMessage.MSG_TYPE_ACTIVE) {
+        if (message.type == CallbackTaskMessage.MSG_TYPE_ACTIVE) {
             for (EMConnectionListener listener : EMConnectManager.getInstance().getListener()) {
                 if (listener != null) {
-                    listener.onConnected(message.from);
+                    listener.onActive(message.from);
                 }
             }
-        } else if (message.type == EMCallbackTaskMessage.MSG_TYPE_INACTIVE) {
+        } else if (message.type == CallbackTaskMessage.MSG_TYPE_INACTIVE) {
             for (EMConnectionListener listener : EMConnectManager.getInstance().getListener()) {
                 if (listener != null) {
-                    listener.onDisconnected(message.from);
+                    listener.onInActive(message.from);
+                }
+            }
+        } else if (message.type == CallbackTaskMessage.MSG_TYPE_NOT_WIFI) {
+            for (EMConnectionListener listener : EMConnectManager.getInstance().getListener()) {
+                if (listener != null) {
+                    listener.onError(ConnectCode.CODE_NOT_WIFI);
+                }
+            }
+        } else if (message.type == CallbackTaskMessage.MSG_TYPE_CONNECTING) {
+            for (EMConnectionListener listener : EMConnectManager.getInstance().getListener()) {
+                if (listener != null) {
+                    listener.onError(ConnectCode.CODE_CONNECTING);
+                }
+            }
+        } else if (message.type == CallbackTaskMessage.MSG_TYPE_CONNECTED) {
+            for (EMConnectionListener listener : EMConnectManager.getInstance().getListener()) {
+                if (listener != null) {
+                    listener.onError(ConnectCode.CODE_CONNECTED);
+                }
+            }
+        } else if (message.type == CallbackTaskMessage.MSG_TYPE_HOST_NULL) {
+            for (EMConnectionListener listener : EMConnectManager.getInstance().getListener()) {
+                if (listener != null) {
+                    listener.onError(ConnectCode.CODE_HOST_NULL);
+                }
+            }
+        } else if (message.type == CallbackTaskMessage.MSG_TYPE_CONNECT_FAIL) {
+            for (EMConnectionListener listener : EMConnectManager.getInstance().getListener()) {
+                if (listener != null) {
+                    listener.onError(ConnectCode.CODE_CONNECT_FAIL);
+                }
+            }
+        } else if (message.type == CallbackTaskMessage.MSG_TYPE_CONNECT_SUCC_BY_USER) {
+            for (EMConnectionListener listener : EMConnectManager.getInstance().getListener()) {
+                if (listener != null) {
+                    listener.onConnectedByUser(message.from);
                 }
             }
         } else {
-            switch (message.mRecvMsg.msgType) {
+            switch (message.recvMessage.msgType) {
                 case Header.MsgType.PAYLOAD:
                     for (EMMessageListener listener : EMMessageManager.getInstance().getListener()) {
                         if (listener != null) {
-                            PayloadProto.Payload chatMsg = (PayloadProto.Payload) message.mRecvMsg.data;
+                            PayloadProto.Payload chatMsg = (PayloadProto.Payload) message.recvMessage.data;
                             EMMessage emMessage = new EMMessage(message.from, chatMsg.getContent());
                             listener.onMessageReceived(emMessage);
                         }

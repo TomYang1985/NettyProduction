@@ -1,7 +1,6 @@
 package com.netty.app.chatmodule;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -10,14 +9,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.netty.app.common.template.WhiteTitleTemplate;
-import com.netty.app.scanmodule.MainActivity;
 import com.netty.client.R;
 import com.netty.client.core.EMClient;
 import com.netty.client.listener.EMConnectionListener;
 import com.netty.client.listener.EMMessageListener;
 import com.netty.client.msg.EMMessage;
-import com.netty.client.multicast.EMDevice;
-import com.netty.client.utils.L;
+import com.netty.client.msg.EMDevice;
 import com.netty.client.utils.T;
 
 import butterknife.BindView;
@@ -43,12 +40,17 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
     private EMConnectionListener mEMConnectionListener = new EMConnectionListener() {
 
         @Override
-        public void onConnected(String id) {
+        public void onConnectedByUser(String id) {
 
         }
 
         @Override
-        public void onDisconnected(String id) {
+        public void onActive(String id) {
+
+        }
+
+        @Override
+        public void onInActive(String id) {
             mContext.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -56,6 +58,11 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
                     ((Activity)mContext).finish();
                 }
             });
+        }
+
+        @Override
+        public void onError(int type) {
+
         }
     };
 

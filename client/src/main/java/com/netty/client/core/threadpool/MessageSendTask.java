@@ -2,12 +2,11 @@ package com.netty.client.core.threadpool;
 
 import com.netty.client.msg.Header;
 import com.netty.client.msg.PingProto;
-import com.netty.client.msg.RecvMsg;
-import com.netty.client.msg.SendMsg;
+import com.netty.client.msg.RecvMessage;
+import com.netty.client.msg.SendMessage;
 import com.netty.client.utils.L;
 
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
 
 /**
  * Created by xiaoguochang on 2017/8/27.
@@ -15,19 +14,19 @@ import io.netty.channel.ChannelHandlerContext;
 
 public class MessageSendTask implements Runnable {
     private Channel mChannel;
-    private RecvMsg mRecvMsg;
-    private SendMsg mSendMsg;
+    private RecvMessage mRecvMessage;
+    private SendMessage mSendMessage;
 
-    public MessageSendTask(Channel channel, RecvMsg recvMsg) {
+    public MessageSendTask(Channel channel, RecvMessage recvMessage) {
         mChannel = channel;
-        mRecvMsg = recvMsg;
-        mSendMsg = null;
+        mRecvMessage = recvMessage;
+        mSendMessage = null;
     }
 
-    public MessageSendTask(Channel channel, SendMsg sendMsg) {
+    public MessageSendTask(Channel channel, SendMessage sendMessage) {
         mChannel = channel;
-        mSendMsg = sendMsg;
-        mRecvMsg = null;
+        mSendMessage = sendMessage;
+        mRecvMessage = null;
     }
 
     @Override
@@ -46,20 +45,21 @@ public class MessageSendTask implements Runnable {
             return;
         }
 
-        if(mSendMsg != null) {
-            switch (mSendMsg.msgType) {
+        if(mSendMessage != null) {
+            switch (mSendMessage.msgType) {
                 case Header.MsgType.PING:
                     L.print("MessageSendTask send ping to" + mChannel.remoteAddress());
                     mChannel.writeAndFlush(PingProto.Ping.newBuilder().build());
                     break;
                 case Header.MsgType.PAYLOAD:
                     L.print("MessageSendTask send payload to" + mChannel.remoteAddress());
-                    mChannel.writeAndFlush(mSendMsg.data);
+                    L.d(mSendMessage.data);
+                    mChannel.writeAndFlush(mSendMessage.data);
                     break;
             }
         }
 
-        if(mRecvMsg != null){
+        if(mRecvMessage != null){
 
         }
     }

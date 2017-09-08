@@ -28,8 +28,6 @@ public class ProtobufEncoder extends MessageToByteEncoder<MessageLite> {
         if (body != null && body.length > 0) {
             byteBuf.writeBytes(body);
         }
-
-
     }
 
     private byte[] encodeHeader(MessageLite msg, short bodyLength) {

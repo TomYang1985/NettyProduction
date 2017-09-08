@@ -24,7 +24,9 @@ public class NettyClientService extends Service {
 
         WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
         mMulticastLock = wifiManager.createMulticastLock("multicast.lock");
-        mMulticastLock.acquire();
+        if(mMulticastLock != null) {
+            mMulticastLock.acquire();
+        }
 
         mClientConnector = EMClient.getInstance();
         mClientConnector.init(this);
@@ -47,7 +49,9 @@ public class NettyClientService extends Service {
 
     @Override
     public void onDestroy() {
-        mMulticastLock.release();
+        if(mMulticastLock != null) {
+            mMulticastLock.release();
+        }
         mClientConnector.onDestory();
         ScanDevice.getInstance().onDestory();
         super.onDestroy();

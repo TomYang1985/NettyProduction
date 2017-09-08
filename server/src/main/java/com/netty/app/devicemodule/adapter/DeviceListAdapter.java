@@ -26,6 +26,7 @@ public class DeviceListAdapter extends XGCRecyclerViewAdapter<EMDevice, DeviceLi
     @Override
     protected DeviceListHolder createViewHolder(Context context, ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(context).inflate(R.layout.item_device, parent, false);
+        itemView.setFocusable(true);
         return new DeviceListHolder(context, this, parent, itemView, viewType);
     }
 

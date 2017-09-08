@@ -45,7 +45,6 @@ public class ConnectionManagerHandler extends ChannelDuplexHandler {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         super.exceptionCaught(ctx, cause);
-        L.print("exceptionCaught");
         L.d(cause.toString());
     }
 }

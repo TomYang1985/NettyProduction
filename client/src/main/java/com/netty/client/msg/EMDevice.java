@@ -1,4 +1,4 @@
-package com.netty.client.multicast;
+package com.netty.client.msg;
 
 import android.os.Parcel;
 import android.os.Parcelable;

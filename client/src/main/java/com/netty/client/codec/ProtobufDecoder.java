@@ -3,7 +3,7 @@ package com.netty.client.codec;
 import com.google.protobuf.MessageLite;
 import com.netty.client.msg.Header;
 import com.netty.client.msg.PayloadProto;
-import com.netty.client.msg.RecvMsg;
+import com.netty.client.msg.RecvMessage;
 import com.netty.client.utils.L;
 
 import java.util.List;
@@ -43,7 +43,7 @@ public class ProtobufDecoder extends ByteToMessageDecoder {
 
             if (msgType == Header.MsgType.PONG) {//心跳pong
                 L.print("recv server pong");
-                RecvMsg msg = new RecvMsg();
+                RecvMessage msg = new RecvMessage();
                 msg.msgType = msgType;
 
                 out.add(msg);
@@ -58,6 +58,10 @@ public class ProtobufDecoder extends ByteToMessageDecoder {
                 if (bodyByteBuf.hasArray()) {
                     array = bodyByteBuf.array();
                     offset = bodyByteBuf.arrayOffset() + bodyByteBuf.readerIndex();
+                    if(array != null && array.length != bodyLength){
+                        array = new byte[readableLen];
+                        bodyByteBuf.getBytes(bodyByteBuf.readerIndex(), array, 0, readableLen);
+                    }
                 } else {
                     array = new byte[readableLen];
                     bodyByteBuf.getBytes(bodyByteBuf.readerIndex(), array, 0, readableLen);
@@ -68,12 +72,16 @@ public class ProtobufDecoder extends ByteToMessageDecoder {
                 array = Algorithm.decryptAES(array);
 
                 //反序列化
-                MessageLite result = decodeBody(msgType, busynissType, array, 0, array.length);
-                RecvMsg msg = new RecvMsg();
-                msg.msgType = msgType;
-                msg.data = result;
+                if(array != null) {
+                    MessageLite result = decodeBody(msgType, busynissType, array, 0, array.length);
+                    RecvMessage msg = new RecvMessage();
+                    msg.msgType = msgType;
+                    msg.data = result;
 
-                out.add(msg);
+                    out.add(msg);
+                }else {
+                    L.print("ProtobufDecoder parse array null");
+                }
             }
         }
     }

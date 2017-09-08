@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import com.netty.app.scanmodule.entity.Device;
 import com.netty.app.scanmodule.holder.DeviceListHolder;
 import com.netty.client.R;
-import com.netty.client.multicast.EMDevice;
 
 import java.util.ArrayList;
 

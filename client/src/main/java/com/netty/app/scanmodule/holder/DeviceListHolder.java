@@ -9,7 +9,6 @@ import android.widget.TextView;
 import com.netty.app.scanmodule.adapter.DeviceListAdapter;
 import com.netty.app.scanmodule.entity.Device;
 import com.netty.client.R;
-import com.netty.client.multicast.EMDevice;
 
 import butterknife.BindView;
 import xiao.framework.viewholder.XGCRecyclerViewHolderExt;

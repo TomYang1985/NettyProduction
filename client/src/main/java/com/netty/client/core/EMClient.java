@@ -5,11 +5,13 @@ import android.content.Context;
 import com.netty.client.codec.ProtobufDecoder;
 import com.netty.client.codec.ProtobufEncoder;
 import com.netty.client.common.ConnectionWatchdog;
+import com.netty.client.common.InnerMessageHelper;
 import com.netty.client.core.threadpool.ExecutorFactory;
 import com.netty.client.handler.ConnectionManagerHandler;
 import com.netty.client.handler.IdleStateTrigger;
 import com.netty.client.handler.MessageRecvHandler;
-import com.netty.client.multicast.EMDevice;
+import com.netty.client.msg.CallbackTaskMessage;
+import com.netty.client.msg.EMDevice;
 import com.netty.client.utils.HostUtils;
 import com.netty.client.utils.L;
 
@@ -35,12 +37,13 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
     private static final int STATUS_NONE = 1;
     private static final int STATUS_CONNECTING = 2;
     private static final int STATUS_CONNECTED = 3;
-    private static final long WRITER_IDLE_TIME = 5;
-    private static final long READER_IDLE_TIME = 12;
-    private static final int TRIGGER_FROM_DIRECT = 1;//直连启动
-    private static final int TRIGGER_FROM_DISCONNECT_RETRY = 2;//断线重连
-    private static final int TRIGGER_FROM_TIMER_DETECTION = 3;//定时检测
-    private static final int TRIGGER_FROM_NET_RECONNECTED = 4;//设备网络重新建立
+    private static final long WRITER_IDLE_TIME = 10;
+    private static final long READER_IDLE_TIME = 20;
+    private static final int TRIGGER_FROM_USER = 1;//用户启动连接
+    private static final int TRIGGER_FROM_SERVICE = 2;//service启动连接
+    private static final int TRIGGER_FROM_DISCONNECT_RETRY = 3;//断线重连
+    private static final int TRIGGER_FROM_TIMER_DETECTION = 4;//定时检测
+    private static final int TRIGGER_FROM_NET_RECONNECTED = 5;//设备网络重新建立
     private volatile static EMClient sInstance;
     private Context mContext;
     private ChannelFuture mFuture;
@@ -67,17 +70,17 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
     public void connectDevice(EMDevice newDevice) {
         if (mDevice == null) {
             this.mDevice = newDevice;
-            connect();
+            connect(TRIGGER_FROM_USER);
         } else {
             //如果连接的新设备与以前的设备相同，则直接连接
             if (mDevice.id.equals(newDevice.id)) {
-                connect();
+                connect(TRIGGER_FROM_USER);
             } else {
                 //如果连接的不同设备，先关闭当前连接，然后再初始化
                 shutdownGracefully();
                 initInner();
                 this.mDevice = newDevice;
-                connect();
+                connect(TRIGGER_FROM_USER);
             }
         }
     }
@@ -142,22 +145,31 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
 
     @Override
     public void connect() {
-        connect(TRIGGER_FROM_DIRECT);
+        connect(TRIGGER_FROM_SERVICE);
     }
 
     private void connect(final int triggerType) {
         synchronized (bootstrap()) {
             if (!NetUtils.isWifi(mContext)) {
+                handlerUserSpaceCallback(triggerType, CallbackTaskMessage.MSG_TYPE_NOT_WIFI);
                 L.print("return when net is not wifi , triggerType = " + triggerType);
                 return;
             }
 
-            if (mStatus.compareAndSet(STATUS_CONNECTING, STATUS_CONNECTING) || mStatus.compareAndSet(STATUS_CONNECTED, STATUS_CONNECTED)) {
-                L.print("return when connecting or connected , triggerType = " + triggerType);
+            if (mStatus.compareAndSet(STATUS_CONNECTING, STATUS_CONNECTING)) {
+                handlerUserSpaceCallback(triggerType, CallbackTaskMessage.MSG_TYPE_CONNECTING);
+                L.print("return when connecting , triggerType = " + triggerType);
+                return;
+            }
+
+            if (mStatus.compareAndSet(STATUS_CONNECTED, STATUS_CONNECTED)) {
+                handlerUserSpaceCallback(triggerType, CallbackTaskMessage.MSG_TYPE_CONNECTED);
+                L.print("return when connected , triggerType = " + triggerType);
                 return;
             }
 
             if (mDevice == null) {
+                handlerUserSpaceCallback(triggerType, CallbackTaskMessage.MSG_TYPE_HOST_NULL);
                 L.print("mDevice = null , triggerType = " + triggerType);
                 return;
             }
@@ -185,8 +197,12 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
                 if (channelFuture.isSuccess()) {
                     mStatus.getAndSet(STATUS_CONNECTED);
                     switch (triggerType) {
-                        case TRIGGER_FROM_DIRECT:
-                            L.d("直连成功");
+                        case TRIGGER_FROM_USER:
+                            L.d("user启动连接成功");
+                            InnerMessageHelper.sendConnectSuccByUserMessage(mDevice.id);
+                            break;
+                        case TRIGGER_FROM_SERVICE:
+                            L.d("service启动连接成功");
                             break;
                         case TRIGGER_FROM_DISCONNECT_RETRY:
                             L.d("断线重连成功");
@@ -198,8 +214,13 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
                 } else {
                     mStatus.getAndSet(STATUS_NONE);
                     switch (triggerType) {
-                        case TRIGGER_FROM_DIRECT:
-                            L.d("直连失败，启动断线重连");
+                        case TRIGGER_FROM_USER:
+                            InnerMessageHelper.sendErrorCallbackMessage(CallbackTaskMessage.MSG_TYPE_CONNECT_FAIL);
+                            L.d("user启动连接失败，启动断线重连");
+                            mWatchdog.retry();
+                            break;
+                        case TRIGGER_FROM_SERVICE:
+                            L.d("service启动连接失败，启动断线重连");
                             mWatchdog.retry();
                             break;
                         case TRIGGER_FROM_DISCONNECT_RETRY:
@@ -217,6 +238,16 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
                 }
             }
         });
+    }
+
+    /**
+     * 处理用户空间连接回调
+     * @param type
+     */
+    private void handlerUserSpaceCallback(final int triggerType, int type){
+        if(triggerType == TRIGGER_FROM_USER){
+            InnerMessageHelper.sendErrorCallbackMessage(type);
+        }
     }
 
     @Override

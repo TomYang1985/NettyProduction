@@ -10,6 +10,7 @@ import android.net.wifi.WifiManager;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import com.netty.client.msg.EMDevice;
 import com.netty.client.utils.GsonUtils;
 import com.netty.client.utils.L;
 
@@ -37,11 +38,10 @@ public class ScanDevice implements Runnable {
     public static final String BROADCAST_IP = "239.255.255.200";
     public static final int BOADCAST_PORT = 30001;
     private static final int DATA_LEN = 3 * 1024;
-    private static final int LOSE_DURATION = 20000;
+    private static final int LOSE_DURATION = 30000;
     private static final int MONITOR_DURATION = 3000;//监控扫描周期
     private static final int STATUS_NONE = 1;
     private static final int STATUS_RUNNING = 2;
-    //private static final int STATUS_STOPING = 3;
     private volatile static ScanDevice sInstance;
     //定义广播的IP地址
     private InetAddress broadcastAddress = null;

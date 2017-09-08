@@ -1,9 +1,9 @@
 package com.netty.client.core.threadpool;
 
 
-import com.netty.client.msg.EMCallbackTaskMessage;
+import com.netty.client.msg.CallbackTaskMessage;
 import com.netty.client.msg.Header;
-import com.netty.client.msg.RecvMsg;
+import com.netty.client.msg.RecvMessage;
 import com.netty.client.utils.HostUtils;
 
 import io.netty.channel.ChannelHandlerContext;
@@ -14,21 +14,21 @@ import io.netty.channel.ChannelHandlerContext;
 
 public class MessageRecvTask implements Runnable {
     private ChannelHandlerContext mChannelHandlerContext;
-    private RecvMsg mRecvMsg;
+    private RecvMessage mRecvMessage;
 
-    public MessageRecvTask(ChannelHandlerContext channelHandlerContext, RecvMsg recvMsg) {
+    public MessageRecvTask(ChannelHandlerContext channelHandlerContext, RecvMessage recvMessage) {
         mChannelHandlerContext = channelHandlerContext;
-        mRecvMsg = recvMsg;
+        mRecvMessage = recvMessage;
     }
 
     @Override
     public void run() {
-        if (mRecvMsg != null) {
-            switch (mRecvMsg.msgType) {
+        if (mRecvMessage != null) {
+            switch (mRecvMessage.msgType) {
                 case Header.MsgType.PAYLOAD:
                     String remoteAddress = mChannelHandlerContext.channel().remoteAddress().toString();
-                    EMCallbackTaskMessage message = new EMCallbackTaskMessage();
-                    message.mRecvMsg = mRecvMsg;
+                    CallbackTaskMessage message = new CallbackTaskMessage();
+                    message.recvMessage = mRecvMessage;
                     message.from = HostUtils.parseHost(remoteAddress);
                     ExecutorFactory.submitCallbackTask(new CallbackTask(message));
                     break;

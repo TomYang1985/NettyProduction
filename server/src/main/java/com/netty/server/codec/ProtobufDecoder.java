@@ -58,6 +58,10 @@ public class ProtobufDecoder extends ByteToMessageDecoder {
                 if (bodyByteBuf.hasArray()) {
                     array = bodyByteBuf.array();
                     offset = bodyByteBuf.arrayOffset() + bodyByteBuf.readerIndex();
+                    if(array != null && array.length != bodyLength){
+                        array = new byte[readableLen];
+                        bodyByteBuf.getBytes(bodyByteBuf.readerIndex(), array, 0, readableLen);
+                    }
                 } else {
                     array = new byte[readableLen];
                     bodyByteBuf.getBytes(bodyByteBuf.readerIndex(), array, 0, readableLen);
@@ -68,12 +72,16 @@ public class ProtobufDecoder extends ByteToMessageDecoder {
                 array = Algorithm.decryptAES(array);
 
                 //反序列化
-                MessageLite result = decodeBody(msgType, busynissType, array, 0, array.length);
-                RecvMsg msg = new RecvMsg();
-                msg.msgType = msgType;
-                msg.data = result;
+                if(array != null) {
+                    MessageLite result = decodeBody(msgType, busynissType, array, 0, array.length);
+                    RecvMsg msg = new RecvMsg();
+                    msg.msgType = msgType;
+                    msg.data = result;
 
-                out.add(msg);
+                    out.add(msg);
+                }else {
+                    L.print("ProtobufDecoder parse array null");
+                }
             }
         }
     }

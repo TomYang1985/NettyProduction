@@ -19,7 +19,7 @@ import com.netty.app.widget.dialog.LoadingDialog;
 import com.netty.client.R;
 import com.netty.client.core.EMClient;
 import com.netty.client.listener.EMConnectionListener;
-import com.netty.client.multicast.EMDevice;
+import com.netty.client.msg.EMDevice;
 import com.netty.client.multicast.ScanDevice;
 import com.netty.client.utils.L;
 
@@ -29,6 +29,7 @@ import butterknife.BindView;
 import xiao.framework.activity.BaseFragmentActivity;
 import xiao.framework.adapter.XGCOnRVItemClickListener;
 import xiao.framework.template.BaseTemplate;
+import xiao.framework.template.impl.EmptyTemplate;
 
 public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemClickListener {
     private static final int MSG_FINDED_DEVICES = 1;
@@ -38,17 +39,22 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
     private static final int MSG_WIFI_DISCONNECT = 5;
     private static final int MSG_WIFI_CONNECTED = 6;
     private static final int MSG_TIMEOUT = 7;
-    private static final int MSG_CONNECTED = 8;
-    private static final int MSG_DISCONNECT = 9;
+    private static final int MSG_CONNECTED_BY_USER = 8;
+    private static final int MSG_ACTIVE = 9;
+    private static final int MSG_INACTIVE = 10;
+    private static final int MSG_CONNECT_ERROR = 11;
 
     @BindView(R.id.recyclerview)
     RecyclerView mRecyclerView;
     @BindView(R.id.text_hint)
     TextView mHintText;
+
     private DeviceListAdapter mAdpter;
     private LinearLayoutManager mLinearLayoutManager;
     private WhiteTitleTemplate mTemplate;
     private LoadingDialog mConnectLoadingDialog;
+    private boolean flag = false;//标志是否开始进行新的连接
+    private String mConnectingDeviceId;//正在连接的设备id
     private Handler mHandler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
@@ -99,20 +105,46 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
                     mHintText.setText("扫描超时，未发现可连接设备...");
                     mHintText.setVisibility(View.VISIBLE);
                     break;
-                case MSG_CONNECTED: {
+                case MSG_CONNECTED_BY_USER:{
+                    startActivity(new Intent(mContext, ChatActivity.class));
+                }
+                case MSG_ACTIVE: {
+                    //刷新UI上的连接状态
                     mHintText.setVisibility(View.GONE);
                     String id = msg.getData().getString("id");
                     EMDevice connectedDevice = EMClient.getInstance().getDevice();
                     Device device = new Device(connectedDevice);
                     device.isConnected = true;
                     mAdpter.setConnectedDevice(device);
+
+//                    if (flag) {
+//                        //连接新设备成功则，启动ChatActivity
+//                        flag = false;
+//                        startActivity(new Intent(mContext, ChatActivity.class));
+//                    }
+                    if (mConnectLoadingDialog != null) {
+                        mConnectLoadingDialog.dismiss();
+                    }
                 }
                 break;
-                case MSG_DISCONNECT: {
+                case MSG_INACTIVE: {
+                    //刷新UI上的连接状态
+                    flag = false;
                     String id = msg.getData().getString("id");
                     mAdpter.setDisconnectedDevice(id);
+
+                    //因为切换连接设备时，之前的设备先断开，会调用onDisconnected，但此时mConnectLoadingDialog为新的连接启动的loading，
+                    // 所以需要对DeviceId进行判断，是否关闭
+                    if (mConnectLoadingDialog != null && id.equals(mConnectingDeviceId)) {
+                        mConnectLoadingDialog.dismiss();
+                    }
                 }
                 break;
+                case MSG_CONNECT_ERROR:
+                    if (mConnectLoadingDialog != null) {
+                        mConnectLoadingDialog.dismiss();
+                    }
+                    break;
             }
             return true;
         }
@@ -121,31 +153,47 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
     private EMConnectionListener mEMConnectionListener = new EMConnectionListener() {
 
         @Override
-        public void onConnected(String id) {
-            L.print("MainActivity.onConnected=" + id);
+        public void onConnectedByUser(String id) {
+            L.print("MainActivity.onConnectedByUser=" + id);
             if (mHandler != null) {
-                Message msg = mHandler.obtainMessage(MSG_CONNECTED);
+                Message msg = mHandler.obtainMessage(MSG_CONNECTED_BY_USER);
                 Bundle bundle = new Bundle();
                 bundle.putString("id", id);
                 msg.setData(bundle);
                 mHandler.sendMessage(msg);
             }
-            if (mConnectLoadingDialog != null) {
-                mConnectLoadingDialog.dismiss();
+        }
+
+        @Override
+        public void onActive(String id) {
+            L.print("MainActivity.onActive=" + id);
+            if (mHandler != null) {
+                Message msg = mHandler.obtainMessage(MSG_ACTIVE);
+                Bundle bundle = new Bundle();
+                bundle.putString("id", id);
+                msg.setData(bundle);
+                mHandler.sendMessage(msg);
             }
         }
 
         @Override
-        public void onDisconnected(String id) {
-            L.print("MainActivity.onDisconnected=" + id);
-            if (mConnectLoadingDialog != null) {
-                mConnectLoadingDialog.dismiss();
-            }
+        public void onInActive(String id) {
+            L.print("MainActivity.onInActive=" + id);
             if (mHandler != null) {
-                Message msg = mHandler.obtainMessage(MSG_DISCONNECT);
+                Message msg = mHandler.obtainMessage(MSG_INACTIVE);
                 Bundle bundle = new Bundle();
                 bundle.putString("id", id);
                 msg.setData(bundle);
+                mHandler.sendMessage(msg);
+            }
+        }
+
+        @Override
+        public void onError(int type) {
+            L.print("MainActivity.onError=" + type);
+            if (mHandler != null) {
+                Message msg = mHandler.obtainMessage(MSG_CONNECT_ERROR);
+                msg.arg1 = type;
                 mHandler.sendMessage(msg);
             }
         }
@@ -177,11 +225,11 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
             public void findedDevice(ArrayList<EMDevice> devices) {
                 if (mHandler != null) {
                     ArrayList<Device> list = new ArrayList<>();
-                    //扫描到的设备需要判断是否是当前连接的设备，因为UI上有连接状态标志
+                    //扫描到的设备需要判断扫描到的设备是否是当前已连接的设备，因为UI上有连接状态标志
                     for (EMDevice emDevice : devices) {
                         Device device = new Device(emDevice);
                         EMDevice connnectedDevice = EMClient.getInstance().getDevice();
-                        if (connnectedDevice != null && connnectedDevice.id.equals(emDevice.id)) {
+                        if (EMClient.getInstance().isActive() && connnectedDevice != null && connnectedDevice.id.equals(emDevice.id)) {
                             device.isConnected = true;
                         } else {
                             device.isConnected = false;
@@ -201,10 +249,10 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
             @Override
             public void findOneDevice(final EMDevice emDevice) {
                 if (mHandler != null) {
-                    //扫描到的设备需要判断是否是当前连接的设备，因为UI上有连接状态标志
+                    //扫描到的设备需要判断扫描到的设备是否是当前已连接的设备，因为UI上有连接状态标志
                     Device device = new Device(emDevice);
                     EMDevice connnectedDevice = EMClient.getInstance().getDevice();
-                    if (connnectedDevice != null && connnectedDevice.id.equals(emDevice.id)) {
+                    if (EMClient.getInstance().isActive() && connnectedDevice != null && connnectedDevice.id.equals(emDevice.id)) {
                         device.isConnected = true;
                     } else {
                         device.isConnected = false;
@@ -287,6 +335,8 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
         if (EMClient.getInstance().isActive() && connnectedDevice != null && connnectedDevice.id.equals(willConnectDevice.id)) {
             startActivity(new Intent(mContext, ChatActivity.class));
         } else {
+            flag = true;
+            mConnectingDeviceId = willConnectDevice.id;
             mConnectLoadingDialog = new LoadingDialog(mContext).setMsg("正在连接");
             mConnectLoadingDialog.show();
             EMClient.getInstance().connectDevice(new EMDevice(willConnectDevice.id, willConnectDevice.name));

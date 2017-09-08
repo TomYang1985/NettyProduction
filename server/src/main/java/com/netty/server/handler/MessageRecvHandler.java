@@ -5,6 +5,7 @@ import com.netty.server.core.threadpool.MessageRecvTask;
 import com.netty.server.core.threadpool.MessageSendTask;
 import com.netty.server.msg.Header;
 import com.netty.server.msg.RecvMsg;
+import com.netty.server.utils.L;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -17,6 +18,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 public class MessageRecvHandler extends SimpleChannelInboundHandler<RecvMsg> {
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, RecvMsg recvMsg) throws Exception {
+
         switch (recvMsg.msgType) {
             case Header.MsgType.PING:
                 ExecutorFactory.submitSendTask(new MessageSendTask(channelHandlerContext.channel(), recvMsg));

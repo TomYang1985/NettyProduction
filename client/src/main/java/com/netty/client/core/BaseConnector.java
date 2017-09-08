@@ -45,8 +45,8 @@ public abstract class BaseConnector implements Connector {
         ThreadFactory workerFactory = new DefaultThreadFactory("client.connector");
         worker = new NioEventLoopGroup(nWorkers, workerFactory);
 
-        bootstrap = new Bootstrap().group(worker).
-                option(ChannelOption.ALLOCATOR, allocator)
+        bootstrap = new Bootstrap().group(worker)
+                .option(ChannelOption.ALLOCATOR, allocator)
                 .option(ChannelOption.MESSAGE_SIZE_ESTIMATOR, DefaultMessageSizeEstimator.DEFAULT)
                 .option(ChannelOption.SO_REUSEADDR, true)
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) SECONDS.toMillis(5))

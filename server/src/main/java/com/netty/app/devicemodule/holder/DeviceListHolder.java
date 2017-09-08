@@ -9,6 +9,7 @@ import android.widget.TextView;
 import com.netty.app.devicemodule.adapter.DeviceListAdapter;
 import com.netty.server.R;
 import com.netty.server.msg.EMDevice;
+import com.netty.server.utils.L;
 
 import butterknife.BindView;
 import xiao.framework.viewholder.XGCRecyclerViewHolderExt;
@@ -34,11 +35,18 @@ public class DeviceListHolder extends XGCRecyclerViewHolderExt<EMDevice, DeviceL
      */
     public DeviceListHolder(Context context, DeviceListAdapter adapter, ViewGroup parent, View itemView, int viewType) {
         super(context, adapter, parent, itemView, viewType);
+
+        L.d("test............................." + getAdapterPosition());
+        if(getAdapterPosition() == 0){
+            L.d("test.............................");
+            itemView.requestFocus();
+        }
     }
 
     @Override
     public void setData(EMDevice data) {
         mDeviceAddressText.setText(data.id);
+
     }
 
     @Override

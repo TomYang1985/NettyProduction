@@ -36,7 +36,7 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 
 public class EMAcceptor extends BaseAcceptor implements ChannelHandlerHolder {
     private static final int DEAULT_PORT = 9987;
-    private static final long READER_IDLE_TIME = 12;
+    private static final long READER_IDLE_TIME = 20;
     private static final long MAX_REBIND_NUM = 3;
     private static final int STATUS_NONE = 1;
     private static final int STATUS_BINDING = 2;
@@ -94,14 +94,6 @@ public class EMAcceptor extends BaseAcceptor implements ChannelHandlerHolder {
 
     public EMConnectManager getEMConnectManager(){
         return EMConnectManager.getInstance();
-    }
-
-    public String localHost(){
-        if(mChannelFuture != null) {
-            return HostUtils.parseHost(mChannelFuture.channel().localAddress().toString());
-        }
-
-        return "";
     }
 
     @Override

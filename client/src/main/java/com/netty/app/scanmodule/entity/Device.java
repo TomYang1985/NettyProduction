@@ -3,7 +3,7 @@ package com.netty.app.scanmodule.entity;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.netty.client.multicast.EMDevice;
+import com.netty.client.msg.EMDevice;
 
 /**
  * Created by robincxiao on 2017/9/5.
