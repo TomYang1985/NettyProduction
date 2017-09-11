@@ -1,5 +1,4 @@
 syntax = "proto2";
-package com.netty.client;
 
 option java_package = "com.netty.client.msg";
 option java_outer_classname = "PingProto";

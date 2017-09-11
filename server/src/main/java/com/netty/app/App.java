@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.multidex.MultiDex;
 
-import com.netty.server.NettyServerService;
+import com.tencent.tvmanager.netty.NettyServerService;
 
 /**
  * Created by robincxiao on 2017/8/30.

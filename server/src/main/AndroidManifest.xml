@@ -31,7 +31,7 @@
         <activity android:name="com.netty.app.chatmodule.ChatActivity"
             android:theme="@style/SlideActivityAnim1"/>
 
-        <service android:name=".NettyServerService" />
+        <service android:name="com.tencent.tvmanager.netty.NettyServerService" />
     </application>
 
 </manifest>

@@ -9,13 +9,13 @@ import android.widget.TextView;
 
 import com.netty.app.common.template.WhiteTitleTemplate;
 import com.netty.server.R;
-import com.netty.server.core.EMAcceptor;
-import com.netty.server.listener.EMConnectionListener;
-import com.netty.server.listener.EMMessageListener;
-import com.netty.server.msg.EMDevice;
-import com.netty.server.msg.EMMessage;
-import com.netty.server.utils.L;
-import com.netty.server.utils.T;
+import com.tencent.tvmanager.netty.core.EMAcceptor;
+import com.tencent.tvmanager.netty.listener.EMConnectionListener;
+import com.tencent.tvmanager.netty.listener.EMMessageListener;
+import com.tencent.tvmanager.netty.msg.EMDevice;
+import com.tencent.tvmanager.netty.msg.EMMessage;
+import com.tencent.tvmanager.util.L;
+import com.tencent.tvmanager.util.T;
 
 import java.util.List;
 

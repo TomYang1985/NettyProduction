@@ -12,10 +12,9 @@ import com.netty.app.common.template.WhiteTitleTemplate;
 import com.netty.app.devicemodule.adapter.DeviceListAdapter;
 import com.netty.app.widget.RecycleViewDivider;
 import com.netty.server.R;
-import com.netty.server.core.EMAcceptor;
-import com.netty.server.listener.EMConnectionListener;
-import com.netty.server.msg.EMDevice;
-import com.netty.server.utils.L;
+import com.tencent.tvmanager.netty.core.EMAcceptor;
+import com.tencent.tvmanager.netty.listener.EMConnectionListener;
+import com.tencent.tvmanager.netty.msg.EMDevice;
 
 import java.util.List;
 

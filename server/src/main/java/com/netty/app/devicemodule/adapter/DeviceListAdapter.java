@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 
 import com.netty.app.devicemodule.holder.DeviceListHolder;
 import com.netty.server.R;
-import com.netty.server.msg.EMDevice;
+import com.tencent.tvmanager.netty.msg.EMDevice;
 
 import java.util.ArrayList;
 

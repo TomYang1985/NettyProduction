@@ -8,8 +8,8 @@ import android.widget.TextView;
 
 import com.netty.app.devicemodule.adapter.DeviceListAdapter;
 import com.netty.server.R;
-import com.netty.server.msg.EMDevice;
-import com.netty.server.utils.L;
+import com.tencent.tvmanager.netty.msg.EMDevice;
+import com.tencent.tvmanager.util.L;
 
 import butterknife.BindView;
 import xiao.framework.viewholder.XGCRecyclerViewHolderExt;
