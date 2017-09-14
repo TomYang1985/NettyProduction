@@ -52,8 +52,9 @@ public class MessageSendTask implements Runnable {
                     mChannel.writeAndFlush(PingProto.Ping.newBuilder().build());
                     break;
                 case Header.MsgType.PAYLOAD:
-                    L.print("MessageSendTask send payload to" + mChannel.remoteAddress());
-                    L.d(mSendMessage.data);
+                    mChannel.writeAndFlush(mSendMessage.data);
+                    break;
+                case Header.MsgType.EXCHANGE_KEY://发送key
                     mChannel.writeAndFlush(mSendMessage.data);
                     break;
             }

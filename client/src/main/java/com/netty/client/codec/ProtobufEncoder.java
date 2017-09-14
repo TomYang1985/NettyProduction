@@ -2,6 +2,7 @@ package com.netty.client.codec;
 
 import com.google.protobuf.MessageLite;
 import com.netty.client.msg.Header;
+import com.netty.client.msg.KeyRequestProto;
 import com.netty.client.msg.PayloadProto;
 import com.netty.client.msg.PingProto;
 
@@ -20,7 +21,7 @@ public class ProtobufEncoder extends MessageToByteEncoder<MessageLite> {
     protected void encode(ChannelHandlerContext channelHandlerContext, MessageLite messageLite, ByteBuf byteBuf) throws Exception {
         byte[] body = messageLite.toByteArray();
         if (body.length > 0) {
-            body = encryptBody(body);//AES编码
+            body = encryptBody(messageLite, body);//AES编码
         }
         byte[] header = encodeHeader(messageLite, (short) body.length);
 
@@ -46,12 +47,18 @@ public class ProtobufEncoder extends MessageToByteEncoder<MessageLite> {
             return Header.MsgType.PING;
         } else if (msg instanceof PayloadProto.Payload) {
             return Header.MsgType.PAYLOAD;
+        }else if (msg instanceof KeyRequestProto.KeyRequest) {
+            return Header.MsgType.EXCHANGE_KEY;
         }
 
         return 0;
     }
 
-    private byte[] encryptBody(byte[] body) {
-        return Algorithm.encryptAES(body);
+    private byte[] encryptBody(MessageLite msg, byte[] body) {
+        if(msg instanceof KeyRequestProto.KeyRequest) {
+            return Algorithm.getInstance().encryptAESKey(body);
+        }else {
+            return Algorithm.getInstance().encryptBody(body);
+        }
     }
 }

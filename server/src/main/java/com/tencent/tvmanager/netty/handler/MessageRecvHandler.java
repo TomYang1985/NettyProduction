@@ -25,6 +25,9 @@ public class MessageRecvHandler extends SimpleChannelInboundHandler<RecvMsg> {
             case Header.MsgType.PAYLOAD:
                 ExecutorFactory.submitRecvTask(new MessageRecvTask(channelHandlerContext, recvMsg));
                 break;
+            case Header.MsgType.EXCHANGE_KEY:
+                ExecutorFactory.submitSendTask(new MessageSendTask(channelHandlerContext.channel(), recvMsg));
+                break;
         }
     }
 }

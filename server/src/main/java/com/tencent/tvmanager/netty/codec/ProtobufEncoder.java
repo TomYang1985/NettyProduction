@@ -2,8 +2,10 @@ package com.tencent.tvmanager.netty.codec;
 
 import com.google.protobuf.MessageLite;
 import com.tencent.tvmanager.netty.msg.Header;
+import com.tencent.tvmanager.netty.msg.KeyResponseProto;
 import com.tencent.tvmanager.netty.msg.PayloadProto;
 import com.tencent.tvmanager.netty.msg.PongProto;
+import com.tencent.tvmanager.util.HostUtils;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -20,7 +22,7 @@ public class ProtobufEncoder extends MessageToByteEncoder<MessageLite> {
     protected void encode(ChannelHandlerContext channelHandlerContext, MessageLite messageLite, ByteBuf byteBuf) throws Exception {
         byte[] body = messageLite.toByteArray();
         if (body.length > 0) {
-            body = encryptBody(body);//AES编码
+            body = encryptBody(channelHandlerContext, body);//AES编码
         }
         byte[] header = encodeHeader(messageLite, (short) body.length);
 
@@ -34,7 +36,7 @@ public class ProtobufEncoder extends MessageToByteEncoder<MessageLite> {
         header[0] = (byte) (bodyLength & 0xff);
         header[1] = (byte) ((bodyLength >> 8) & 0xff);
         header[2] = Header.PROTOCOL_VERSION;//协议版本
-        header[3] = getMsgType(msg);//消息类型（ACK、REQUEST、RESPONSE）
+        header[3] = getMsgType(msg);//消息类型
         header[4] = 0;//具体业务类型
         header[5] = 0;//保留
 
@@ -46,12 +48,16 @@ public class ProtobufEncoder extends MessageToByteEncoder<MessageLite> {
             return Header.MsgType.PONG;
         } else if (msg instanceof PayloadProto.Payload) {
             return Header.MsgType.PAYLOAD;
+        }else if (msg instanceof KeyResponseProto.KeyResponse) {
+            return Header.MsgType.EXCHANGE_KEY_RESP;
         }
 
         return 0;
     }
 
-    private byte[] encryptBody(byte[] body) {
-        return Algorithm.encryptAES(body);
+    private byte[] encryptBody(ChannelHandlerContext channelHandlerContext, byte[] body) {
+        String id = HostUtils.parseHostPort(channelHandlerContext.channel().remoteAddress().toString());//获取client的id(host:port)
+        byte[] key = KeysManager.getInstance().getKey(id);//根据id获取对应的key
+        return KeysManager.getInstance().encryptBody(body, key);
     }
 }

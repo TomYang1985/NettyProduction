@@ -15,15 +15,15 @@ public final class PingProto {
         (com.google.protobuf.ExtensionRegistryLite) registry);
   }
   public interface PingOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:com.netty.client.Ping)
+      // @@protoc_insertion_point(interface_extends:Ping)
       com.google.protobuf.MessageOrBuilder {
   }
   /**
-   * Protobuf type {@code com.netty.client.Ping}
+   * Protobuf type {@code Ping}
    */
   public  static final class Ping extends
       com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:com.netty.client.Ping)
+      // @@protoc_insertion_point(message_implements:Ping)
       PingOrBuilder {
     // Use Ping.newBuilder() to construct.
     private Ping(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
@@ -73,12 +73,12 @@ public final class PingProto {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.netty.client.msg.PingProto.internal_static_com_netty_client_Ping_descriptor;
+      return com.netty.client.msg.PingProto.internal_static_Ping_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.netty.client.msg.PingProto.internal_static_com_netty_client_Ping_fieldAccessorTable
+      return com.netty.client.msg.PingProto.internal_static_Ping_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               com.netty.client.msg.PingProto.Ping.class, com.netty.client.msg.PingProto.Ping.Builder.class);
     }
@@ -214,20 +214,20 @@ public final class PingProto {
       return builder;
     }
     /**
-     * Protobuf type {@code com.netty.client.Ping}
+     * Protobuf type {@code Ping}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:com.netty.client.Ping)
+        // @@protoc_insertion_point(builder_implements:Ping)
         com.netty.client.msg.PingProto.PingOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return com.netty.client.msg.PingProto.internal_static_com_netty_client_Ping_descriptor;
+        return com.netty.client.msg.PingProto.internal_static_Ping_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.netty.client.msg.PingProto.internal_static_com_netty_client_Ping_fieldAccessorTable
+        return com.netty.client.msg.PingProto.internal_static_Ping_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 com.netty.client.msg.PingProto.Ping.class, com.netty.client.msg.PingProto.Ping.Builder.class);
       }
@@ -254,7 +254,7 @@ public final class PingProto {
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return com.netty.client.msg.PingProto.internal_static_com_netty_client_Ping_descriptor;
+        return com.netty.client.msg.PingProto.internal_static_Ping_descriptor;
       }
 
       public com.netty.client.msg.PingProto.Ping getDefaultInstanceForType() {
@@ -349,10 +349,10 @@ public final class PingProto {
       }
 
 
-      // @@protoc_insertion_point(builder_scope:com.netty.client.Ping)
+      // @@protoc_insertion_point(builder_scope:Ping)
     }
 
-    // @@protoc_insertion_point(class_scope:com.netty.client.Ping)
+    // @@protoc_insertion_point(class_scope:Ping)
     private static final com.netty.client.msg.PingProto.Ping DEFAULT_INSTANCE;
     static {
       DEFAULT_INSTANCE = new com.netty.client.msg.PingProto.Ping();
@@ -388,10 +388,10 @@ public final class PingProto {
   }
 
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_com_netty_client_Ping_descriptor;
+    internal_static_Ping_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_com_netty_client_Ping_fieldAccessorTable;
+      internal_static_Ping_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -401,8 +401,8 @@ public final class PingProto {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\nPing.proto\022\020com.netty.client\"\006\n\004PingB!" +
-      "\n\024com.netty.client.msgB\tPingProto"
+      "\n\nPing.proto\"\006\n\004PingB!\n\024com.netty.client" +
+      ".msgB\tPingProto"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -416,11 +416,11 @@ public final class PingProto {
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         }, assigner);
-    internal_static_com_netty_client_Ping_descriptor =
+    internal_static_Ping_descriptor =
       getDescriptor().getMessageTypes().get(0);
-    internal_static_com_netty_client_Ping_fieldAccessorTable = new
+    internal_static_Ping_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_com_netty_client_Ping_descriptor,
+        internal_static_Ping_descriptor,
         new java.lang.String[] { });
   }
 

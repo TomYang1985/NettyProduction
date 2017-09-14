@@ -9,6 +9,7 @@ import com.netty.client.msg.Header;
 import com.netty.client.msg.PayloadProto;
 import com.netty.client.msg.SendMessage;
 import com.netty.client.utils.L;
+import com.netty.client.utils.MID;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,7 +78,7 @@ public class EMMessageManager {
         }
 
         PayloadProto.Payload payload = PayloadProto.Payload.newBuilder()
-                .setContent(content).build();
+                .setMessageId(MID.getId()).setContent(content).build();
         ExecutorFactory.submitSendTask(new MessageSendTask(mChannel, new SendMessage(Header.MsgType.PAYLOAD, payload)));
     }
 }

@@ -31,6 +31,8 @@ public class ConnectionManagerHandler extends ChannelDuplexHandler {
 //        if (ctx.channel() != null && ctx.channel().remoteAddress() != null && ctx.channel().remoteAddress().toString() != null) {
 //            remoteAddress = ctx.channel().remoteAddress().toString();
 //        }
+        InnerMessageHelper.sendKey(ctx.channel());
+
         String remoteAddress = ctx.channel().remoteAddress().toString();
         InnerMessageHelper.sendActiveCallbackMessage(remoteAddress);
     }

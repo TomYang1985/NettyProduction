@@ -40,7 +40,7 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
     private EMConnectionListener mEMConnectionListener = new EMConnectionListener() {
 
         @Override
-        public void onConnectedByUser(String id) {
+        public void onConnectSuccByUser(String id) {
 
         }
 

@@ -35,12 +35,6 @@ public class DeviceListHolder extends XGCRecyclerViewHolderExt<EMDevice, DeviceL
      */
     public DeviceListHolder(Context context, DeviceListAdapter adapter, ViewGroup parent, View itemView, int viewType) {
         super(context, adapter, parent, itemView, viewType);
-
-        L.d("test............................." + getAdapterPosition());
-        if(getAdapterPosition() == 0){
-            L.d("test.............................");
-            itemView.requestFocus();
-        }
     }
 
     @Override

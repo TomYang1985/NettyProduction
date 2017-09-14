@@ -153,8 +153,8 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
     private EMConnectionListener mEMConnectionListener = new EMConnectionListener() {
 
         @Override
-        public void onConnectedByUser(String id) {
-            L.print("MainActivity.onConnectedByUser=" + id);
+        public void onConnectSuccByUser(String id) {
+            L.print("MainActivity.onConnectSuccByUser=" + id);
             if (mHandler != null) {
                 Message msg = mHandler.obtainMessage(MSG_CONNECTED_BY_USER);
                 Bundle bundle = new Bundle();

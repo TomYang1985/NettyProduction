@@ -15,5 +15,5 @@ public class CallbackTaskMessage {
     public static final int MSG_TYPE_CONNECT_SUCC_BY_USER = 8;//用户点击连接成功
     public int type;
     public RecvMessage recvMessage;
-    public String from;
+    public String from;//服务器host
 }

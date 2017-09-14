@@ -1,6 +1,8 @@
 package com.tencent.tvmanager.netty.core.threadpool;
 
+import com.tencent.tvmanager.netty.common.InnerMessageHelper;
 import com.tencent.tvmanager.netty.msg.Header;
+import com.tencent.tvmanager.netty.msg.KeyResponseProto;
 import com.tencent.tvmanager.netty.msg.PongProto;
 import com.tencent.tvmanager.netty.msg.RecvMsg;
 import com.tencent.tvmanager.netty.msg.SendMsg;
@@ -61,6 +63,9 @@ public class MessageSendTask implements Runnable {
                     break;
                 case Header.MsgType.PAYLOAD:
 
+                    break;
+                case Header.MsgType.EXCHANGE_KEY:
+                    InnerMessageHelper.sendKeyResponseSucc(mChannel);
                     break;
             }
         }

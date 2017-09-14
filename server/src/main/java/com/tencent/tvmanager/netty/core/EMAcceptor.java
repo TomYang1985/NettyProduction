@@ -2,6 +2,7 @@ package com.tencent.tvmanager.netty.core;
 
 import android.content.Context;
 
+import com.tencent.tvmanager.netty.codec.KeysManager;
 import com.tencent.tvmanager.netty.codec.ProtobufDecoder;
 import com.tencent.tvmanager.netty.codec.ProtobufEncoder;
 import com.tencent.tvmanager.netty.common.Watchdog;
@@ -36,6 +37,7 @@ public class EMAcceptor extends BaseAcceptor implements ChannelHandlerHolder {
     private static final int STATUS_BINDING = 2;
     private static final int STATUS_BINDED = 3;
     private volatile static EMAcceptor sInstance;
+    private Context mContext;
     private ChannelFuture mChannelFuture;
     private AtomicInteger mStatus;
     private Watchdog mWatchdog;
@@ -57,7 +59,12 @@ public class EMAcceptor extends BaseAcceptor implements ChannelHandlerHolder {
         return sInstance;
     }
 
+    public Context getContext() {
+        return mContext;
+    }
+
     public void init(Context context) {
+        mContext = context;
         mStatus = new AtomicInteger(STATUS_NONE);
         mWatchdog = new Watchdog(context);
 
@@ -135,6 +142,7 @@ public class EMAcceptor extends BaseAcceptor implements ChannelHandlerHolder {
     public void onDestory(){
         shutdownGracefully();
         ExecutorFactory.shutdownNow();
+        KeysManager.getInstance().onDestory();
         mWatchdog.onDestory();
     }
 

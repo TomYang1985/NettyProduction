@@ -9,7 +9,7 @@ android {
     defaultConfig {
         applicationId "com.netty.client"
         minSdkVersion 14
-        targetSdkVersion 25
+        targetSdkVersion 14
         versionCode 1
         versionName "1.0"
         multiDexEnabled true

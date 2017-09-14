@@ -73,20 +73,25 @@ public class CallbackTask implements Runnable {
         } else if (message.type == CallbackTaskMessage.MSG_TYPE_CONNECT_SUCC_BY_USER) {
             for (EMConnectionListener listener : EMConnectManager.getInstance().getListener()) {
                 if (listener != null) {
-                    listener.onConnectedByUser(message.from);
+                    listener.onConnectSuccByUser(message.from);
                 }
             }
         } else {
             switch (message.recvMessage.msgType) {
-                case Header.MsgType.PAYLOAD:
+                case Header.MsgType.PAYLOAD: {
+                    PayloadProto.Payload chatMsg = (PayloadProto.Payload) message.recvMessage.data;
                     for (EMMessageListener listener : EMMessageManager.getInstance().getListener()) {
                         if (listener != null) {
-                            PayloadProto.Payload chatMsg = (PayloadProto.Payload) message.recvMessage.data;
                             EMMessage emMessage = new EMMessage(message.from, chatMsg.getContent());
                             listener.onMessageReceived(emMessage);
                         }
                     }
-                    break;
+                }
+                break;
+                case Header.MsgType.EXCHANGE_KEY_RESP: {
+
+                }
+                break;
             }
         }
     }

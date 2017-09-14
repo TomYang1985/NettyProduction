@@ -10,6 +10,7 @@ import com.tencent.tvmanager.netty.msg.PayloadProto;
 import com.tencent.tvmanager.netty.msg.SendMsg;
 import com.tencent.tvmanager.util.HostUtils;
 import com.tencent.tvmanager.util.L;
+import com.tencent.tvmanager.util.MID;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +25,7 @@ import io.netty.channel.Channel;
 public class EMMessageManager {
     private volatile static EMMessageManager sInstance;
     private List<EMMessageListener> mListeners;
-    private ConcurrentHashMap<String, Channel> mChannelGroup;
+    private ConcurrentHashMap<String, Channel> mChannelGroup;//管理连接的客户端
 
     private EMMessageManager() {
         mListeners = new ArrayList<>();
@@ -92,7 +93,7 @@ public class EMMessageManager {
         Channel channel = mChannelGroup.get(id);
         if (channel != null) {
             PayloadProto.Payload payload = PayloadProto.Payload.newBuilder()
-                    .setContent(content).build();
+                    .setMessageId(MID.getId()).setContent(content).build();
             ExecutorFactory.submitSendTask(new MessageSendTask(channel, new SendMsg(Header.MsgType.PAYLOAD, payload)));
         } else {
             L.print("mChannelGroup is not contains id = " + id);

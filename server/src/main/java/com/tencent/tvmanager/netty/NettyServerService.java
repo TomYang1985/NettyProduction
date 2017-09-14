@@ -7,6 +7,7 @@ import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
+import com.tencent.tvmanager.httpserver.HttpServer;
 import com.tencent.tvmanager.netty.core.EMAcceptor;
 import com.tencent.tvmanager.netty.multicast.MulticastServer;
 
@@ -17,6 +18,7 @@ import com.tencent.tvmanager.netty.multicast.MulticastServer;
 public class NettyServerService extends Service {
     private MulticastServer mMulticastServer;
     private WifiManager.MulticastLock mMulticastLock;
+    private HttpServer mHttpFileServer;
 
     @Override
     public void onCreate() {
@@ -30,6 +32,8 @@ public class NettyServerService extends Service {
 
         mMulticastServer = new MulticastServer();
         mMulticastServer.start();
+
+        HttpServer.getInstance().start(this);
     }
 
     @Override

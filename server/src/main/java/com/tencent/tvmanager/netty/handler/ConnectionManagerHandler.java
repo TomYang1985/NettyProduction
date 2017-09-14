@@ -1,5 +1,6 @@
 package com.tencent.tvmanager.netty.handler;
 
+import com.tencent.tvmanager.netty.codec.KeysManager;
 import com.tencent.tvmanager.netty.core.EMMessageManager;
 import com.tencent.tvmanager.netty.core.threadpool.CallbackTask;
 import com.tencent.tvmanager.netty.core.threadpool.ExecutorFactory;
@@ -20,10 +21,10 @@ public class ConnectionManagerHandler extends ChannelDuplexHandler {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
-        L.print("ConnectionManagerHandler_channelActive_" + ctx.channel().localAddress()
-                + "_" + ctx.channel().remoteAddress());
+        L.print("ConnectionManagerHandler_channelActive_" + ctx.channel().remoteAddress());
+        //添加连接的客户端
         EMMessageManager.getInstance().addChannel(ctx.channel());
-
+        //发送客户端连接回调
         EMCallbackTaskMessage message = new EMCallbackTaskMessage(EMCallbackTaskMessage.MSG_TYPE_ACTIVE);
         message.id = HostUtils.parseHostPort(ctx.channel().remoteAddress().toString());
         ExecutorFactory.submitCallbackTask(new CallbackTask(message));
@@ -32,13 +33,16 @@ public class ConnectionManagerHandler extends ChannelDuplexHandler {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
-        L.print("ConnectionManagerHandler_channelInactive_" + ctx.channel().localAddress()
-                + "_" + ctx.channel().remoteAddress());
+        L.print("ConnectionManagerHandler_channelInactive_" + ctx.channel().remoteAddress());
+        //移除断开的客户端
         EMMessageManager.getInstance().removeChannel(ctx.channel());
-
+        //发送客户端断开回调
         EMCallbackTaskMessage message = new EMCallbackTaskMessage(EMCallbackTaskMessage.MSG_TYPE_INACTIVE);
-        message.id = HostUtils.parseHostPort(ctx.channel().remoteAddress().toString());
+        String clientId = HostUtils.parseHostPort(ctx.channel().remoteAddress().toString());
+        message.id = clientId;
         ExecutorFactory.submitCallbackTask(new CallbackTask(message));
+        //client关闭时，从KeysManager中移除
+        KeysManager.getInstance().removeKey(clientId);
     }
 
     @Override

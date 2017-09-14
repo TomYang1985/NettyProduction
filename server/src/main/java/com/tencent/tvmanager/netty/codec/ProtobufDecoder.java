@@ -2,8 +2,10 @@ package com.tencent.tvmanager.netty.codec;
 
 import com.google.protobuf.MessageLite;
 import com.tencent.tvmanager.netty.msg.Header;
+import com.tencent.tvmanager.netty.msg.KeyRequestProto;
 import com.tencent.tvmanager.netty.msg.PayloadProto;
 import com.tencent.tvmanager.netty.msg.RecvMsg;
+import com.tencent.tvmanager.util.HostUtils;
 import com.tencent.tvmanager.util.L;
 
 import java.util.List;
@@ -42,7 +44,6 @@ public class ProtobufDecoder extends ByteToMessageDecoder {
             }
 
             if (msgType == Header.MsgType.PING) {//心跳ping
-                L.print("recv client" + ctx.channel().remoteAddress() + " ping");
                 RecvMsg msg = new RecvMsg();
                 msg.msgType = msgType;
 
@@ -58,7 +59,7 @@ public class ProtobufDecoder extends ByteToMessageDecoder {
                 if (bodyByteBuf.hasArray()) {
                     array = bodyByteBuf.array();
                     offset = bodyByteBuf.arrayOffset() + bodyByteBuf.readerIndex();
-                    if(array != null && array.length != bodyLength){
+                    if (array != null && array.length != bodyLength) {
                         array = new byte[readableLen];
                         bodyByteBuf.getBytes(bodyByteBuf.readerIndex(), array, 0, readableLen);
                     }
@@ -68,19 +69,39 @@ public class ProtobufDecoder extends ByteToMessageDecoder {
                     offset = 0;
                 }
 
-                //AES解码
-                array = Algorithm.decryptAES(array);
+                if (msgType == Header.MsgType.EXCHANGE_KEY) {//交换密钥
+                    //解码body获取真正对数据进行加解密的Key
+                    byte[] data = KeysManager.getInstance().decryptAESKey(array);
 
-                //反序列化
-                if(array != null) {
-                    MessageLite result = decodeBody(msgType, busynissType, array, 0, array.length);
-                    RecvMsg msg = new RecvMsg();
-                    msg.msgType = msgType;
-                    msg.data = result;
+                    if (data == null) {
+                        L.print("decryptAESKey error");
+                    } else {
+                        MessageLite result = decodeBody(msgType, busynissType, data);
+                        byte[] bodyAESKey = ((KeyRequestProto.KeyRequest) result).getKeys().toByteArray();
+                        String id = HostUtils.parseHostPort(ctx.channel().remoteAddress().toString());
+                        KeysManager.getInstance().putKey(id, bodyAESKey);
+                        RecvMsg msg = new RecvMsg();
+                        msg.msgType = msgType;
+                        msg.data = result;
 
-                    out.add(msg);
-                }else {
-                    L.print("ProtobufDecoder parse array null");
+                        out.add(msg);
+                    }
+                } else {
+                    //AES解码body
+                    String id = HostUtils.parseHostPort(ctx.channel().remoteAddress().toString());//获取client的id(host:port)
+                    byte[] key = KeysManager.getInstance().getKey(id);//根据id获取对应的key
+                    array = KeysManager.getInstance().decryptBody(array, key);//根据key解码数据
+
+                    //反序列化
+                    if (array != null) {
+                        MessageLite result = decodeBody(msgType, busynissType, array);
+                        RecvMsg msg = new RecvMsg();
+                        msg.msgType = msgType;
+                        msg.data = result;
+                        out.add(msg);
+                    } else {
+                        L.print("decryptBody error");
+                    }
                 }
             }
         }
@@ -91,17 +112,19 @@ public class ProtobufDecoder extends ByteToMessageDecoder {
      *
      * @param msgType
      * @param array
-     * @param offset
-     * @param length
      * @return
      * @throws Exception
      */
-    public MessageLite decodeBody(byte msgType, byte busynissType, byte[] array, int offset, int length) throws Exception {
+    public MessageLite decodeBody(byte msgType, byte busynissType, byte[] array) throws Exception {
         if (msgType == Header.MsgType.PAYLOAD) {
             return PayloadProto.Payload.getDefaultInstance().
-                    getParserForType().parseFrom(array, offset, length);
+                    getParserForType().parseFrom(array);
 
+        } else if (msgType == Header.MsgType.EXCHANGE_KEY) {
+            return KeyRequestProto.KeyRequest.getDefaultInstance()
+                    .getParserForType().parseFrom(array);
         }
+
 
         return null; // or throw exception
     }

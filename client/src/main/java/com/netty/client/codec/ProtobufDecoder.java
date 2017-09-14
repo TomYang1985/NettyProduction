@@ -2,6 +2,7 @@ package com.netty.client.codec;
 
 import com.google.protobuf.MessageLite;
 import com.netty.client.msg.Header;
+import com.netty.client.msg.KeyResponseProto;
 import com.netty.client.msg.PayloadProto;
 import com.netty.client.msg.RecvMessage;
 import com.netty.client.utils.L;
@@ -69,17 +70,16 @@ public class ProtobufDecoder extends ByteToMessageDecoder {
                 }
 
                 //AES解码
-                array = Algorithm.decryptAES(array);
+                array = Algorithm.getInstance().decryptBody(array);
 
                 //反序列化
-                if(array != null) {
-                    MessageLite result = decodeBody(msgType, busynissType, array, 0, array.length);
+                if (array != null) {
+                    MessageLite result = decodeBody(msgType, busynissType, array);
                     RecvMessage msg = new RecvMessage();
                     msg.msgType = msgType;
                     msg.data = result;
-
                     out.add(msg);
-                }else {
+                } else {
                     L.print("ProtobufDecoder parse array null");
                 }
             }
@@ -91,15 +91,17 @@ public class ProtobufDecoder extends ByteToMessageDecoder {
      *
      * @param msgType
      * @param array
-     * @param offset
-     * @param length
      * @return
      * @throws Exception
      */
-    public MessageLite decodeBody(byte msgType, byte busynissType, byte[] array, int offset, int length) throws Exception {
+    public MessageLite decodeBody(byte msgType, byte busynissType, byte[] array) throws Exception {
         if (msgType == Header.MsgType.PAYLOAD) {
             return PayloadProto.Payload.getDefaultInstance().
-                    getParserForType().parseFrom(array, offset, length);
+                    getParserForType().parseFrom(array);
+
+        }else if (msgType == Header.MsgType.EXCHANGE_KEY_RESP) {
+            return KeyResponseProto.KeyResponse.getDefaultInstance().
+                    getParserForType().parseFrom(array);
 
         }
 
