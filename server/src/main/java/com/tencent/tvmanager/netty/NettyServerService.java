@@ -7,7 +7,7 @@ import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
-import com.tencent.tvmanager.httpserver.HttpServer;
+import com.tencent.tvmanager.netty.httpserver.HttpServer;
 import com.tencent.tvmanager.netty.core.EMAcceptor;
 import com.tencent.tvmanager.netty.multicast.MulticastServer;
 

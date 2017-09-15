@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package com.tencent.tvmanager.httpserver;
+package com.tencent.tvmanager.netty.httpserver;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;

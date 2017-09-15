@@ -1,4 +1,4 @@
-package com.tencent.tvmanager.httpserver.threadpool;
+package com.tencent.tvmanager.netty.httpserver.threadpool;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;

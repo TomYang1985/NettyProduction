@@ -1,4 +1,4 @@
-package com.tencent.tvmanager.httpserver.threadpool;
+package com.tencent.tvmanager.netty.httpserver.threadpool;
 
 import com.tencent.tvmanager.netty.core.threadpool.AbortPolicyWithReport;
 import com.tencent.tvmanager.netty.core.threadpool.NamedThreadFactory;
