@@ -91,7 +91,7 @@ public class Algorithm {
         for (int i = 0; i < bodyAESKey.length; i++) {
             bodyAESKey[i] = (byte) Math.floor(Math.random() * 256);
         }
-        L.d(bodyAESKey);
+
         return bodyAESKey;
     }
 

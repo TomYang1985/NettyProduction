@@ -4,7 +4,7 @@ import com.tencent.tvmanager.netty.codec.KeysManager;
 import com.tencent.tvmanager.netty.core.EMMessageManager;
 import com.tencent.tvmanager.netty.core.threadpool.CallbackTask;
 import com.tencent.tvmanager.netty.core.threadpool.ExecutorFactory;
-import com.tencent.tvmanager.netty.msg.EMCallbackTaskMessage;
+import com.tencent.tvmanager.netty.innermsg.CallbackMessage;
 import com.tencent.tvmanager.util.HostUtils;
 import com.tencent.tvmanager.util.L;
 
@@ -25,7 +25,7 @@ public class ConnectionManagerHandler extends ChannelDuplexHandler {
         //添加连接的客户端
         EMMessageManager.getInstance().addChannel(ctx.channel());
         //发送客户端连接回调
-        EMCallbackTaskMessage message = new EMCallbackTaskMessage(EMCallbackTaskMessage.MSG_TYPE_ACTIVE);
+        CallbackMessage message = new CallbackMessage(CallbackMessage.MSG_TYPE_ACTIVE);
         message.id = HostUtils.parseHostPort(ctx.channel().remoteAddress().toString());
         ExecutorFactory.submitCallbackTask(new CallbackTask(message));
     }
@@ -37,7 +37,7 @@ public class ConnectionManagerHandler extends ChannelDuplexHandler {
         //移除断开的客户端
         EMMessageManager.getInstance().removeChannel(ctx.channel());
         //发送客户端断开回调
-        EMCallbackTaskMessage message = new EMCallbackTaskMessage(EMCallbackTaskMessage.MSG_TYPE_INACTIVE);
+        CallbackMessage message = new CallbackMessage(CallbackMessage.MSG_TYPE_INACTIVE);
         String clientId = HostUtils.parseHostPort(ctx.channel().remoteAddress().toString());
         message.id = clientId;
         ExecutorFactory.submitCallbackTask(new CallbackTask(message));

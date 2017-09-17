@@ -3,8 +3,8 @@ package com.tencent.tvmanager.netty.handler;
 import com.tencent.tvmanager.netty.core.threadpool.ExecutorFactory;
 import com.tencent.tvmanager.netty.core.threadpool.MessageRecvTask;
 import com.tencent.tvmanager.netty.core.threadpool.MessageSendTask;
-import com.tencent.tvmanager.netty.msg.Header;
-import com.tencent.tvmanager.netty.msg.RecvMsg;
+import com.tencent.tvmanager.netty.innermsg.NettyMessage;
+import com.tencent.tvmanager.netty.innermsg.Header;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -14,20 +14,20 @@ import io.netty.channel.SimpleChannelInboundHandler;
  * Created by robincxiao on 2017/8/23.
  */
 @ChannelHandler.Sharable
-public class MessageRecvHandler extends SimpleChannelInboundHandler<RecvMsg> {
+public class MessageRecvHandler extends SimpleChannelInboundHandler<NettyMessage> {
     @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, RecvMsg recvMsg) throws Exception {
-
-        switch (recvMsg.msgType) {
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, NettyMessage message) throws Exception {
+        switch (message.msgType) {
             case Header.MsgType.PING:
-                ExecutorFactory.submitSendTask(new MessageSendTask(channelHandlerContext.channel(), recvMsg));
+                ExecutorFactory.submitSendTask(new MessageSendTask(channelHandlerContext.channel(), message));
                 break;
             case Header.MsgType.PAYLOAD:
-                ExecutorFactory.submitRecvTask(new MessageRecvTask(channelHandlerContext, recvMsg));
+                ExecutorFactory.submitRecvTask(new MessageRecvTask(channelHandlerContext, message));
                 break;
             case Header.MsgType.EXCHANGE_KEY:
-                ExecutorFactory.submitSendTask(new MessageSendTask(channelHandlerContext.channel(), recvMsg));
+                ExecutorFactory.submitSendTask(new MessageSendTask(channelHandlerContext.channel(), message));
                 break;
         }
     }
 }
+

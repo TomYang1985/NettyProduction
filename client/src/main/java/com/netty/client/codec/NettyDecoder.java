@@ -1,10 +1,10 @@
 package com.netty.client.codec;
 
 import com.google.protobuf.MessageLite;
-import com.netty.client.msg.Header;
+import com.netty.client.innermsg.NettyMessage;
+import com.netty.client.innermsg.Header;
 import com.netty.client.msg.KeyResponseProto;
 import com.netty.client.msg.PayloadProto;
-import com.netty.client.msg.RecvMessage;
 import com.netty.client.utils.L;
 
 import java.util.List;
@@ -14,13 +14,14 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 
 /**
- * Created by robincxiao on 2017/8/18.
+ * Created by robincxiao on 2017/9/15.
  */
-public class ProtobufDecoder extends ByteToMessageDecoder {
+
+public class NettyDecoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-        while (in.readableBytes() > 5) { // 如果可读长度小于包头长度，退出。
+        while (in.readableBytes() > 6) { // 如果可读长度小于包头长度，退出。
             in.markReaderIndex();
 
             // 获取包头中的body长度
@@ -34,6 +35,7 @@ public class ProtobufDecoder extends ByteToMessageDecoder {
             byte protocolVersion = in.readByte();//协议版本
             byte msgType = in.readByte();//消息类型
             byte busynissType = in.readByte();//业务类型
+            byte priority = in.readByte();//优先级
             in.readByte();//读保留字节
 
             // 如果可读长度小于body长度，恢复读指针，退出。
@@ -44,21 +46,15 @@ public class ProtobufDecoder extends ByteToMessageDecoder {
 
             if (msgType == Header.MsgType.PONG) {//心跳pong
                 L.print("recv server pong");
-                RecvMessage msg = new RecvMessage();
-                msg.msgType = msgType;
-
-                out.add(msg);
+                output(out, msgType, busynissType, priority, null);
             } else {
                 // 读取body
                 ByteBuf bodyByteBuf = in.readBytes(bodyLength);
 
                 byte[] array;
-                int offset;
-
                 int readableLen = bodyByteBuf.readableBytes();
                 if (bodyByteBuf.hasArray()) {
                     array = bodyByteBuf.array();
-                    offset = bodyByteBuf.arrayOffset() + bodyByteBuf.readerIndex();
                     if(array != null && array.length != bodyLength){
                         array = new byte[readableLen];
                         bodyByteBuf.getBytes(bodyByteBuf.readerIndex(), array, 0, readableLen);
@@ -66,24 +62,31 @@ public class ProtobufDecoder extends ByteToMessageDecoder {
                 } else {
                     array = new byte[readableLen];
                     bodyByteBuf.getBytes(bodyByteBuf.readerIndex(), array, 0, readableLen);
-                    offset = 0;
                 }
+
 
                 //AES解码
                 array = Algorithm.getInstance().decryptBody(array);
 
                 //反序列化
                 if (array != null) {
-                    MessageLite result = decodeBody(msgType, busynissType, array);
-                    RecvMessage msg = new RecvMessage();
-                    msg.msgType = msgType;
-                    msg.data = result;
-                    out.add(msg);
+                    MessageLite body = decodeProtoBody(msgType, busynissType, array);
+                    output(out, msgType, busynissType, priority, body);
                 } else {
-                    L.print("ProtobufDecoder parse array null");
+                    L.print("NettyDecoder parse array null");
                 }
             }
         }
+    }
+
+    private void output(List<Object> out, byte msgType, byte busynissType, byte priority, MessageLite body) {
+        NettyMessage message = new NettyMessage();
+        message.msgType = msgType;
+        message.busyType = busynissType;
+        message.priority = priority;
+        message.body = body;
+
+        out.add(message);
     }
 
     /**
@@ -94,7 +97,7 @@ public class ProtobufDecoder extends ByteToMessageDecoder {
      * @return
      * @throws Exception
      */
-    public MessageLite decodeBody(byte msgType, byte busynissType, byte[] array) throws Exception {
+    public MessageLite decodeProtoBody(byte msgType, byte busynissType, byte[] array) throws Exception {
         if (msgType == Header.MsgType.PAYLOAD) {
             return PayloadProto.Payload.getDefaultInstance().
                     getParserForType().parseFrom(array);
@@ -102,7 +105,6 @@ public class ProtobufDecoder extends ByteToMessageDecoder {
         }else if (msgType == Header.MsgType.EXCHANGE_KEY_RESP) {
             return KeyResponseProto.KeyResponse.getDefaultInstance().
                     getParserForType().parseFrom(array);
-
         }
 
         return null; // or throw exception

@@ -1,4 +1,4 @@
-package com.tencent.tvmanager.netty.msg;
+package com.tencent.tvmanager.netty.innermsg;
 
 /**
  * Created by robincxiao on 2017/8/23.
@@ -19,12 +19,13 @@ public class Header {
         public static final byte ACK = 102;
         public static final byte EXCHANGE_KEY = 103;//交换key
         public static final byte EXCHANGE_KEY_RESP = 104;//交换key响应
-        public static final byte CHECK_KEY = 105;//验证key
+        public static final byte REQUEST = 105;//业务请求
+        public static final byte RESPONSE = 106;//业务返回
     }
 
     /**
      * 具体业务类型
      */
-    public class BusynessType {
+    public class BusinessType {
     }
 }

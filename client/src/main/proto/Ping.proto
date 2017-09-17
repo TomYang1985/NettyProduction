@@ -1,8 +1,0 @@
-syntax = "proto2";
-
-option java_package = "com.netty.client.msg";
-option java_outer_classname = "PingProto";
-
-message Ping{
-
-}

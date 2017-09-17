@@ -35,6 +35,14 @@
             android:theme="@style/SlideActivityAnim1" />
 
         <service android:name=".NettyClientService" />
+
+        <receiver android:name=".receiver.AppActionReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED"/>
+                <action android:name="android.intent.action.PACKAGE_REMOVED"/>
+                <action android:name="android.intent.action.PACKAGE_REPLACED"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

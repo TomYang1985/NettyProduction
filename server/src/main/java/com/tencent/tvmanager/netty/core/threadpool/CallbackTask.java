@@ -5,10 +5,11 @@ import com.tencent.tvmanager.netty.core.EMConnectManager;
 import com.tencent.tvmanager.netty.core.EMMessageManager;
 import com.tencent.tvmanager.netty.listener.EMConnectionListener;
 import com.tencent.tvmanager.netty.listener.EMMessageListener;
-import com.tencent.tvmanager.netty.msg.EMCallbackTaskMessage;
+import com.tencent.tvmanager.netty.innermsg.CallbackMessage;
 import com.tencent.tvmanager.netty.msg.EMDevice;
 import com.tencent.tvmanager.netty.msg.EMMessage;
-import com.tencent.tvmanager.netty.msg.Header;
+import com.tencent.tvmanager.netty.innermsg.Header;
+import com.tencent.tvmanager.netty.msg.EMPayload;
 import com.tencent.tvmanager.netty.msg.PayloadProto;
 
 /**
@@ -16,43 +17,46 @@ import com.tencent.tvmanager.netty.msg.PayloadProto;
  */
 
 public class CallbackTask implements Runnable {
-    private EMCallbackTaskMessage message;
+    private CallbackMessage message;
 
-    public CallbackTask(EMCallbackTaskMessage message) {
+    public CallbackTask(CallbackMessage message) {
         this.message = message;
     }
 
     @Override
     public void run() {
-        if (message == null) {
-            return;
-        }
-
-        if (message.type == EMCallbackTaskMessage.MSG_TYPE_ACTIVE) {
+        if (message.type == CallbackMessage.MSG_TYPE_ACTIVE) {
             for (EMConnectionListener listener : EMConnectManager.getInstance().getListener()) {
                 if (listener != null) {
                     listener.onConnected(new EMDevice(message.id));
                 }
             }
-        } else if (message.type == EMCallbackTaskMessage.MSG_TYPE_INACTIVE) {
+        } else if (message.type == CallbackMessage.MSG_TYPE_INACTIVE) {
             for (EMConnectionListener listener : EMConnectManager.getInstance().getListener()) {
                 if (listener != null) {
                     listener.onDisconnected(new EMDevice(message.id));
                 }
             }
-        } else {
-            switch (message.mRecvMsg.msgType) {
+        } else if (message.type == CallbackMessage.MSG_TYPE_RECV_MSG){
+            switch (message.recvMsg.msgType) {
                 case Header.MsgType.PAYLOAD:
-                    for (EMMessageListener listener : EMMessageManager.getInstance().getListener()) {
-                        if (listener != null) {
-                            PayloadProto.Payload payload = (PayloadProto.Payload) message.mRecvMsg.data;
-                            EMMessage emMessage = new EMMessage(message.id, payload.getContent());
-                            listener.onMessageReceived(emMessage);
-                        }
-                    }
+                    PayloadProto.Payload body = (PayloadProto.Payload) message.recvMsg.body;
+                    EMPayload payload = new EMPayload(message.id, body.getContent());
+                    callbackMessage(payload);
                     break;
             }
         }
     }
 
+    /**
+     * 消息回调
+     * @param message
+     */
+    private void callbackMessage(EMMessage message){
+        for (EMMessageListener listener : EMMessageManager.getInstance().getListener()) {
+            if (listener != null) {
+                listener.onMessageReceived(message);
+            }
+        }
+    }
 }

@@ -187,6 +187,7 @@ public class ScanDevice implements Runnable {
             try {
                 //读取Socket中的数据
                 socket.receive(inPacket);
+                L.d("recv msg");
             } catch (IOException e) {
                 mStatus.getAndSet(STATUS_NONE);
                 e.printStackTrace();

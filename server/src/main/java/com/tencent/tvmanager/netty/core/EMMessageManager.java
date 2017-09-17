@@ -4,10 +4,10 @@ import android.text.TextUtils;
 
 import com.tencent.tvmanager.netty.core.threadpool.ExecutorFactory;
 import com.tencent.tvmanager.netty.core.threadpool.MessageSendTask;
+import com.tencent.tvmanager.netty.innermsg.NettyMessage;
 import com.tencent.tvmanager.netty.listener.EMMessageListener;
-import com.tencent.tvmanager.netty.msg.Header;
+import com.tencent.tvmanager.netty.innermsg.Header;
 import com.tencent.tvmanager.netty.msg.PayloadProto;
-import com.tencent.tvmanager.netty.msg.SendMsg;
 import com.tencent.tvmanager.util.HostUtils;
 import com.tencent.tvmanager.util.L;
 import com.tencent.tvmanager.util.MID;
@@ -94,7 +94,10 @@ public class EMMessageManager {
         if (channel != null) {
             PayloadProto.Payload payload = PayloadProto.Payload.newBuilder()
                     .setMessageId(MID.getId()).setContent(content).build();
-            ExecutorFactory.submitSendTask(new MessageSendTask(channel, new SendMsg(Header.MsgType.PAYLOAD, payload)));
+            NettyMessage message = new NettyMessage();
+            message.msgType = Header.MsgType.PAYLOAD;
+            message.body = payload;
+            ExecutorFactory.submitSendTask(new MessageSendTask(channel, message));
         } else {
             L.print("mChannelGroup is not contains id = " + id);
         }

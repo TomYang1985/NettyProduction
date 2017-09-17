@@ -5,11 +5,8 @@ package com.netty.client.msg;
  */
 
 public class EMMessage {
-    public String from;
-    public String content;
+    public static final int MSG_TYPE_PAYLOAD = 1;
+    public static final int MSG_TYPE_SERVER_VERSION = 2;
 
-    public EMMessage(String from, String content) {
-        this.from = from;
-        this.content = content;
-    }
+    public int msgType;
 }

@@ -1,6 +1,7 @@
 package com.tencent.tvmanager.netty.core.threadpool;
 
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 

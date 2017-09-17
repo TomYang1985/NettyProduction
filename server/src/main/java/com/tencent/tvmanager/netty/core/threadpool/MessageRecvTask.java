@@ -1,8 +1,8 @@
 package com.tencent.tvmanager.netty.core.threadpool;
 
-import com.tencent.tvmanager.netty.msg.EMCallbackTaskMessage;
-import com.tencent.tvmanager.netty.msg.Header;
-import com.tencent.tvmanager.netty.msg.RecvMsg;
+import com.tencent.tvmanager.netty.innermsg.NettyMessage;
+import com.tencent.tvmanager.netty.innermsg.CallbackMessage;
+import com.tencent.tvmanager.netty.innermsg.Header;
 import com.tencent.tvmanager.util.HostUtils;
 
 import io.netty.channel.ChannelHandlerContext;
@@ -13,24 +13,23 @@ import io.netty.channel.ChannelHandlerContext;
 
 public class MessageRecvTask implements Runnable {
     private ChannelHandlerContext mChannelHandlerContext;
-    private RecvMsg mRecvMsg;
+    private NettyMessage mMessage;
 
-    public MessageRecvTask(ChannelHandlerContext channelHandlerContext, RecvMsg recvMsg) {
+    public MessageRecvTask(ChannelHandlerContext channelHandlerContext, NettyMessage message) {
         mChannelHandlerContext = channelHandlerContext;
-        mRecvMsg = recvMsg;
+        mMessage = message;
     }
 
     @Override
     public void run() {
         if (mChannelHandlerContext != null) {
-            switch (mRecvMsg.msgType) {
-                case Header.MsgType.PING:
-                    ExecutorFactory.submitSendTask(new MessageSendTask(mChannelHandlerContext.channel(), mRecvMsg));
-                    break;
+            switch (mMessage.msgType) {
                 case Header.MsgType.PAYLOAD:
                     String remoteAddress = mChannelHandlerContext.channel().remoteAddress().toString();
-                    EMCallbackTaskMessage message = new EMCallbackTaskMessage(mRecvMsg);
+                    CallbackMessage message = new CallbackMessage();
+                    message.type = CallbackMessage.MSG_TYPE_RECV_MSG;
                     message.id = HostUtils.parseHostPort(remoteAddress);
+                    message.recvMsg = mMessage;
                     ExecutorFactory.submitCallbackTask(new CallbackTask(message));
                     break;
             }

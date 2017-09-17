@@ -15,6 +15,8 @@ import com.netty.client.listener.EMConnectionListener;
 import com.netty.client.listener.EMMessageListener;
 import com.netty.client.msg.EMMessage;
 import com.netty.client.msg.EMDevice;
+import com.netty.client.msg.EMPayload;
+import com.netty.client.utils.L;
 import com.netty.client.utils.T;
 
 import butterknife.BindView;
@@ -41,6 +43,11 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
 
         @Override
         public void onConnectSuccByUser(String id) {
+
+        }
+
+        @Override
+        public void onChannelCheckSucc(String id) {
 
         }
 
@@ -72,8 +79,13 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
             mContext.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mContentBuilder.append(message.from).append("\n").append(message.content).append("\n");
-                    mChatContentText.setText(mContentBuilder.toString());
+                    if(message.msgType == EMMessage.MSG_TYPE_PAYLOAD) {
+                        EMPayload payload = (EMPayload) message;
+                        mContentBuilder.append(payload.from).append("\n").append(payload.content).append("\n");
+                        mChatContentText.setText(mContentBuilder.toString());
+                    }else if(message.msgType == EMMessage.MSG_TYPE_SERVER_VERSION){
+                        L.d(message);
+                    }
                 }
             });
         }

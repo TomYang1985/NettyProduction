@@ -1,8 +1,0 @@
-syntax = "proto2";
-
-option java_package = "com.tencent.tvmanager.netty.msg";
-option java_outer_classname = "PongProto";
-
-message Pong{
-
-}

@@ -3,8 +3,8 @@ package com.tencent.tvmanager.netty.core;
 import android.content.Context;
 
 import com.tencent.tvmanager.netty.codec.KeysManager;
-import com.tencent.tvmanager.netty.codec.ProtobufDecoder;
-import com.tencent.tvmanager.netty.codec.ProtobufEncoder;
+import com.tencent.tvmanager.netty.codec.NettyDecoder;
+import com.tencent.tvmanager.netty.codec.NettyEncoder;
 import com.tencent.tvmanager.netty.common.Watchdog;
 import com.tencent.tvmanager.netty.core.threadpool.ExecutorFactory;
 import com.tencent.tvmanager.netty.handler.ConnectionManagerHandler;
@@ -126,8 +126,8 @@ public class EMAcceptor extends BaseAcceptor implements ChannelHandlerHolder {
         return new ChannelHandler[]{
                 new IdleStateHandler(READER_IDLE_TIME, 0, 0, TimeUnit.SECONDS),
                 new IdleStateTrigger(),
-                new ProtobufEncoder(),
-                new ProtobufDecoder(),
+                new NettyEncoder(),
+                new NettyDecoder(),
                 new ConnectionManagerHandler(),
                 new MessageRecvHandler()
         };

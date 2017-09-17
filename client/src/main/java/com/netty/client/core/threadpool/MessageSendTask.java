@@ -1,9 +1,7 @@
 package com.netty.client.core.threadpool;
 
-import com.netty.client.msg.Header;
-import com.netty.client.msg.PingProto;
-import com.netty.client.msg.RecvMessage;
-import com.netty.client.msg.SendMessage;
+import com.netty.client.innermsg.NettyMessage;
+import com.netty.client.innermsg.Header;
 import com.netty.client.utils.L;
 
 import io.netty.channel.Channel;
@@ -14,20 +12,13 @@ import io.netty.channel.Channel;
 
 public class MessageSendTask implements Runnable {
     private Channel mChannel;
-    private RecvMessage mRecvMessage;
-    private SendMessage mSendMessage;
+    private NettyMessage mMessage;
 
-    public MessageSendTask(Channel channel, RecvMessage recvMessage) {
+    public MessageSendTask(Channel channel, NettyMessage message) {
         mChannel = channel;
-        mRecvMessage = recvMessage;
-        mSendMessage = null;
+        mMessage = message;
     }
 
-    public MessageSendTask(Channel channel, SendMessage sendMessage) {
-        mChannel = channel;
-        mSendMessage = sendMessage;
-        mRecvMessage = null;
-    }
 
     @Override
     public void run() {
@@ -45,23 +36,18 @@ public class MessageSendTask implements Runnable {
             return;
         }
 
-        if(mSendMessage != null) {
-            switch (mSendMessage.msgType) {
-                case Header.MsgType.PING:
-                    L.print("MessageSendTask send ping to" + mChannel.remoteAddress());
-                    mChannel.writeAndFlush(PingProto.Ping.newBuilder().build());
-                    break;
-                case Header.MsgType.PAYLOAD:
-                    mChannel.writeAndFlush(mSendMessage.data);
-                    break;
-                case Header.MsgType.EXCHANGE_KEY://发送key
-                    mChannel.writeAndFlush(mSendMessage.data);
-                    break;
-            }
+        switch (mMessage.msgType) {
+            case Header.MsgType.PING:
+                L.print("MessageSendTask send ping to" + mChannel.remoteAddress());
+                mChannel.writeAndFlush(mMessage);
+                break;
+            case Header.MsgType.PAYLOAD:
+                mChannel.writeAndFlush(mMessage);
+                break;
+            case Header.MsgType.EXCHANGE_KEY://发送key
+                mChannel.writeAndFlush(mMessage);
+                break;
         }
 
-        if(mRecvMessage != null){
-
-        }
     }
 }

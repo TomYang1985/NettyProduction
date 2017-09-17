@@ -4,10 +4,10 @@ import android.text.TextUtils;
 
 import com.netty.client.core.threadpool.ExecutorFactory;
 import com.netty.client.core.threadpool.MessageSendTask;
+import com.netty.client.innermsg.NettyMessage;
 import com.netty.client.listener.EMMessageListener;
-import com.netty.client.msg.Header;
+import com.netty.client.innermsg.Header;
 import com.netty.client.msg.PayloadProto;
-import com.netty.client.msg.SendMessage;
 import com.netty.client.utils.L;
 import com.netty.client.utils.MID;
 
@@ -59,6 +59,7 @@ public class EMMessageManager {
 
     /**
      * 发送payload信息
+     *
      * @param content
      */
     public void sendPayload(String content) {
@@ -79,6 +80,11 @@ public class EMMessageManager {
 
         PayloadProto.Payload payload = PayloadProto.Payload.newBuilder()
                 .setMessageId(MID.getId()).setContent(content).build();
-        ExecutorFactory.submitSendTask(new MessageSendTask(mChannel, new SendMessage(Header.MsgType.PAYLOAD, payload)));
+
+        NettyMessage message = new NettyMessage();
+        message.msgType = Header.MsgType.PAYLOAD;
+        message.body = payload;
+
+        ExecutorFactory.submitSendTask(new MessageSendTask(mChannel, message));
     }
 }

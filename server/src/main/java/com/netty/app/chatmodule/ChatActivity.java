@@ -14,6 +14,7 @@ import com.tencent.tvmanager.netty.listener.EMConnectionListener;
 import com.tencent.tvmanager.netty.listener.EMMessageListener;
 import com.tencent.tvmanager.netty.msg.EMDevice;
 import com.tencent.tvmanager.netty.msg.EMMessage;
+import com.tencent.tvmanager.netty.msg.EMPayload;
 import com.tencent.tvmanager.util.L;
 import com.tencent.tvmanager.util.T;
 
@@ -78,8 +79,11 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
             mContext.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mContentBuilder.append(message.from).append("\n").append(message.content).append("\n");
-                    mChatContentText.setText(mContentBuilder.toString());
+                    if(message.msgType == EMMessage.MSG_TYPE_PAYLOAD) {
+                        EMPayload payload = (EMPayload) message;
+                        mContentBuilder.append(payload.from).append("\n").append(payload.content).append("\n");
+                        mChatContentText.setText(mContentBuilder.toString());
+                    }
                 }
             });
         }

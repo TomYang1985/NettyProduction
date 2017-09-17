@@ -2,15 +2,15 @@ package com.netty.client.core;
 
 import android.content.Context;
 
-import com.netty.client.codec.ProtobufDecoder;
-import com.netty.client.codec.ProtobufEncoder;
+import com.netty.client.codec.NettyDecoder;
+import com.netty.client.codec.NettyEncoder;
 import com.netty.client.common.ConnectionWatchdog;
 import com.netty.client.common.InnerMessageHelper;
 import com.netty.client.core.threadpool.ExecutorFactory;
 import com.netty.client.handler.ConnectionManagerHandler;
 import com.netty.client.handler.IdleStateTrigger;
 import com.netty.client.handler.MessageRecvHandler;
-import com.netty.client.msg.CallbackTaskMessage;
+import com.netty.client.innermsg.CallbackMessage;
 import com.netty.client.msg.EMDevice;
 import com.netty.client.utils.HostUtils;
 import com.netty.client.utils.L;
@@ -151,25 +151,25 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
     private void connect(final int triggerType) {
         synchronized (bootstrap()) {
             if (!NetUtils.isWifi(mContext)) {
-                handlerUserSpaceCallback(triggerType, CallbackTaskMessage.MSG_TYPE_NOT_WIFI);
+                handlerUserSpaceCallback(triggerType, CallbackMessage.MSG_TYPE_NOT_WIFI);
                 L.print("return when net is not wifi , triggerType = " + triggerType);
                 return;
             }
 
             if (mStatus.compareAndSet(STATUS_CONNECTING, STATUS_CONNECTING)) {
-                handlerUserSpaceCallback(triggerType, CallbackTaskMessage.MSG_TYPE_CONNECTING);
+                handlerUserSpaceCallback(triggerType, CallbackMessage.MSG_TYPE_CONNECTING);
                 L.print("return when connecting , triggerType = " + triggerType);
                 return;
             }
 
             if (mStatus.compareAndSet(STATUS_CONNECTED, STATUS_CONNECTED)) {
-                handlerUserSpaceCallback(triggerType, CallbackTaskMessage.MSG_TYPE_CONNECTED);
+                handlerUserSpaceCallback(triggerType, CallbackMessage.MSG_TYPE_CONNECTED);
                 L.print("return when connected , triggerType = " + triggerType);
                 return;
             }
 
             if (mDevice == null) {
-                handlerUserSpaceCallback(triggerType, CallbackTaskMessage.MSG_TYPE_HOST_NULL);
+                handlerUserSpaceCallback(triggerType, CallbackMessage.MSG_TYPE_HOST_NULL);
                 L.print("mDevice = null , triggerType = " + triggerType);
                 return;
             }
@@ -215,7 +215,7 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
                     mStatus.getAndSet(STATUS_NONE);
                     switch (triggerType) {
                         case TRIGGER_FROM_USER:
-                            InnerMessageHelper.sendErrorCallbackMessage(CallbackTaskMessage.MSG_TYPE_CONNECT_FAIL);
+                            InnerMessageHelper.sendErrorCallbackMessage(CallbackMessage.MSG_TYPE_CONNECT_FAIL);
                             L.d("user启动连接失败，启动断线重连");
                             mWatchdog.retry();
                             break;
@@ -257,8 +257,8 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
                 new IdleStateHandler(READER_IDLE_TIME, WRITER_IDLE_TIME, 0, TimeUnit.SECONDS),
                 new IdleStateTrigger(),
                 new ConnectionManagerHandler(),
-                new ProtobufEncoder(),
-                new ProtobufDecoder(),
+                new NettyEncoder(),
+                new NettyDecoder(),
                 new MessageRecvHandler()
         };
     }

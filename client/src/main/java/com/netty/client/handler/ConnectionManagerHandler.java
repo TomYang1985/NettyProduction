@@ -1,13 +1,7 @@
 package com.netty.client.handler;
 
-import android.text.TextUtils;
-
 import com.netty.client.common.InnerMessageHelper;
 import com.netty.client.core.EMMessageManager;
-import com.netty.client.core.threadpool.CallbackTask;
-import com.netty.client.core.threadpool.ExecutorFactory;
-import com.netty.client.msg.CallbackTaskMessage;
-import com.netty.client.utils.HostUtils;
 import com.netty.client.utils.L;
 
 import io.netty.channel.ChannelDuplexHandler;
@@ -26,11 +20,7 @@ public class ConnectionManagerHandler extends ChannelDuplexHandler {
         L.print("ConnectionManagerHandler.channelActive");
 
         EMMessageManager.getInstance().setChannel(ctx.channel());//设置消息管理的channel
-
-//        String remoteAddress = "";
-//        if (ctx.channel() != null && ctx.channel().remoteAddress() != null && ctx.channel().remoteAddress().toString() != null) {
-//            remoteAddress = ctx.channel().remoteAddress().toString();
-//        }
+        //发送动态密钥
         InnerMessageHelper.sendKey(ctx.channel());
 
         String remoteAddress = ctx.channel().remoteAddress().toString();
@@ -42,10 +32,6 @@ public class ConnectionManagerHandler extends ChannelDuplexHandler {
         super.channelInactive(ctx);
         L.print("ConnectionManagerHandler.channelInactive");
 
-//        String remoteAddress = "";
-//        if (ctx.channel() != null && ctx.channel().remoteAddress() != null && ctx.channel().remoteAddress().toString() != null) {
-//            remoteAddress = ctx.channel().remoteAddress().toString();
-//        }
         String remoteAddress = ctx.channel().remoteAddress().toString();
         InnerMessageHelper.sendInActiveCallbackMessage(remoteAddress);
     }

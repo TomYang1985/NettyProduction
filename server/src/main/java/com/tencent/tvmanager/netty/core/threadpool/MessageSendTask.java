@@ -1,34 +1,23 @@
 package com.tencent.tvmanager.netty.core.threadpool;
 
 import com.tencent.tvmanager.netty.common.InnerMessageHelper;
-import com.tencent.tvmanager.netty.msg.Header;
-import com.tencent.tvmanager.netty.msg.KeyResponseProto;
-import com.tencent.tvmanager.netty.msg.PongProto;
-import com.tencent.tvmanager.netty.msg.RecvMsg;
-import com.tencent.tvmanager.netty.msg.SendMsg;
+import com.tencent.tvmanager.netty.innermsg.NettyMessage;
+import com.tencent.tvmanager.netty.innermsg.Header;
 import com.tencent.tvmanager.util.L;
 
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
 
 /**
  * Created by xiaoguochang on 2017/8/27.
  */
 
 public class MessageSendTask implements Runnable {
-    private ChannelHandlerContext mChannelHandlerContext;
     private Channel mChannel;
-    private RecvMsg mRecvMsg;
-    private SendMsg mSendMsg;
+    private NettyMessage mMessage;
 
-    public MessageSendTask(Channel channel, RecvMsg recvMsg) {
+    public MessageSendTask(Channel channel, NettyMessage message) {
         mChannel = channel;
-        mRecvMsg = recvMsg;
-    }
-
-    public MessageSendTask(Channel channel, SendMsg sendMsg) {
-        mChannel = channel;
-        mSendMsg = sendMsg;
+        mMessage = message;
     }
 
     @Override
@@ -47,27 +36,17 @@ public class MessageSendTask implements Runnable {
             return;
         }
 
-        if (mSendMsg != null) {
-            switch (mSendMsg.msgType) {
-                case Header.MsgType.PAYLOAD:
-                    mChannel.writeAndFlush(mSendMsg.data);
-                    break;
-            }
-        }
-
-        if (mRecvMsg != null) {
-            switch (mRecvMsg.msgType) {
-                case Header.MsgType.PING:
-                    L.print("MessageSendTask send pong to" + mChannel.remoteAddress());
-                    mChannel.writeAndFlush(PongProto.Pong.newBuilder().build());//收到ping，发送pong
-                    break;
-                case Header.MsgType.PAYLOAD:
-
-                    break;
-                case Header.MsgType.EXCHANGE_KEY:
-                    InnerMessageHelper.sendKeyResponseSucc(mChannel);
-                    break;
-            }
+        switch (mMessage.msgType){
+            case Header.MsgType.PING:
+                L.print("MessageSendTask send pong to" + mChannel.remoteAddress());
+                InnerMessageHelper.sendPong(mChannel);
+                break;
+            case Header.MsgType.EXCHANGE_KEY:
+                InnerMessageHelper.sendKeyResponseSucc(mChannel);
+                break;
+            case Header.MsgType.PAYLOAD:
+                mChannel.writeAndFlush(mMessage);
+                break;
         }
     }
 }

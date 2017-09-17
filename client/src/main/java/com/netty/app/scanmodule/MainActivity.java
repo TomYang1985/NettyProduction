@@ -29,7 +29,6 @@ import butterknife.BindView;
 import xiao.framework.activity.BaseFragmentActivity;
 import xiao.framework.adapter.XGCOnRVItemClickListener;
 import xiao.framework.template.BaseTemplate;
-import xiao.framework.template.impl.EmptyTemplate;
 
 public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemClickListener {
     private static final int MSG_FINDED_DEVICES = 1;
@@ -105,7 +104,7 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
                     mHintText.setText("扫描超时，未发现可连接设备...");
                     mHintText.setVisibility(View.VISIBLE);
                     break;
-                case MSG_CONNECTED_BY_USER:{
+                case MSG_CONNECTED_BY_USER: {
                     startActivity(new Intent(mContext, ChatActivity.class));
                 }
                 case MSG_ACTIVE: {
@@ -165,6 +164,11 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
         }
 
         @Override
+        public void onChannelCheckSucc(String id) {
+
+        }
+
+        @Override
         public void onActive(String id) {
             L.print("MainActivity.onActive=" + id);
             if (mHandler != null) {
@@ -198,6 +202,7 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
             }
         }
     };
+
 
     @Override
     protected void doOnCreate(Bundle savedInstanceState) {
