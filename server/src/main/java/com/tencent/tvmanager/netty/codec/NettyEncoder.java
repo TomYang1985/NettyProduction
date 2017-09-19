@@ -38,7 +38,7 @@ public class NettyEncoder extends MessageToByteEncoder<NettyMessage> {
         header[1] = (byte) ((bodyLength >> 8) & 0xff);
         header[2] = Header.PROTOCOL_VERSION;//协议版本
         header[3] = nettyMessage.msgType;//消息类型
-        header[4] = nettyMessage.busyType;//具体业务类型
+        header[4] = nettyMessage.businessType;//具体业务类型
         header[5] = nettyMessage.priority;//消息优先级
         header[6] = 0;//保留
 

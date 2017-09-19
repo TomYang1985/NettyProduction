@@ -83,7 +83,7 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
                         EMPayload payload = (EMPayload) message;
                         mContentBuilder.append(payload.from).append("\n").append(payload.content).append("\n");
                         mChatContentText.setText(mContentBuilder.toString());
-                    }else if(message.msgType == EMMessage.MSG_TYPE_SERVER_VERSION){
+                    }else {
                         L.d(message);
                     }
                 }
@@ -124,7 +124,7 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
         return R.layout.activity_chat;
     }
 
-    @OnClick({R.id.btn_send})
+    @OnClick({R.id.btn_send, R.id.btn_app_list})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_send:
@@ -136,6 +136,9 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
                 mContentBuilder.append(EMClient.getInstance().localHost()).append("\n").append(content).append("\n");
                 mChatContentText.setText(mContentBuilder.toString());
                 mInputEdt.setText("");
+                break;
+            case R.id.btn_app_list:
+                EMClient.getInstance().getEMMessageManager().requestAppList();
                 break;
         }
     }

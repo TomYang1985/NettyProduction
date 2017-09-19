@@ -41,7 +41,6 @@ public class KeysManager {
      */
     public void putKey(String id, byte[] key) {
         mKeysMap.put(id, key);
-        L.d(mKeysMap);
     }
 
     /**
@@ -49,7 +48,6 @@ public class KeysManager {
      */
     public void removeKey(String id) {
         mKeysMap.remove(id);
-        L.d(mKeysMap);
     }
 
     /**

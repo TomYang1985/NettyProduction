@@ -4,15 +4,20 @@ package com.netty.client.core.threadpool;
 import com.netty.client.common.Code;
 import com.netty.client.core.EMConnectManager;
 import com.netty.client.core.EMMessageManager;
+import com.netty.client.innermsg.CallbackMessage;
+import com.netty.client.innermsg.Header;
 import com.netty.client.listener.EMConnectionListener;
 import com.netty.client.listener.EMMessageListener;
-import com.netty.client.innermsg.CallbackMessage;
+import com.netty.client.msg.AppActionProto;
+import com.netty.client.msg.EMAppInstall;
+import com.netty.client.msg.EMAppRemove;
+import com.netty.client.msg.EMInstalledApp;
 import com.netty.client.msg.EMMessage;
-import com.netty.client.innermsg.Header;
 import com.netty.client.msg.EMPayload;
 import com.netty.client.msg.EMServerVersion;
 import com.netty.client.msg.KeyResponseProto;
 import com.netty.client.msg.PayloadProto;
+import com.tencent.tvmanager.netty.msg.AppListResponseProto;
 
 /**
  * Created by xiaoguochang on 2017/8/27.
@@ -20,7 +25,6 @@ import com.netty.client.msg.PayloadProto;
 
 public class CallbackTask implements Runnable {
     private CallbackMessage message;
-
 
     public CallbackTask(CallbackMessage message) {
         this.message = message;
@@ -61,7 +65,7 @@ public class CallbackTask implements Runnable {
                     listener.onConnectSuccByUser(message.from);
                 }
             }
-        } else if (message.type == CallbackMessage.MSG_TYPE_RECV_MSG){
+        } else if (message.type == CallbackMessage.MSG_TYPE_RECV_MSG) {
             switch (message.recvMessage.msgType) {
                 case Header.MsgType.PAYLOAD: {
                     PayloadProto.Payload chatMsg = (PayloadProto.Payload) message.recvMessage.body;
@@ -70,17 +74,55 @@ public class CallbackTask implements Runnable {
                 }
                 break;
                 case Header.MsgType.EXCHANGE_KEY_RESP: {
-                    KeyResponseProto.KeyResponse response = (KeyResponseProto.KeyResponse) message.recvMessage.body;
-                    int versionCode = response.getVersionCode();
-                    String versionName = response.getVersionName();
+                    KeyResponseProto.KeyResponse body = (KeyResponseProto.KeyResponse) message.recvMessage.body;
+                    int versionCode = body.getVersionCode();
+                    String versionName = body.getVersionName();
                     callbackMessage(new EMServerVersion(versionCode, versionName));
                 }
                 break;
+                case Header.MsgType.RESPONSE:
+                    doResponse();
+                    break;
             }
         }
     }
 
-    private void connectError(int code){
+    /**
+     * 业务消息的分类处理
+     */
+    private void doResponse() {
+        switch (message.recvMessage.businessType) {
+            case Header.BusinessType.RESPONSE_APP_ADDED: {
+                AppActionProto.AppAction body = (AppActionProto.AppAction) message.recvMessage.body;
+                callbackMessage(new EMAppInstall(body.getPackageName(), body.getAppName(), body.getVersionCode()
+                        , body.getVersionName(), body.getIsSystem()));
+
+            }
+            break;
+            case Header.BusinessType.RESPONSE_APP_REMOVED: {
+                AppActionProto.AppAction body = (AppActionProto.AppAction) message.recvMessage.body;
+                callbackMessage(new EMAppRemove(body.getPackageName()));
+            }
+            break;
+            case Header.BusinessType.RESPONSE_APP_LIST: {
+                AppListResponseProto.AppListResponse body = (AppListResponseProto.AppListResponse) message.recvMessage.body;
+                EMInstalledApp installedApps = new EMInstalledApp();
+                for (AppListResponseProto.AppInfo appInfo : body.getListList()) {
+                    installedApps.add(appInfo.getPackageName(), appInfo.getAppName(), appInfo.getVersionCode()
+                            , appInfo.getVersionName(), appInfo.getIsSystem());
+                }
+                callbackMessage(installedApps);
+            }
+            break;
+        }
+    }
+
+    /**
+     * 连接错误回调
+     *
+     * @param code
+     */
+    private void connectError(int code) {
         for (EMConnectionListener listener : EMConnectManager.getInstance().getListener()) {
             if (listener != null) {
                 listener.onError(code);
@@ -88,7 +130,7 @@ public class CallbackTask implements Runnable {
         }
     }
 
-    private void callbackMessage(EMMessage message){
+    private void callbackMessage(EMMessage message) {
         for (EMMessageListener listener : EMMessageManager.getInstance().getListener()) {
             if (listener != null) {
                 listener.onMessageReceived(message);

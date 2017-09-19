@@ -1,11 +1,13 @@
 package com.netty.client.codec;
 
 import com.google.protobuf.MessageLite;
-import com.netty.client.innermsg.NettyMessage;
 import com.netty.client.innermsg.Header;
+import com.netty.client.innermsg.NettyMessage;
+import com.netty.client.msg.AppActionProto;
 import com.netty.client.msg.KeyResponseProto;
 import com.netty.client.msg.PayloadProto;
 import com.netty.client.utils.L;
+import com.tencent.tvmanager.netty.msg.AppListResponseProto;
 
 import java.util.List;
 
@@ -55,7 +57,7 @@ public class NettyDecoder extends ByteToMessageDecoder {
                 int readableLen = bodyByteBuf.readableBytes();
                 if (bodyByteBuf.hasArray()) {
                     array = bodyByteBuf.array();
-                    if(array != null && array.length != bodyLength){
+                    if (array != null && array.length != bodyLength) {
                         array = new byte[readableLen];
                         bodyByteBuf.getBytes(bodyByteBuf.readerIndex(), array, 0, readableLen);
                     }
@@ -82,7 +84,7 @@ public class NettyDecoder extends ByteToMessageDecoder {
     private void output(List<Object> out, byte msgType, byte busynissType, byte priority, MessageLite body) {
         NettyMessage message = new NettyMessage();
         message.msgType = msgType;
-        message.busyType = busynissType;
+        message.businessType = busynissType;
         message.priority = priority;
         message.body = body;
 
@@ -98,15 +100,32 @@ public class NettyDecoder extends ByteToMessageDecoder {
      * @throws Exception
      */
     public MessageLite decodeProtoBody(byte msgType, byte busynissType, byte[] array) throws Exception {
-        if (msgType == Header.MsgType.PAYLOAD) {
-            return PayloadProto.Payload.getDefaultInstance().
-                    getParserForType().parseFrom(array);
-
-        }else if (msgType == Header.MsgType.EXCHANGE_KEY_RESP) {
-            return KeyResponseProto.KeyResponse.getDefaultInstance().
-                    getParserForType().parseFrom(array);
+        MessageLite body = null;
+        switch (msgType) {
+            case Header.MsgType.PAYLOAD:
+                body = PayloadProto.Payload.getDefaultInstance().
+                        getParserForType().parseFrom(array);
+                break;
+            case Header.MsgType.EXCHANGE_KEY_RESP://交换密钥响应
+                body = KeyResponseProto.KeyResponse.getDefaultInstance().
+                        getParserForType().parseFrom(array);
+                break;
+            case Header.MsgType.RESPONSE: {
+                switch (busynissType) {
+                    case Header.BusinessType.RESPONSE_APP_ADDED://APP安装
+                    case Header.BusinessType.RESPONSE_APP_REMOVED://APP删除
+                        body = AppActionProto.AppAction.getDefaultInstance().
+                                getParserForType().parseFrom(array);
+                    break;
+                    case Header.BusinessType.RESPONSE_APP_LIST://已安装列表
+                        body = AppListResponseProto.AppListResponse.getDefaultInstance().
+                                getParserForType().parseFrom(array);
+                        break;
+                }
+            }
+            break;
         }
 
-        return null; // or throw exception
+        return body; // or throw exception
     }
 }

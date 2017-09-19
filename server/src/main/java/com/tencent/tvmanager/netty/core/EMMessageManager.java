@@ -25,11 +25,9 @@ import io.netty.channel.Channel;
 public class EMMessageManager {
     private volatile static EMMessageManager sInstance;
     private List<EMMessageListener> mListeners;
-    private ConcurrentHashMap<String, Channel> mChannelGroup;//管理连接的客户端
 
     private EMMessageManager() {
         mListeners = new ArrayList<>();
-        mChannelGroup = new ConcurrentHashMap<>();
     }
 
     public static EMMessageManager getInstance() {
@@ -56,24 +54,6 @@ public class EMMessageManager {
         mListeners.remove(listener);
     }
 
-    public ConcurrentHashMap<String, Channel> getChannelGroup() {
-        return mChannelGroup;
-    }
-
-    public void addChannel(Channel channel) {
-        String id = HostUtils.parseHostPort(channel.remoteAddress().toString());
-        if(!mChannelGroup.containsKey(id) && !TextUtils.isEmpty(id)) {
-            mChannelGroup.put(id, channel);
-        }
-    }
-
-    public void removeChannel(Channel channel) {
-        String id = HostUtils.parseHostPort(channel.remoteAddress().toString());
-        if(mChannelGroup.containsKey(id) && !TextUtils.isEmpty(id)) {
-            mChannelGroup.remove(id);
-        }
-    }
-
     /**
      * 发送payload信息
      *
@@ -90,7 +70,7 @@ public class EMMessageManager {
             return;
         }
 
-        Channel channel = mChannelGroup.get(id);
+        Channel channel = EMConnectManager.getInstance().getChannelGroup().get(id);
         if (channel != null) {
             PayloadProto.Payload payload = PayloadProto.Payload.newBuilder()
                     .setMessageId(MID.getId()).setContent(content).build();

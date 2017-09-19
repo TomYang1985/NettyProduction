@@ -47,7 +47,20 @@ public class MessageSendTask implements Runnable {
             case Header.MsgType.EXCHANGE_KEY://发送key
                 mChannel.writeAndFlush(mMessage);
                 break;
+            case Header.MsgType.REQUEST://发送request
+                requestBusiness();
+                break;
         }
+    }
 
+    /**
+     * 业务请求的发送
+     */
+    private void requestBusiness(){
+        switch (mMessage.businessType){
+            case Header.BusinessType.REQUEST_APP_LIST://已安装APP列表
+                mChannel.writeAndFlush(mMessage);
+                break;
+        }
     }
 }

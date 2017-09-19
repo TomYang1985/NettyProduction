@@ -1,8 +1,11 @@
 package com.tencent.tvmanager.netty.core;
 
 
+import android.text.TextUtils;
+
 import com.tencent.tvmanager.netty.listener.EMConnectionListener;
 import com.tencent.tvmanager.netty.msg.EMDevice;
+import com.tencent.tvmanager.util.HostUtils;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -18,9 +21,11 @@ import io.netty.channel.Channel;
 public class EMConnectManager {
     private volatile static EMConnectManager sInstance;
     private List<EMConnectionListener> mListeners;
+    private ConcurrentHashMap<String, Channel> mChannelGroup;//管理连接的客户端
 
     private EMConnectManager() {
         mListeners = new ArrayList<>();
+        mChannelGroup = new ConcurrentHashMap<>();
     }
 
     public List<EMConnectionListener> getListener() {
@@ -41,10 +46,10 @@ public class EMConnectManager {
 
     public void addListener(EMConnectionListener listener) {
         mListeners.add(listener);
-        ConcurrentHashMap<String, Channel> channelGroups = EMMessageManager.getInstance().getChannelGroup();
-        if (channelGroups.size() > 0) {
+        //添加监听时，检测当前已连接的客户端，如果有则返回已连接的客户端
+        if (mChannelGroup.size() > 0) {
             List<EMDevice> list = new ArrayList<>();
-            Iterator<String> keys = channelGroups.keySet().iterator();
+            Iterator<String> keys = mChannelGroup.keySet().iterator();
             while (keys.hasNext()) {
                 list.add(new EMDevice(keys.next()));
             }
@@ -58,4 +63,21 @@ public class EMConnectManager {
     }
 
 
+    public ConcurrentHashMap<String, Channel> getChannelGroup() {
+        return mChannelGroup;
+    }
+
+    public void addChannel(Channel channel) {
+        String id = HostUtils.parseHostPort(channel.remoteAddress().toString());
+        if(!mChannelGroup.containsKey(id) && !TextUtils.isEmpty(id)) {
+            mChannelGroup.put(id, channel);
+        }
+    }
+
+    public void removeChannel(Channel channel) {
+        String id = HostUtils.parseHostPort(channel.remoteAddress().toString());
+        if(mChannelGroup.containsKey(id) && !TextUtils.isEmpty(id)) {
+            mChannelGroup.remove(id);
+        }
+    }
 }

@@ -12,7 +12,7 @@ import java.text.SimpleDateFormat;
  * Created by robincxiao on 2017/8/30.
  */
 
-public class EMDevice implements Parcelable{
+public class EMDevice implements Parcelable {
     public String id;//设备的host即ip地址
     public String name;
     public long lastActiveTime;

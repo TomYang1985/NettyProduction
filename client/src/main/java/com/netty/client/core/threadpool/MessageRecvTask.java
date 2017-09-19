@@ -6,6 +6,7 @@ import com.netty.client.innermsg.CallbackMessage;
 import com.netty.client.innermsg.Header;
 import com.netty.client.utils.HostUtils;
 
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
@@ -13,11 +14,11 @@ import io.netty.channel.ChannelHandlerContext;
  */
 
 public class MessageRecvTask implements Runnable {
-    private ChannelHandlerContext mChannelHandlerContext;
+    private Channel mChannel;
     private NettyMessage mMessage;
 
-    public MessageRecvTask(ChannelHandlerContext channelHandlerContext, NettyMessage message) {
-        mChannelHandlerContext = channelHandlerContext;
+    public MessageRecvTask(Channel channel, NettyMessage message) {
+        mChannel = channel;
         mMessage = message;
     }
 
@@ -25,7 +26,7 @@ public class MessageRecvTask implements Runnable {
     public void run() {
             switch (mMessage.msgType) {
                 case Header.MsgType.PAYLOAD:
-                    String remoteAddress = mChannelHandlerContext.channel().remoteAddress().toString();
+                    String remoteAddress = mChannel.remoteAddress().toString();
                     CallbackMessage message = new CallbackMessage();
                     message.type = CallbackMessage.MSG_TYPE_RECV_MSG;
                     message.from = HostUtils.parseHost(remoteAddress);

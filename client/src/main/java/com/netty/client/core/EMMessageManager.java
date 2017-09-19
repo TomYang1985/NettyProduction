@@ -3,6 +3,7 @@ package com.netty.client.core;
 import android.text.TextUtils;
 
 import com.netty.client.core.threadpool.ExecutorFactory;
+import com.netty.client.core.threadpool.MessageRecvTask;
 import com.netty.client.core.threadpool.MessageSendTask;
 import com.netty.client.innermsg.NettyMessage;
 import com.netty.client.listener.EMMessageListener;
@@ -63,27 +64,23 @@ public class EMMessageManager {
      * @param content
      */
     public void sendPayload(String content) {
-        if (mChannel == null) {
-            L.print("sendPayload mChannel == null");
-            return;
-        }
-
-        if (!mChannel.isActive() || !mChannel.isWritable()) {
-            L.print("sendPayload mChannel not active or not writable");
-            return;
-        }
-
-        if (TextUtils.isEmpty(content)) {
-            L.print("sendPayload content == null");
-            return;
-        }
-
         PayloadProto.Payload payload = PayloadProto.Payload.newBuilder()
                 .setMessageId(MID.getId()).setContent(content).build();
 
         NettyMessage message = new NettyMessage();
         message.msgType = Header.MsgType.PAYLOAD;
         message.body = payload;
+
+        ExecutorFactory.submitSendTask(new MessageSendTask(mChannel, message));
+    }
+
+    /**
+     * 获取已安装应用列表
+     */
+    public void requestAppList(){
+        NettyMessage message = new NettyMessage();
+        message.msgType = Header.MsgType.REQUEST;
+        message.businessType = Header.BusinessType.REQUEST_APP_LIST;
 
         ExecutorFactory.submitSendTask(new MessageSendTask(mChannel, message));
     }

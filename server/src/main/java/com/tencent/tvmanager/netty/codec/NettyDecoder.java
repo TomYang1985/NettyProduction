@@ -1,8 +1,8 @@
 package com.tencent.tvmanager.netty.codec;
 
 import com.google.protobuf.MessageLite;
-import com.tencent.tvmanager.netty.innermsg.NettyMessage;
 import com.tencent.tvmanager.netty.innermsg.Header;
+import com.tencent.tvmanager.netty.innermsg.NettyMessage;
 import com.tencent.tvmanager.netty.msg.KeyRequestProto;
 import com.tencent.tvmanager.netty.msg.PayloadProto;
 import com.tencent.tvmanager.util.HostUtils;
@@ -48,8 +48,9 @@ public class NettyDecoder extends ByteToMessageDecoder {
             if (msgType == Header.MsgType.PING) {//心跳ping
                 L.print("recv ping from " + ctx.channel().remoteAddress().toString());
                 output(out, msgType, busynissType, priority, null);
-            } else {
-                // 读取body
+            } else if (msgType == Header.BusinessType.REQUEST_APP_LIST) {//请求已安装应用列表
+                output(out, msgType, busynissType, priority, null);
+            } else {// 其它body实体不为空的请求
                 ByteBuf bodyByteBuf = in.readBytes(bodyLength);
 
                 byte[] array;
@@ -102,7 +103,7 @@ public class NettyDecoder extends ByteToMessageDecoder {
     private void output(List<Object> out, byte msgType, byte busynissType, byte priority, MessageLite body) {
         NettyMessage message = new NettyMessage();
         message.msgType = msgType;
-        message.busyType = busynissType;
+        message.businessType = busynissType;
         message.priority = priority;
         message.body = body;
 
