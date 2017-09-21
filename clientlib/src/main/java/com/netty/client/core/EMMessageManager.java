@@ -80,4 +80,15 @@ public class EMMessageManager {
 
         ExecutorFactory.submitSendTask(new MessageSendTask(mChannel, message));
     }
+
+    /**
+     * TV端更新
+     */
+    public void requestTvUpdate(){
+        NettyMessage message = new NettyMessage();
+        message.msgType = Header.MsgType.REQUEST;
+        message.businessType = Header.BusinessType.REQUEST_TV_UPDATE;
+
+        ExecutorFactory.submitSendTask(new MessageSendTask(mChannel, message));
+    }
 }

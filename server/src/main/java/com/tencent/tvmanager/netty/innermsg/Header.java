@@ -27,7 +27,8 @@ public class Header {
      * 具体业务类型
      */
     public class BusinessType {
-        public static final byte REQUEST_APP_LIST = 1;//请求已安装应用列表
+        public static final byte REQUEST_TV_UPDATE = 1;//更新TV端
+        public static final byte REQUEST_APP_LIST = 2;//请求已安装应用列表
 
         public static final byte RESPONSE_APP_ADDED = 1;//APP安装
         public static final byte RESPONSE_APP_REMOVED = 2;//APP卸载

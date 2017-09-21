@@ -5,7 +5,8 @@ option java_outer_classname = "AppListResponseProto";
 
 message AppListResponse{
     required string messageId = 1;//消息id
-    repeated AppInfo list = 2;
+    required int32 code = 2;//返回码，200表示正确
+    repeated AppInfo list = 3;
 }
 
 message AppInfo {

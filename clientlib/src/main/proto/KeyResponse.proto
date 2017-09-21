@@ -5,7 +5,8 @@ option java_outer_classname = "KeyResponseProto";
 
 message KeyResponse{
     required string messageId = 1;//消息id
-    required int32 code = 2;
-    optional int32 versionCode = 3;
-    optional string versionName = 4;
+    required int32 code = 2;//返回码，200表示正确
+    optional int32 versionCode = 3;//APP版本code
+    optional string versionName = 4;//APP版本name
+    required int32 protocol = 5;//协议版本
 }

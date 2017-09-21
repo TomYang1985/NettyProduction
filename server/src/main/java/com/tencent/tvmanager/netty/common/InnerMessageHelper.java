@@ -44,6 +44,7 @@ public class InnerMessageHelper {
                 .setCode(Code.RESULT_OK)
                 .setVersionCode(versionCode)
                 .setVersionName(versionName)
+                .setProtocol(Header.PROTOCOL_VERSION)
                 .build();
 
         NettyMessage message = new NettyMessage();

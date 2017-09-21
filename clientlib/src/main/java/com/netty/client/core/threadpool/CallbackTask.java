@@ -4,20 +4,20 @@ package com.netty.client.core.threadpool;
 import com.netty.client.common.Code;
 import com.netty.client.core.EMConnectManager;
 import com.netty.client.core.EMMessageManager;
-import com.netty.client.innermsg.CallbackMessage;
-import com.netty.client.innermsg.Header;
-import com.netty.client.listener.EMConnectionListener;
-import com.netty.client.listener.EMMessageListener;
 import com.netty.client.innermsg.AppActionProto;
 import com.netty.client.innermsg.AppListResponseProto;
+import com.netty.client.innermsg.CallbackMessage;
+import com.netty.client.innermsg.Header;
+import com.netty.client.innermsg.KeyResponseProto;
+import com.netty.client.innermsg.PayloadProto;
+import com.netty.client.listener.EMConnectionListener;
+import com.netty.client.listener.EMMessageListener;
 import com.netty.client.msg.EMAppInstall;
 import com.netty.client.msg.EMAppRemove;
 import com.netty.client.msg.EMInstalledApp;
 import com.netty.client.msg.EMMessage;
 import com.netty.client.msg.EMPayload;
-import com.netty.client.msg.EMServerVersion;
-import com.netty.client.innermsg.KeyResponseProto;
-import com.netty.client.innermsg.PayloadProto;
+import com.netty.client.msg.EMUpdate;
 
 /**
  * Created by xiaoguochang on 2017/8/27.
@@ -75,9 +75,15 @@ public class CallbackTask implements Runnable {
                 break;
                 case Header.MsgType.EXCHANGE_KEY_RESP: {
                     KeyResponseProto.KeyResponse body = (KeyResponseProto.KeyResponse) message.recvMessage.body;
-                    int versionCode = body.getVersionCode();
-                    String versionName = body.getVersionName();
-                    callbackMessage(new EMServerVersion(versionCode, versionName));
+                    int updateType = 0;
+                    int protocol = body.getProtocol();
+                    if (protocol > Header.PROTOCOL_VERSION) {
+                        updateType = EMUpdate.UPDATE_TYPE_PHONE;
+                    }
+                    if (protocol < Header.PROTOCOL_VERSION) {
+                        updateType = EMUpdate.UPDATE_TYPE_TV;
+                    }
+                    callbackMessage(new EMUpdate(updateType));
                 }
                 break;
                 case Header.MsgType.RESPONSE:

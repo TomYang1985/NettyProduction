@@ -5,6 +5,7 @@ import com.tencent.tvmanager.netty.innermsg.CallbackMessage;
 import com.tencent.tvmanager.netty.innermsg.Header;
 import com.tencent.tvmanager.netty.innermsg.NettyMessage;
 import com.tencent.tvmanager.netty.util.HostUtils;
+import com.tencent.tvmanager.util.L;
 
 import io.netty.channel.Channel;
 
@@ -50,6 +51,10 @@ public class MessageRecvTask implements Runnable {
         switch (recvmessage.businessType) {
             case Header.BusinessType.REQUEST_APP_LIST: {//收到请求已安装的APP列表信息
                 ExecutorFactory.submitSendTask(new MessageSendTask(channel, InnerMessageHelper.createAppList()));
+            }
+            break;
+            case Header.BusinessType.REQUEST_TV_UPDATE: {//更新APP
+                L.d(recvmessage);
             }
             break;
         }

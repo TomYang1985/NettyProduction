@@ -77,7 +77,8 @@ public class BusinessHelper {
         //通过查询，获得所有ResolveInfo对象
         List<ResolveInfo> resolveInfos = pm.queryIntentActivities(mainIntent, 0);//PackageManager.MATCH_DEFAULT_ONLY X
 
-        AppListResponseProto.AppListResponse.Builder builder = AppListResponseProto.AppListResponse.newBuilder().setMessageId(MID.getId());
+        AppListResponseProto.AppListResponse.Builder builder = AppListResponseProto.AppListResponse.newBuilder()
+                .setMessageId(MID.getId()).setCode(Code.RESULT_OK);
 
         for (ResolveInfo resolveInfo : resolveInfos) {
             String pkgName = resolveInfo.activityInfo.packageName;

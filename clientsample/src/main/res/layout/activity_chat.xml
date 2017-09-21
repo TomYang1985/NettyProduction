@@ -25,13 +25,20 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0">
+            android:layout_weight="0"
+            android:orientation="vertical">
 
             <Button
                 android:id="@+id/btn_app_list"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="应用列表" />
+
+            <Button
+                android:id="@+id/btn_update_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="更新tv" />
         </LinearLayout>
     </LinearLayout>
 

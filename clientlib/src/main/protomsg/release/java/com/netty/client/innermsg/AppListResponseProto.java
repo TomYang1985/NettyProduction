@@ -39,25 +39,42 @@ public final class AppListResponseProto {
         getMessageIdBytes();
 
     /**
-     * <code>repeated .AppInfo list = 2;</code>
+     * <code>required int32 code = 2;</code>
+     *
+     * <pre>
+     *返回码，200表示正确
+     * </pre>
+     */
+    boolean hasCode();
+    /**
+     * <code>required int32 code = 2;</code>
+     *
+     * <pre>
+     *返回码，200表示正确
+     * </pre>
+     */
+    int getCode();
+
+    /**
+     * <code>repeated .AppInfo list = 3;</code>
      */
     java.util.List<com.netty.client.innermsg.AppListResponseProto.AppInfo> 
         getListList();
     /**
-     * <code>repeated .AppInfo list = 2;</code>
+     * <code>repeated .AppInfo list = 3;</code>
      */
     com.netty.client.innermsg.AppListResponseProto.AppInfo getList(int index);
     /**
-     * <code>repeated .AppInfo list = 2;</code>
+     * <code>repeated .AppInfo list = 3;</code>
      */
     int getListCount();
     /**
-     * <code>repeated .AppInfo list = 2;</code>
+     * <code>repeated .AppInfo list = 3;</code>
      */
     java.util.List<? extends com.netty.client.innermsg.AppListResponseProto.AppInfoOrBuilder> 
         getListOrBuilderList();
     /**
-     * <code>repeated .AppInfo list = 2;</code>
+     * <code>repeated .AppInfo list = 3;</code>
      */
     com.netty.client.innermsg.AppListResponseProto.AppInfoOrBuilder getListOrBuilder(
         int index);
@@ -120,10 +137,15 @@ public final class AppListResponseProto {
               messageId_ = bs;
               break;
             }
-            case 18: {
-              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+            case 16: {
+              bitField0_ |= 0x00000002;
+              code_ = input.readInt32();
+              break;
+            }
+            case 26: {
+              if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
                 list_ = new java.util.ArrayList<com.netty.client.innermsg.AppListResponseProto.AppInfo>();
-                mutable_bitField0_ |= 0x00000002;
+                mutable_bitField0_ |= 0x00000004;
               }
               list_.add(input.readMessage(com.netty.client.innermsg.AppListResponseProto.AppInfo.PARSER, extensionRegistry));
               break;
@@ -136,7 +158,7 @@ public final class AppListResponseProto {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+        if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
           list_ = java.util.Collections.unmodifiableList(list_);
         }
         this.unknownFields = unknownFields.build();
@@ -225,35 +247,58 @@ public final class AppListResponseProto {
       }
     }
 
-    public static final int LIST_FIELD_NUMBER = 2;
+    public static final int CODE_FIELD_NUMBER = 2;
+    private int code_;
+    /**
+     * <code>required int32 code = 2;</code>
+     *
+     * <pre>
+     *返回码，200表示正确
+     * </pre>
+     */
+    public boolean hasCode() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>required int32 code = 2;</code>
+     *
+     * <pre>
+     *返回码，200表示正确
+     * </pre>
+     */
+    public int getCode() {
+      return code_;
+    }
+
+    public static final int LIST_FIELD_NUMBER = 3;
     private java.util.List<com.netty.client.innermsg.AppListResponseProto.AppInfo> list_;
     /**
-     * <code>repeated .AppInfo list = 2;</code>
+     * <code>repeated .AppInfo list = 3;</code>
      */
     public java.util.List<com.netty.client.innermsg.AppListResponseProto.AppInfo> getListList() {
       return list_;
     }
     /**
-     * <code>repeated .AppInfo list = 2;</code>
+     * <code>repeated .AppInfo list = 3;</code>
      */
     public java.util.List<? extends com.netty.client.innermsg.AppListResponseProto.AppInfoOrBuilder> 
         getListOrBuilderList() {
       return list_;
     }
     /**
-     * <code>repeated .AppInfo list = 2;</code>
+     * <code>repeated .AppInfo list = 3;</code>
      */
     public int getListCount() {
       return list_.size();
     }
     /**
-     * <code>repeated .AppInfo list = 2;</code>
+     * <code>repeated .AppInfo list = 3;</code>
      */
     public com.netty.client.innermsg.AppListResponseProto.AppInfo getList(int index) {
       return list_.get(index);
     }
     /**
-     * <code>repeated .AppInfo list = 2;</code>
+     * <code>repeated .AppInfo list = 3;</code>
      */
     public com.netty.client.innermsg.AppListResponseProto.AppInfoOrBuilder getListOrBuilder(
         int index) {
@@ -262,6 +307,7 @@ public final class AppListResponseProto {
 
     private void initFields() {
       messageId_ = "";
+      code_ = 0;
       list_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
@@ -271,6 +317,10 @@ public final class AppListResponseProto {
       if (isInitialized == 0) return false;
 
       if (!hasMessageId()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasCode()) {
         memoizedIsInitialized = 0;
         return false;
       }
@@ -290,8 +340,11 @@ public final class AppListResponseProto {
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeBytes(1, getMessageIdBytes());
       }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeInt32(2, code_);
+      }
       for (int i = 0; i < list_.size(); i++) {
-        output.writeMessage(2, list_.get(i));
+        output.writeMessage(3, list_.get(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -306,9 +359,13 @@ public final class AppListResponseProto {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(1, getMessageIdBytes());
       }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(2, code_);
+      }
       for (int i = 0; i < list_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(2, list_.get(i));
+          .computeMessageSize(3, list_.get(i));
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -430,9 +487,11 @@ public final class AppListResponseProto {
         super.clear();
         messageId_ = "";
         bitField0_ = (bitField0_ & ~0x00000001);
+        code_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000002);
         if (listBuilder_ == null) {
           list_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000002);
+          bitField0_ = (bitField0_ & ~0x00000004);
         } else {
           listBuilder_.clear();
         }
@@ -468,10 +527,14 @@ public final class AppListResponseProto {
           to_bitField0_ |= 0x00000001;
         }
         result.messageId_ = messageId_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.code_ = code_;
         if (listBuilder_ == null) {
-          if (((bitField0_ & 0x00000002) == 0x00000002)) {
+          if (((bitField0_ & 0x00000004) == 0x00000004)) {
             list_ = java.util.Collections.unmodifiableList(list_);
-            bitField0_ = (bitField0_ & ~0x00000002);
+            bitField0_ = (bitField0_ & ~0x00000004);
           }
           result.list_ = list_;
         } else {
@@ -498,11 +561,14 @@ public final class AppListResponseProto {
           messageId_ = other.messageId_;
           onChanged();
         }
+        if (other.hasCode()) {
+          setCode(other.getCode());
+        }
         if (listBuilder_ == null) {
           if (!other.list_.isEmpty()) {
             if (list_.isEmpty()) {
               list_ = other.list_;
-              bitField0_ = (bitField0_ & ~0x00000002);
+              bitField0_ = (bitField0_ & ~0x00000004);
             } else {
               ensureListIsMutable();
               list_.addAll(other.list_);
@@ -515,7 +581,7 @@ public final class AppListResponseProto {
               listBuilder_.dispose();
               listBuilder_ = null;
               list_ = other.list_;
-              bitField0_ = (bitField0_ & ~0x00000002);
+              bitField0_ = (bitField0_ & ~0x00000004);
               listBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getListFieldBuilder() : null;
@@ -530,6 +596,10 @@ public final class AppListResponseProto {
 
       public final boolean isInitialized() {
         if (!hasMessageId()) {
+          
+          return false;
+        }
+        if (!hasCode()) {
           
           return false;
         }
@@ -661,12 +731,60 @@ public final class AppListResponseProto {
         return this;
       }
 
+      private int code_ ;
+      /**
+       * <code>required int32 code = 2;</code>
+       *
+       * <pre>
+       *返回码，200表示正确
+       * </pre>
+       */
+      public boolean hasCode() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>required int32 code = 2;</code>
+       *
+       * <pre>
+       *返回码，200表示正确
+       * </pre>
+       */
+      public int getCode() {
+        return code_;
+      }
+      /**
+       * <code>required int32 code = 2;</code>
+       *
+       * <pre>
+       *返回码，200表示正确
+       * </pre>
+       */
+      public Builder setCode(int value) {
+        bitField0_ |= 0x00000002;
+        code_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required int32 code = 2;</code>
+       *
+       * <pre>
+       *返回码，200表示正确
+       * </pre>
+       */
+      public Builder clearCode() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        code_ = 0;
+        onChanged();
+        return this;
+      }
+
       private java.util.List<com.netty.client.innermsg.AppListResponseProto.AppInfo> list_ =
         java.util.Collections.emptyList();
       private void ensureListIsMutable() {
-        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
+        if (!((bitField0_ & 0x00000004) == 0x00000004)) {
           list_ = new java.util.ArrayList<com.netty.client.innermsg.AppListResponseProto.AppInfo>(list_);
-          bitField0_ |= 0x00000002;
+          bitField0_ |= 0x00000004;
          }
       }
 
@@ -674,7 +792,7 @@ public final class AppListResponseProto {
           com.netty.client.innermsg.AppListResponseProto.AppInfo, com.netty.client.innermsg.AppListResponseProto.AppInfo.Builder, com.netty.client.innermsg.AppListResponseProto.AppInfoOrBuilder> listBuilder_;
 
       /**
-       * <code>repeated .AppInfo list = 2;</code>
+       * <code>repeated .AppInfo list = 3;</code>
        */
       public java.util.List<com.netty.client.innermsg.AppListResponseProto.AppInfo> getListList() {
         if (listBuilder_ == null) {
@@ -684,7 +802,7 @@ public final class AppListResponseProto {
         }
       }
       /**
-       * <code>repeated .AppInfo list = 2;</code>
+       * <code>repeated .AppInfo list = 3;</code>
        */
       public int getListCount() {
         if (listBuilder_ == null) {
@@ -694,7 +812,7 @@ public final class AppListResponseProto {
         }
       }
       /**
-       * <code>repeated .AppInfo list = 2;</code>
+       * <code>repeated .AppInfo list = 3;</code>
        */
       public com.netty.client.innermsg.AppListResponseProto.AppInfo getList(int index) {
         if (listBuilder_ == null) {
@@ -704,7 +822,7 @@ public final class AppListResponseProto {
         }
       }
       /**
-       * <code>repeated .AppInfo list = 2;</code>
+       * <code>repeated .AppInfo list = 3;</code>
        */
       public Builder setList(
           int index, com.netty.client.innermsg.AppListResponseProto.AppInfo value) {
@@ -721,7 +839,7 @@ public final class AppListResponseProto {
         return this;
       }
       /**
-       * <code>repeated .AppInfo list = 2;</code>
+       * <code>repeated .AppInfo list = 3;</code>
        */
       public Builder setList(
           int index, com.netty.client.innermsg.AppListResponseProto.AppInfo.Builder builderForValue) {
@@ -735,7 +853,7 @@ public final class AppListResponseProto {
         return this;
       }
       /**
-       * <code>repeated .AppInfo list = 2;</code>
+       * <code>repeated .AppInfo list = 3;</code>
        */
       public Builder addList(com.netty.client.innermsg.AppListResponseProto.AppInfo value) {
         if (listBuilder_ == null) {
@@ -751,7 +869,7 @@ public final class AppListResponseProto {
         return this;
       }
       /**
-       * <code>repeated .AppInfo list = 2;</code>
+       * <code>repeated .AppInfo list = 3;</code>
        */
       public Builder addList(
           int index, com.netty.client.innermsg.AppListResponseProto.AppInfo value) {
@@ -768,7 +886,7 @@ public final class AppListResponseProto {
         return this;
       }
       /**
-       * <code>repeated .AppInfo list = 2;</code>
+       * <code>repeated .AppInfo list = 3;</code>
        */
       public Builder addList(
           com.netty.client.innermsg.AppListResponseProto.AppInfo.Builder builderForValue) {
@@ -782,7 +900,7 @@ public final class AppListResponseProto {
         return this;
       }
       /**
-       * <code>repeated .AppInfo list = 2;</code>
+       * <code>repeated .AppInfo list = 3;</code>
        */
       public Builder addList(
           int index, com.netty.client.innermsg.AppListResponseProto.AppInfo.Builder builderForValue) {
@@ -796,7 +914,7 @@ public final class AppListResponseProto {
         return this;
       }
       /**
-       * <code>repeated .AppInfo list = 2;</code>
+       * <code>repeated .AppInfo list = 3;</code>
        */
       public Builder addAllList(
           java.lang.Iterable<? extends com.netty.client.innermsg.AppListResponseProto.AppInfo> values) {
@@ -811,12 +929,12 @@ public final class AppListResponseProto {
         return this;
       }
       /**
-       * <code>repeated .AppInfo list = 2;</code>
+       * <code>repeated .AppInfo list = 3;</code>
        */
       public Builder clearList() {
         if (listBuilder_ == null) {
           list_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000002);
+          bitField0_ = (bitField0_ & ~0x00000004);
           onChanged();
         } else {
           listBuilder_.clear();
@@ -824,7 +942,7 @@ public final class AppListResponseProto {
         return this;
       }
       /**
-       * <code>repeated .AppInfo list = 2;</code>
+       * <code>repeated .AppInfo list = 3;</code>
        */
       public Builder removeList(int index) {
         if (listBuilder_ == null) {
@@ -837,14 +955,14 @@ public final class AppListResponseProto {
         return this;
       }
       /**
-       * <code>repeated .AppInfo list = 2;</code>
+       * <code>repeated .AppInfo list = 3;</code>
        */
       public com.netty.client.innermsg.AppListResponseProto.AppInfo.Builder getListBuilder(
           int index) {
         return getListFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .AppInfo list = 2;</code>
+       * <code>repeated .AppInfo list = 3;</code>
        */
       public com.netty.client.innermsg.AppListResponseProto.AppInfoOrBuilder getListOrBuilder(
           int index) {
@@ -854,7 +972,7 @@ public final class AppListResponseProto {
         }
       }
       /**
-       * <code>repeated .AppInfo list = 2;</code>
+       * <code>repeated .AppInfo list = 3;</code>
        */
       public java.util.List<? extends com.netty.client.innermsg.AppListResponseProto.AppInfoOrBuilder> 
            getListOrBuilderList() {
@@ -865,14 +983,14 @@ public final class AppListResponseProto {
         }
       }
       /**
-       * <code>repeated .AppInfo list = 2;</code>
+       * <code>repeated .AppInfo list = 3;</code>
        */
       public com.netty.client.innermsg.AppListResponseProto.AppInfo.Builder addListBuilder() {
         return getListFieldBuilder().addBuilder(
             com.netty.client.innermsg.AppListResponseProto.AppInfo.getDefaultInstance());
       }
       /**
-       * <code>repeated .AppInfo list = 2;</code>
+       * <code>repeated .AppInfo list = 3;</code>
        */
       public com.netty.client.innermsg.AppListResponseProto.AppInfo.Builder addListBuilder(
           int index) {
@@ -880,7 +998,7 @@ public final class AppListResponseProto {
             index, com.netty.client.innermsg.AppListResponseProto.AppInfo.getDefaultInstance());
       }
       /**
-       * <code>repeated .AppInfo list = 2;</code>
+       * <code>repeated .AppInfo list = 3;</code>
        */
       public java.util.List<com.netty.client.innermsg.AppListResponseProto.AppInfo.Builder> 
            getListBuilderList() {
@@ -893,7 +1011,7 @@ public final class AppListResponseProto {
           listBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               com.netty.client.innermsg.AppListResponseProto.AppInfo, com.netty.client.innermsg.AppListResponseProto.AppInfo.Builder, com.netty.client.innermsg.AppListResponseProto.AppInfoOrBuilder>(
                   list_,
-                  ((bitField0_ & 0x00000002) == 0x00000002),
+                  ((bitField0_ & 0x00000004) == 0x00000004),
                   getParentForChildren(),
                   isClean());
           list_ = null;
@@ -1917,13 +2035,13 @@ public final class AppListResponseProto {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\025AppListResponse.proto\"<\n\017AppListRespon" +
-      "se\022\021\n\tmessageId\030\001 \002(\t\022\026\n\004list\030\002 \003(\0132\010.Ap" +
-      "pInfo\"k\n\007AppInfo\022\023\n\013packageName\030\001 \002(\t\022\017\n" +
-      "\007appName\030\002 \002(\t\022\023\n\013versionCode\030\003 \002(\005\022\023\n\013v" +
-      "ersionName\030\004 \002(\t\022\020\n\010isSystem\030\005 \002(\010B1\n\031co" +
-      "m.netty.client.innermsgB\024AppListResponse" +
-      "Proto"
+      "\n\025AppListResponse.proto\"J\n\017AppListRespon" +
+      "se\022\021\n\tmessageId\030\001 \002(\t\022\014\n\004code\030\002 \002(\005\022\026\n\004l" +
+      "ist\030\003 \003(\0132\010.AppInfo\"k\n\007AppInfo\022\023\n\013packag" +
+      "eName\030\001 \002(\t\022\017\n\007appName\030\002 \002(\t\022\023\n\013versionC" +
+      "ode\030\003 \002(\005\022\023\n\013versionName\030\004 \002(\t\022\020\n\010isSyst" +
+      "em\030\005 \002(\010B1\n\031com.netty.client.innermsgB\024A" +
+      "ppListResponseProto"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -1942,7 +2060,7 @@ public final class AppListResponseProto {
     internal_static_AppListResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_AppListResponse_descriptor,
-        new java.lang.String[] { "MessageId", "List", });
+        new java.lang.String[] { "MessageId", "Code", "List", });
     internal_static_AppInfo_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_AppInfo_fieldAccessorTable = new

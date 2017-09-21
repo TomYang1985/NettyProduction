@@ -42,6 +42,7 @@ public class MessageRecvHandler extends SimpleChannelInboundHandler<NettyMessage
     private void doBusiness(ChannelHandlerContext channelHandlerContext, NettyMessage message){
         switch (message.businessType){
             case Header.BusinessType.REQUEST_APP_LIST:
+            case Header.BusinessType.REQUEST_TV_UPDATE:
                 ExecutorFactory.submitRecvTask(new MessageRecvTask(channelHandlerContext.channel(), message));
                 break;
         }

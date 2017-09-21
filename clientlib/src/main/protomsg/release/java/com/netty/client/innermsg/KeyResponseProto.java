@@ -40,35 +40,80 @@ public final class KeyResponseProto {
 
     /**
      * <code>required int32 code = 2;</code>
+     *
+     * <pre>
+     *返回码，200表示正确
+     * </pre>
      */
     boolean hasCode();
     /**
      * <code>required int32 code = 2;</code>
+     *
+     * <pre>
+     *返回码，200表示正确
+     * </pre>
      */
     int getCode();
 
     /**
      * <code>optional int32 versionCode = 3;</code>
+     *
+     * <pre>
+     *APP版本code
+     * </pre>
      */
     boolean hasVersionCode();
     /**
      * <code>optional int32 versionCode = 3;</code>
+     *
+     * <pre>
+     *APP版本code
+     * </pre>
      */
     int getVersionCode();
 
     /**
      * <code>optional string versionName = 4;</code>
+     *
+     * <pre>
+     *APP版本name
+     * </pre>
      */
     boolean hasVersionName();
     /**
      * <code>optional string versionName = 4;</code>
+     *
+     * <pre>
+     *APP版本name
+     * </pre>
      */
     java.lang.String getVersionName();
     /**
      * <code>optional string versionName = 4;</code>
+     *
+     * <pre>
+     *APP版本name
+     * </pre>
      */
     com.google.protobuf.ByteString
         getVersionNameBytes();
+
+    /**
+     * <code>required int32 protocol = 5;</code>
+     *
+     * <pre>
+     *协议版本
+     * </pre>
+     */
+    boolean hasProtocol();
+    /**
+     * <code>required int32 protocol = 5;</code>
+     *
+     * <pre>
+     *协议版本
+     * </pre>
+     */
+    int getProtocol();
   }
   /**
    * Protobuf type {@code KeyResponse}
@@ -142,6 +187,11 @@ public final class KeyResponseProto {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000008;
               versionName_ = bs;
+              break;
+            }
+            case 40: {
+              bitField0_ |= 0x00000010;
+              protocol_ = input.readInt32();
               break;
             }
           }
@@ -242,12 +292,20 @@ public final class KeyResponseProto {
     private int code_;
     /**
      * <code>required int32 code = 2;</code>
+     *
+     * <pre>
+     *返回码，200表示正确
+     * </pre>
      */
     public boolean hasCode() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
      * <code>required int32 code = 2;</code>
+     *
+     * <pre>
+     *返回码，200表示正确
+     * </pre>
      */
     public int getCode() {
       return code_;
@@ -257,12 +315,20 @@ public final class KeyResponseProto {
     private int versionCode_;
     /**
      * <code>optional int32 versionCode = 3;</code>
+     *
+     * <pre>
+     *APP版本code
+     * </pre>
      */
     public boolean hasVersionCode() {
       return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
      * <code>optional int32 versionCode = 3;</code>
+     *
+     * <pre>
+     *APP版本code
+     * </pre>
      */
     public int getVersionCode() {
       return versionCode_;
@@ -272,12 +338,20 @@ public final class KeyResponseProto {
     private java.lang.Object versionName_;
     /**
      * <code>optional string versionName = 4;</code>
+     *
+     * <pre>
+     *APP版本name
+     * </pre>
      */
     public boolean hasVersionName() {
       return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
      * <code>optional string versionName = 4;</code>
+     *
+     * <pre>
+     *APP版本name
+     * </pre>
      */
     public java.lang.String getVersionName() {
       java.lang.Object ref = versionName_;
@@ -295,6 +369,10 @@ public final class KeyResponseProto {
     }
     /**
      * <code>optional string versionName = 4;</code>
+     *
+     * <pre>
+     *APP版本name
+     * </pre>
      */
     public com.google.protobuf.ByteString
         getVersionNameBytes() {
@@ -310,11 +388,35 @@ public final class KeyResponseProto {
       }
     }
 
+    public static final int PROTOCOL_FIELD_NUMBER = 5;
+    private int protocol_;
+    /**
+     * <code>required int32 protocol = 5;</code>
+     *
+     * <pre>
+     *协议版本
+     * </pre>
+     */
+    public boolean hasProtocol() {
+      return ((bitField0_ & 0x00000010) == 0x00000010);
+    }
+    /**
+     * <code>required int32 protocol = 5;</code>
+     *
+     * <pre>
+     *协议版本
+     * </pre>
+     */
+    public int getProtocol() {
+      return protocol_;
+    }
+
     private void initFields() {
       messageId_ = "";
       code_ = 0;
       versionCode_ = 0;
       versionName_ = "";
+      protocol_ = 0;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -327,6 +429,10 @@ public final class KeyResponseProto {
         return false;
       }
       if (!hasCode()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasProtocol()) {
         memoizedIsInitialized = 0;
         return false;
       }
@@ -348,6 +454,9 @@ public final class KeyResponseProto {
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         output.writeBytes(4, getVersionNameBytes());
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        output.writeInt32(5, protocol_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -373,6 +482,10 @@ public final class KeyResponseProto {
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(4, getVersionNameBytes());
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(5, protocol_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -499,6 +612,8 @@ public final class KeyResponseProto {
         bitField0_ = (bitField0_ & ~0x00000004);
         versionName_ = "";
         bitField0_ = (bitField0_ & ~0x00000008);
+        protocol_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000010);
         return this;
       }
 
@@ -543,6 +658,10 @@ public final class KeyResponseProto {
           to_bitField0_ |= 0x00000008;
         }
         result.versionName_ = versionName_;
+        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+          to_bitField0_ |= 0x00000010;
+        }
+        result.protocol_ = protocol_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -575,6 +694,9 @@ public final class KeyResponseProto {
           versionName_ = other.versionName_;
           onChanged();
         }
+        if (other.hasProtocol()) {
+          setProtocol(other.getProtocol());
+        }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
       }
@@ -585,6 +707,10 @@ public final class KeyResponseProto {
           return false;
         }
         if (!hasCode()) {
+          
+          return false;
+        }
+        if (!hasProtocol()) {
           
           return false;
         }
@@ -713,18 +839,30 @@ public final class KeyResponseProto {
       private int code_ ;
       /**
        * <code>required int32 code = 2;</code>
+       *
+       * <pre>
+       *返回码，200表示正确
+       * </pre>
        */
       public boolean hasCode() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
        * <code>required int32 code = 2;</code>
+       *
+       * <pre>
+       *返回码，200表示正确
+       * </pre>
        */
       public int getCode() {
         return code_;
       }
       /**
        * <code>required int32 code = 2;</code>
+       *
+       * <pre>
+       *返回码，200表示正确
+       * </pre>
        */
       public Builder setCode(int value) {
         bitField0_ |= 0x00000002;
@@ -734,6 +872,10 @@ public final class KeyResponseProto {
       }
       /**
        * <code>required int32 code = 2;</code>
+       *
+       * <pre>
+       *返回码，200表示正确
+       * </pre>
        */
       public Builder clearCode() {
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -745,18 +887,30 @@ public final class KeyResponseProto {
       private int versionCode_ ;
       /**
        * <code>optional int32 versionCode = 3;</code>
+       *
+       * <pre>
+       *APP版本code
+       * </pre>
        */
       public boolean hasVersionCode() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
        * <code>optional int32 versionCode = 3;</code>
+       *
+       * <pre>
+       *APP版本code
+       * </pre>
        */
       public int getVersionCode() {
         return versionCode_;
       }
       /**
        * <code>optional int32 versionCode = 3;</code>
+       *
+       * <pre>
+       *APP版本code
+       * </pre>
        */
       public Builder setVersionCode(int value) {
         bitField0_ |= 0x00000004;
@@ -766,6 +920,10 @@ public final class KeyResponseProto {
       }
       /**
        * <code>optional int32 versionCode = 3;</code>
+       *
+       * <pre>
+       *APP版本code
+       * </pre>
        */
       public Builder clearVersionCode() {
         bitField0_ = (bitField0_ & ~0x00000004);
@@ -777,12 +935,20 @@ public final class KeyResponseProto {
       private java.lang.Object versionName_ = "";
       /**
        * <code>optional string versionName = 4;</code>
+       *
+       * <pre>
+       *APP版本name
+       * </pre>
        */
       public boolean hasVersionName() {
         return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
        * <code>optional string versionName = 4;</code>
+       *
+       * <pre>
+       *APP版本name
+       * </pre>
        */
       public java.lang.String getVersionName() {
         java.lang.Object ref = versionName_;
@@ -800,6 +966,10 @@ public final class KeyResponseProto {
       }
       /**
        * <code>optional string versionName = 4;</code>
+       *
+       * <pre>
+       *APP版本name
+       * </pre>
        */
       public com.google.protobuf.ByteString
           getVersionNameBytes() {
@@ -816,6 +986,10 @@ public final class KeyResponseProto {
       }
       /**
        * <code>optional string versionName = 4;</code>
+       *
+       * <pre>
+       *APP版本name
+       * </pre>
        */
       public Builder setVersionName(
           java.lang.String value) {
@@ -829,6 +1003,10 @@ public final class KeyResponseProto {
       }
       /**
        * <code>optional string versionName = 4;</code>
+       *
+       * <pre>
+       *APP版本name
+       * </pre>
        */
       public Builder clearVersionName() {
         bitField0_ = (bitField0_ & ~0x00000008);
@@ -838,6 +1016,10 @@ public final class KeyResponseProto {
       }
       /**
        * <code>optional string versionName = 4;</code>
+       *
+       * <pre>
+       *APP版本name
+       * </pre>
        */
       public Builder setVersionNameBytes(
           com.google.protobuf.ByteString value) {
@@ -846,6 +1028,54 @@ public final class KeyResponseProto {
   }
   bitField0_ |= 0x00000008;
         versionName_ = value;
+        onChanged();
+        return this;
+      }
+
+      private int protocol_ ;
+      /**
+       * <code>required int32 protocol = 5;</code>
+       *
+       * <pre>
+       *协议版本
+       * </pre>
+       */
+      public boolean hasProtocol() {
+        return ((bitField0_ & 0x00000010) == 0x00000010);
+      }
+      /**
+       * <code>required int32 protocol = 5;</code>
+       *
+       * <pre>
+       *协议版本
+       * </pre>
+       */
+      public int getProtocol() {
+        return protocol_;
+      }
+      /**
+       * <code>required int32 protocol = 5;</code>
+       *
+       * <pre>
+       *协议版本
+       * </pre>
+       */
+      public Builder setProtocol(int value) {
+        bitField0_ |= 0x00000010;
+        protocol_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required int32 protocol = 5;</code>
+       *
+       * <pre>
+       *协议版本
+       * </pre>
+       */
+      public Builder clearProtocol() {
+        bitField0_ = (bitField0_ & ~0x00000010);
+        protocol_ = 0;
         onChanged();
         return this;
       }
@@ -875,10 +1105,11 @@ public final class KeyResponseProto {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\021KeyResponse.proto\"X\n\013KeyResponse\022\021\n\tme" +
+      "\n\021KeyResponse.proto\"j\n\013KeyResponse\022\021\n\tme" +
       "ssageId\030\001 \002(\t\022\014\n\004code\030\002 \002(\005\022\023\n\013versionCo" +
-      "de\030\003 \001(\005\022\023\n\013versionName\030\004 \001(\tB-\n\031com.net" +
-      "ty.client.innermsgB\020KeyResponseProto"
+      "de\030\003 \001(\005\022\023\n\013versionName\030\004 \001(\t\022\020\n\010protoco" +
+      "l\030\005 \002(\005B-\n\031com.netty.client.innermsgB\020Ke" +
+      "yResponseProto"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -897,7 +1128,7 @@ public final class KeyResponseProto {
     internal_static_KeyResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_KeyResponse_descriptor,
-        new java.lang.String[] { "MessageId", "Code", "VersionCode", "VersionName", });
+        new java.lang.String[] { "MessageId", "Code", "VersionCode", "VersionName", "Protocol", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

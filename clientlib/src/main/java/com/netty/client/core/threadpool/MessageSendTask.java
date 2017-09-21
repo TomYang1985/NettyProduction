@@ -61,6 +61,9 @@ public class MessageSendTask implements Runnable {
             case Header.BusinessType.REQUEST_APP_LIST://已安装APP列表
                 mChannel.writeAndFlush(mMessage);
                 break;
+            case Header.BusinessType.REQUEST_TV_UPDATE://更新TV端
+                mChannel.writeAndFlush(mMessage);
+                break;
         }
     }
 }
