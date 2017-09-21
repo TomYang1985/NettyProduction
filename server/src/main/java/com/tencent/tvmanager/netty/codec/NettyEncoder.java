@@ -2,7 +2,7 @@ package com.tencent.tvmanager.netty.codec;
 
 import com.tencent.tvmanager.netty.innermsg.NettyMessage;
 import com.tencent.tvmanager.netty.innermsg.Header;
-import com.tencent.tvmanager.util.HostUtils;
+import com.tencent.tvmanager.netty.util.HostUtils;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;

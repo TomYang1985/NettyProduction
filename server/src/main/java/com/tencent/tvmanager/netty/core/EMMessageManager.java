@@ -7,14 +7,12 @@ import com.tencent.tvmanager.netty.core.threadpool.MessageSendTask;
 import com.tencent.tvmanager.netty.innermsg.NettyMessage;
 import com.tencent.tvmanager.netty.listener.EMMessageListener;
 import com.tencent.tvmanager.netty.innermsg.Header;
-import com.tencent.tvmanager.netty.msg.PayloadProto;
-import com.tencent.tvmanager.util.HostUtils;
+import com.tencent.tvmanager.netty.innermsg.PayloadProto;
 import com.tencent.tvmanager.util.L;
-import com.tencent.tvmanager.util.MID;
+import com.tencent.tvmanager.netty.util.MID;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 import io.netty.channel.Channel;
 

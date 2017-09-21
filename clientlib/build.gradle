@@ -1,0 +1,107 @@
+apply plugin: 'com.android.library'
+apply plugin: 'com.google.protobuf'
+
+android {
+    compileSdkVersion ANDROID_BUILD_SDK_VERSION as int
+    buildToolsVersion ANDROID_BUILD_TOOLS_VERSION
+
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion ANDROID_BUILD_SDK_VERSION as int
+        versionCode 1
+        versionName "1.0"
+
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    sourceSets {
+        main {
+            proto {
+                srcDir 'src/main/proto'
+                include '**/*.proto'
+            }
+        }
+    }
+    packagingOptions{
+        exclude  'META-INF/INDEX.LIST'
+        exclude  'META-INF/io.netty.versions.properties'
+    }
+    lintOptions {
+        abortOnError false
+    }
+}
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:2.6.1'
+    }
+
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                remove java
+            }
+            task.builtins {
+                java {}
+            }
+        }
+    }
+
+    generatedFilesBaseDir = "$projectDir/src/main/protomsg"//指定编译生成java类的存放位置
+}
+
+task clearJar(type: Delete) {
+    delete 'netty-client'
+    delete 'netty-client-proguard'
+}
+
+//打包任务
+task makeJar(type:org.gradle.api.tasks.bundling.Jar, dependsOn:clearJar) {
+    //指定生成的jar名
+    baseName 'netty-client'
+    //去掉不需要打包的目录和文件
+    exclude('BuildConfig.class', 'R.class')
+    //去掉R$开头的文件
+    exclude{ it.name.startsWith('R$');}
+    //从哪里打包class文件
+    from('build/intermediates/classes/debug/com'){
+        include 'netty/'
+    }
+    from('../xlog/build/intermediates/classes/debug/com'){
+        include 'elvishew/'
+    }
+    //打包到jar后的目录结构
+    into('com/')
+}
+
+//将jar进行混淆
+task proguardJar(type:proguard.gradle.ProGuardTask,dependsOn:makeJar) {
+    injars PROGUARD_IN_JAR
+    outjars PROGUARD_OUT_JAR
+
+    libraryjars JAVA_HOME+"/lib/rt.jar"
+    libraryjars ANDROID_JAR
+    libraryjars ANDROID_HOME+"/tools/support/annotations.jar"
+    libraryjars '../proguardlib/netty-buffer-4.1.13.Final.jar'
+    libraryjars '../proguardlib/netty-codec-4.1.13.Final.jar'
+    libraryjars '../proguardlib/netty-common-4.1.13.Final.jar'
+    libraryjars '../proguardlib/netty-handler-4.1.13.Final.jar'
+    libraryjars '../proguardlib/netty-resolver-4.1.13.Final.jar'
+    libraryjars '../proguardlib/netty-transport-4.1.13.Final.jar'
+    libraryjars '../proguardlib/protobuf-java-2.6.1.jar'
+    libraryjars '../proguardlib/gson-2.4.jar'
+
+    configuration 'proguard-rules.pro'
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.google.protobuf:protoc:2.6.1'
+    compile project(':xlog')
+    compile 'com.google.code.gson:gson:2.4'
+}

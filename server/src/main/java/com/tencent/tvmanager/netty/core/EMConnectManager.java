@@ -5,7 +5,7 @@ import android.text.TextUtils;
 
 import com.tencent.tvmanager.netty.listener.EMConnectionListener;
 import com.tencent.tvmanager.netty.msg.EMDevice;
-import com.tencent.tvmanager.util.HostUtils;
+import com.tencent.tvmanager.netty.util.HostUtils;
 
 import java.util.ArrayList;
 import java.util.Iterator;

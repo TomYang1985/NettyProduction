@@ -8,10 +8,10 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 
 import com.tencent.tvmanager.netty.core.EMAcceptor;
-import com.tencent.tvmanager.netty.msg.AppActionProto;
-import com.tencent.tvmanager.netty.msg.AppListResponseProto;
+import com.tencent.tvmanager.netty.innermsg.AppActionProto;
+import com.tencent.tvmanager.netty.innermsg.AppListResponseProto;
 import com.tencent.tvmanager.util.L;
-import com.tencent.tvmanager.util.MID;
+import com.tencent.tvmanager.netty.util.MID;
 
 import java.util.List;
 

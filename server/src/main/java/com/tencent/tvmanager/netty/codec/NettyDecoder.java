@@ -3,9 +3,9 @@ package com.tencent.tvmanager.netty.codec;
 import com.google.protobuf.MessageLite;
 import com.tencent.tvmanager.netty.innermsg.Header;
 import com.tencent.tvmanager.netty.innermsg.NettyMessage;
-import com.tencent.tvmanager.netty.msg.KeyRequestProto;
-import com.tencent.tvmanager.netty.msg.PayloadProto;
-import com.tencent.tvmanager.util.HostUtils;
+import com.tencent.tvmanager.netty.innermsg.KeyRequestProto;
+import com.tencent.tvmanager.netty.innermsg.PayloadProto;
+import com.tencent.tvmanager.netty.util.HostUtils;
 import com.tencent.tvmanager.util.L;
 
 import java.util.List;

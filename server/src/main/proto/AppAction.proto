@@ -1,6 +1,6 @@
 syntax = "proto2";
 
-option java_package = "com.tencent.tvmanager.netty.msg";
+option java_package = "com.tencent.tvmanager.netty.innermsg";
 option java_outer_classname = "AppActionProto";
 
 message AppAction{

@@ -1,9 +1,0 @@
-syntax = "proto2";
-
-option java_package = "com.netty.client.msg";
-option java_outer_classname = "KeyRequestProto";
-
-message KeyRequest{
-    required string messageId = 1;//消息id
-    required bytes keys = 2;
-}

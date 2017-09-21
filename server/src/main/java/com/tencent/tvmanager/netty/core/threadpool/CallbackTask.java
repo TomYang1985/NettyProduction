@@ -10,7 +10,7 @@ import com.tencent.tvmanager.netty.msg.EMDevice;
 import com.tencent.tvmanager.netty.msg.EMMessage;
 import com.tencent.tvmanager.netty.innermsg.Header;
 import com.tencent.tvmanager.netty.msg.EMPayload;
-import com.tencent.tvmanager.netty.msg.PayloadProto;
+import com.tencent.tvmanager.netty.innermsg.PayloadProto;
 
 /**
  * Created by xiaoguochang on 2017/8/27.

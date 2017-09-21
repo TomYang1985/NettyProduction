@@ -2,11 +2,10 @@ package com.tencent.tvmanager.netty.handler;
 
 import com.tencent.tvmanager.netty.codec.KeysManager;
 import com.tencent.tvmanager.netty.core.EMConnectManager;
-import com.tencent.tvmanager.netty.core.EMMessageManager;
 import com.tencent.tvmanager.netty.core.threadpool.CallbackTask;
 import com.tencent.tvmanager.netty.core.threadpool.ExecutorFactory;
 import com.tencent.tvmanager.netty.innermsg.CallbackMessage;
-import com.tencent.tvmanager.util.HostUtils;
+import com.tencent.tvmanager.netty.util.HostUtils;
 import com.tencent.tvmanager.util.L;
 
 import io.netty.channel.ChannelDuplexHandler;

@@ -5,10 +5,10 @@ import android.content.Context;
 import com.tencent.tvmanager.netty.core.EMAcceptor;
 import com.tencent.tvmanager.netty.innermsg.Header;
 import com.tencent.tvmanager.netty.innermsg.NettyMessage;
-import com.tencent.tvmanager.netty.msg.AppActionProto;
-import com.tencent.tvmanager.netty.msg.KeyResponseProto;
+import com.tencent.tvmanager.netty.innermsg.AppActionProto;
+import com.tencent.tvmanager.netty.innermsg.KeyResponseProto;
 import com.tencent.tvmanager.util.AppUtils;
-import com.tencent.tvmanager.util.MID;
+import com.tencent.tvmanager.netty.util.MID;
 
 /**
  * Created by robincxiao on 2017/9/7.

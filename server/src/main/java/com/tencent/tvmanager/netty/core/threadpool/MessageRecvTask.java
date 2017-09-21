@@ -4,8 +4,7 @@ import com.tencent.tvmanager.netty.common.InnerMessageHelper;
 import com.tencent.tvmanager.netty.innermsg.CallbackMessage;
 import com.tencent.tvmanager.netty.innermsg.Header;
 import com.tencent.tvmanager.netty.innermsg.NettyMessage;
-import com.tencent.tvmanager.util.HostUtils;
-import com.tencent.tvmanager.util.L;
+import com.tencent.tvmanager.netty.util.HostUtils;
 
 import io.netty.channel.Channel;
 

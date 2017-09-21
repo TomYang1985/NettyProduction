@@ -4,13 +4,13 @@ apply plugin: 'com.jakewharton.butterknife'
 apply plugin: 'android-apt'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion ANDROID_BUILD_SDK_VERSION as int
+    buildToolsVersion ANDROID_BUILD_TOOLS_VERSION
 
     defaultConfig {
         applicationId "com.netty.server"
         minSdkVersion 14
-        targetSdkVersion 14
+        targetSdkVersion ANDROID_BUILD_SDK_VERSION as int
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
@@ -37,7 +37,7 @@ android {
 
 protobuf {
     protoc {
-        artifact = 'com.google.protobuf:protoc:3.1.0'
+        artifact = 'com.google.protobuf:protoc:2.6.1'
     }
 
     generateProtoTasks {
@@ -60,8 +60,7 @@ dependencies {
     compile project(':xlog')
     compile project(':framework')
     compile 'com.google.code.gson:gson:2.4'
-    compile 'com.google.protobuf:protobuf-java:3.1.0'
-    compile 'com.google.protobuf:protoc:3.1.0'
+    compile 'com.google.protobuf:protoc:2.6.1'
     compile 'com.jakewharton:butterknife:8.4.0'
     apt 'com.jakewharton:butterknife-compiler:8.4.0'
     compile 'com.android.support:multidex:1.0.1'
