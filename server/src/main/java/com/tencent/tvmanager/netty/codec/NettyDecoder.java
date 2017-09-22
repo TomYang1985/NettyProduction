@@ -48,9 +48,11 @@ public class NettyDecoder extends ByteToMessageDecoder {
             if (msgType == Header.MsgType.PING) {//心跳ping
                 L.print("recv ping from " + ctx.channel().remoteAddress().toString());
                 output(out, msgType, busynissType, priority, null);
-            } else if (msgType == Header.BusinessType.REQUEST_APP_LIST
-                    || msgType == Header.BusinessType.REQUEST_TV_UPDATE) {
-                output(out, msgType, busynissType, priority, null);
+            } else if (msgType == Header.MsgType.REQUEST) {
+                if (busynissType == Header.BusinessType.REQUEST_APP_LIST
+                        || busynissType == Header.BusinessType.REQUEST_TV_UPDATE) {
+                    output(out, msgType, busynissType, priority, null);
+                }
             } else {// 其它body实体不为空的请求
                 ByteBuf bodyByteBuf = in.readBytes(bodyLength);
 

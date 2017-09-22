@@ -154,6 +154,11 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
 
     private void connect(final int triggerType) {
         synchronized (bootstrap()) {
+            if (mContext == null) {
+                L.print("return mContext == null , triggerType = " + triggerType);
+                return;
+            }
+
             if (!NetUtils.isWifi(mContext)) {
                 handlerUserSpaceCallback(triggerType, CallbackMessage.MSG_TYPE_NOT_WIFI);
                 L.print("return when net is not wifi , triggerType = " + triggerType);

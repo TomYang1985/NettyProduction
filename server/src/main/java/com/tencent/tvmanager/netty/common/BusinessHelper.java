@@ -108,7 +108,6 @@ public class BusinessHelper {
                 appInfoBuilder.setVersionCode(packageInfo.versionCode);
                 //注：有的系统应用versionName为null
                 if (packageInfo.versionName == null) {
-                    L.d(appInfoBuilder.getIsSystem() + "::" + packageInfo.packageName);
                     appInfoBuilder.setVersionName("");
                 } else {
                     appInfoBuilder.setVersionName(packageInfo.versionName);

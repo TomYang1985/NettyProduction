@@ -202,3 +202,13 @@
     public <fields>;
     public <methods>;
 }
+
+
+#-keep class io.netty.** {*;}
+#-keep class com.google.protobuf.** {*;}
+#-keep class com.netty.client.** {*;}
+#-keep class com.elvishew.xlog.** {*;}
+#-dontwarn io.netty.**
+#-dontwarn com.google.protobuf.**
+#-dontwarn com.netty.client.**
+#-dontwarn com.elvishew.xlog.**

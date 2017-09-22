@@ -143,9 +143,6 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
             case R.id.btn_update_tv:
                 EMClient.getInstance().getEMMessageManager().requestTvUpdate();
                 break;
-
         }
     }
-
-
 }
