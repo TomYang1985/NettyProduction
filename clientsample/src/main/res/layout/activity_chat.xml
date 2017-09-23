@@ -39,6 +39,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="更新tv" />
+
+            <Button
+                android:id="@+id/btn_clean"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="垃圾清理" />
         </LinearLayout>
     </LinearLayout>
 

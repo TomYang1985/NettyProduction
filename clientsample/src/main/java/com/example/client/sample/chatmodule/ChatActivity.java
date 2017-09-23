@@ -124,7 +124,7 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
         return R.layout.activity_chat;
     }
 
-    @OnClick({R.id.btn_send, R.id.btn_app_list, R.id.btn_update_tv})
+    @OnClick({R.id.btn_send, R.id.btn_app_list, R.id.btn_update_tv, R.id.btn_clean})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_send:
@@ -143,6 +143,9 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
             case R.id.btn_update_tv:
                 EMClient.getInstance().getEMMessageManager().requestTvUpdate();
                 break;
+            case R.id.btn_clean:
+                EMClient.getInstance().getEMMessageManager().requestClean();
+                    break;
         }
     }
 }

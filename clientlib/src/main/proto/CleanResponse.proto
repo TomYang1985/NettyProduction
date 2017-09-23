@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+option java_package = "com.netty.client.innermsg";
+option java_outer_classname = "CleanProto";
+
+message CleanResponse{
+    required string messageId = 1;//消息id
+    required int32 code = 2;//返回码，200表示正确
+    required int64 memRubbish = 3;
+    required int64 sysRubbish = 4;
+    required int64 unInstallRubbish = 5;
+    required int64 cacheRubbish = 6;
+}

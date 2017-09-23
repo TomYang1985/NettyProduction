@@ -91,4 +91,15 @@ public class EMMessageManager {
 
         ExecutorFactory.submitSendTask(new MessageSendTask(mChannel, message));
     }
+
+    /**
+     * 垃圾清理
+     */
+    public void requestClean(){
+        NettyMessage message = new NettyMessage();
+        message.msgType = Header.MsgType.REQUEST;
+        message.businessType = Header.BusinessType.REQUEST_CLEAN;
+
+        ExecutorFactory.submitSendTask(new MessageSendTask(mChannel, message));
+    }
 }

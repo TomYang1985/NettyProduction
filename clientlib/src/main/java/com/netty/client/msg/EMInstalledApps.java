@@ -7,11 +7,11 @@ import java.util.List;
  * Created by xiaoguochang on 2017/9/17.
  */
 
-public class EMInstalledApp extends EMMessage {
+public class EMInstalledApps extends EMMessage {
     private List<AppInfo> appInfos = new ArrayList<>();
 
     public void add(String packageName, String appName, int versionCode, String versionName, boolean isSystem) {
-        appInfos.add(new EMInstalledApp.AppInfo(packageName,
+        appInfos.add(new EMInstalledApps.AppInfo(packageName,
                 appName, versionCode, versionName, isSystem));
     }
 

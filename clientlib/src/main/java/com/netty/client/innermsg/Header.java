@@ -28,9 +28,11 @@ public class Header {
     public class BusinessType{
         public static final byte REQUEST_TV_UPDATE = 1;//更新TV端
         public static final byte REQUEST_APP_LIST = 2;//已安装应用列表请求
+        public static final byte REQUEST_CLEAN = 3;//清理
 
         public static final byte RESPONSE_APP_ADDED = 1;//APP安装
         public static final byte RESPONSE_APP_REMOVED = 2;//APP卸载
         public static final byte RESPONSE_APP_LIST = 3;//已安装应用列表响应
+        public static final byte RESPONSE_CLEAN = 4;//清理返回
     }
 }

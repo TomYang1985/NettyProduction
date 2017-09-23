@@ -59,9 +59,8 @@ public class MessageSendTask implements Runnable {
     private void requestBusiness(){
         switch (mMessage.businessType){
             case Header.BusinessType.REQUEST_APP_LIST://已安装APP列表
-                mChannel.writeAndFlush(mMessage);
-                break;
             case Header.BusinessType.REQUEST_TV_UPDATE://更新TV端
+            case Header.BusinessType.REQUEST_CLEAN://清理
                 mChannel.writeAndFlush(mMessage);
                 break;
         }

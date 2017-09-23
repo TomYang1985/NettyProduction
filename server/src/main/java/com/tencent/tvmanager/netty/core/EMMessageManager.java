@@ -2,8 +2,10 @@ package com.tencent.tvmanager.netty.core;
 
 import android.text.TextUtils;
 
+import com.tencent.tvmanager.netty.common.Code;
 import com.tencent.tvmanager.netty.core.threadpool.ExecutorFactory;
 import com.tencent.tvmanager.netty.core.threadpool.MessageSendTask;
+import com.tencent.tvmanager.netty.innermsg.CleanProto;
 import com.tencent.tvmanager.netty.innermsg.NettyMessage;
 import com.tencent.tvmanager.netty.listener.EMMessageListener;
 import com.tencent.tvmanager.netty.innermsg.Header;
@@ -70,11 +72,43 @@ public class EMMessageManager {
 
         Channel channel = EMConnectManager.getInstance().getChannelGroup().get(id);
         if (channel != null) {
-            PayloadProto.Payload payload = PayloadProto.Payload.newBuilder()
+            PayloadProto.Payload body = PayloadProto.Payload.newBuilder()
                     .setMessageId(MID.getId()).setContent(content).build();
             NettyMessage message = new NettyMessage();
             message.msgType = Header.MsgType.PAYLOAD;
-            message.body = payload;
+            message.body = body;
+            ExecutorFactory.submitSendTask(new MessageSendTask(channel, message));
+        } else {
+            L.print("mChannelGroup is not contains id = " + id);
+        }
+    }
+
+    /**
+     * 垃圾清理返回
+     * @param id
+     * @param memRubbishSize
+     * @param sysRubbishSize
+     * @param unInstallSize
+     * @param cacheRubbishSize
+     */
+    public void sendCleanResponse(String id, long memRubbishSize, long sysRubbishSize
+            , long unInstallSize, long cacheRubbishSize) {
+        if (TextUtils.isEmpty(id)) {
+            L.print("sendPayload id == null");
+            return;
+        }
+
+        Channel channel = EMConnectManager.getInstance().getChannelGroup().get(id);
+        if (channel != null) {
+            CleanProto.CleanResponse body = CleanProto.CleanResponse.newBuilder()
+                    .setMessageId(MID.getId())
+                    .setCode(Code.RESULT_OK).setMemRubbish(memRubbishSize)
+                    .setSysRubbish(sysRubbishSize).setUnInstallRubbish(unInstallSize)
+                    .setCacheRubbish(cacheRubbishSize).build();
+            NettyMessage message = new NettyMessage();
+            message.msgType = Header.MsgType.RESPONSE;
+            message.businessType = Header.BusinessType.RESPONSE_CLEAN;
+            message.body = body;
             ExecutorFactory.submitSendTask(new MessageSendTask(channel, message));
         } else {
             L.print("mChannelGroup is not contains id = " + id);

@@ -7,6 +7,7 @@ import com.netty.client.core.EMMessageManager;
 import com.netty.client.innermsg.AppActionProto;
 import com.netty.client.innermsg.AppListResponseProto;
 import com.netty.client.innermsg.CallbackMessage;
+import com.netty.client.innermsg.CleanProto;
 import com.netty.client.innermsg.Header;
 import com.netty.client.innermsg.KeyResponseProto;
 import com.netty.client.innermsg.PayloadProto;
@@ -14,9 +15,10 @@ import com.netty.client.listener.EMConnectionListener;
 import com.netty.client.listener.EMMessageListener;
 import com.netty.client.msg.EMAppInstall;
 import com.netty.client.msg.EMAppRemove;
-import com.netty.client.msg.EMInstalledApp;
+import com.netty.client.msg.EMInstalledApps;
 import com.netty.client.msg.EMMessage;
 import com.netty.client.msg.EMPayload;
+import com.netty.client.msg.EMRubbish;
 import com.netty.client.msg.EMUpdate;
 
 /**
@@ -112,12 +114,17 @@ public class CallbackTask implements Runnable {
             break;
             case Header.BusinessType.RESPONSE_APP_LIST: {
                 AppListResponseProto.AppListResponse body = (AppListResponseProto.AppListResponse) message.recvMessage.body;
-                EMInstalledApp installedApps = new EMInstalledApp();
+                EMInstalledApps installedApps = new EMInstalledApps();
                 for (AppListResponseProto.AppInfo appInfo : body.getListList()) {
                     installedApps.add(appInfo.getPackageName(), appInfo.getAppName(), appInfo.getVersionCode()
                             , appInfo.getVersionName(), appInfo.getIsSystem());
                 }
                 callbackMessage(installedApps);
+            }
+            break;
+            case Header.BusinessType.RESPONSE_CLEAN: {
+                CleanProto.CleanResponse body = (CleanProto.CleanResponse) message.recvMessage.body;
+                callbackMessage(new EMRubbish(body.getMemRubbish(), body.getSysRubbish(), body.getUnInstallRubbish(), body.getCacheRubbish()));
             }
             break;
         }

@@ -43,6 +43,7 @@ public class MessageRecvHandler extends SimpleChannelInboundHandler<NettyMessage
         switch (message.businessType){
             case Header.BusinessType.REQUEST_APP_LIST:
             case Header.BusinessType.REQUEST_TV_UPDATE:
+            case Header.BusinessType.REQUEST_CLEAN:
                 ExecutorFactory.submitRecvTask(new MessageRecvTask(channelHandlerContext.channel(), message));
                 break;
         }

@@ -75,10 +75,10 @@ public class MessageSendTask implements Runnable {
      */
     private void doResponseBusiness(Channel channel, NettyMessage message) {
         switch (message.businessType) {
-            case Header.BusinessType.RESPONSE_APP_LIST: {
+            case Header.BusinessType.RESPONSE_APP_LIST://app列表
+            case Header.BusinessType.RESPONSE_CLEAN://垃圾清理
                 channel.writeAndFlush(mMessage);
-            }
-            break;
+                break;
         }
     }
 

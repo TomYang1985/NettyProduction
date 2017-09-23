@@ -1,6 +1,7 @@
 package com.tencent.tvmanager.netty.core.threadpool;
 
 import com.tencent.tvmanager.netty.common.InnerMessageHelper;
+import com.tencent.tvmanager.netty.core.EMAcceptor;
 import com.tencent.tvmanager.netty.innermsg.CallbackMessage;
 import com.tencent.tvmanager.netty.innermsg.Header;
 import com.tencent.tvmanager.netty.innermsg.NettyMessage;
@@ -55,6 +56,13 @@ public class MessageRecvTask implements Runnable {
             break;
             case Header.BusinessType.REQUEST_TV_UPDATE: {//更新APP
                 L.d(recvmessage);
+            }
+            break;
+            case Header.BusinessType.REQUEST_CLEAN: {//清理
+                L.d(recvmessage);
+                String id = HostUtils.parseHostPort(channel.remoteAddress().toString());
+                L.d("id=" + id);
+                EMAcceptor.getInstance().getEMMessageManager().sendCleanResponse(id,100, 200, 300, 400);
             }
             break;
         }

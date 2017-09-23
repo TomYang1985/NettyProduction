@@ -1,6 +1,7 @@
 package com.netty.client.codec;
 
 import com.google.protobuf.MessageLite;
+import com.netty.client.innermsg.CleanProto;
 import com.netty.client.innermsg.Header;
 import com.netty.client.innermsg.NettyMessage;
 import com.netty.client.innermsg.AppActionProto;
@@ -119,6 +120,10 @@ public class NettyDecoder extends ByteToMessageDecoder {
                     break;
                     case Header.BusinessType.RESPONSE_APP_LIST://已安装列表
                         body = AppListResponseProto.AppListResponse.getDefaultInstance().
+                                getParserForType().parseFrom(array);
+                        break;
+                    case Header.BusinessType.RESPONSE_CLEAN://垃圾清理
+                        body = CleanProto.CleanResponse.getDefaultInstance().
                                 getParserForType().parseFrom(array);
                         break;
                 }

@@ -50,7 +50,8 @@ public class NettyDecoder extends ByteToMessageDecoder {
                 output(out, msgType, busynissType, priority, null);
             } else if (msgType == Header.MsgType.REQUEST) {
                 if (busynissType == Header.BusinessType.REQUEST_APP_LIST
-                        || busynissType == Header.BusinessType.REQUEST_TV_UPDATE) {
+                        || busynissType == Header.BusinessType.REQUEST_TV_UPDATE
+                        || busynissType == Header.BusinessType.REQUEST_CLEAN) {
                     output(out, msgType, busynissType, priority, null);
                 }
             } else {// 其它body实体不为空的请求
@@ -71,7 +72,6 @@ public class NettyDecoder extends ByteToMessageDecoder {
 
                 if (msgType == Header.MsgType.EXCHANGE_KEY) {//交换密钥
                     //解码body获取真正对数据进行加解密的Key
-                    L.d(array);
                     byte[] data = KeysManager.getInstance().decryptAESKey(array);
                     if (data == null) {
                         L.print("decryptAESKey error");
