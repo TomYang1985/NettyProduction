@@ -124,7 +124,7 @@ public class CallbackTask implements Runnable {
             break;
             case Header.BusinessType.RESPONSE_CLEAN: {
                 CleanProto.CleanResponse body = (CleanProto.CleanResponse) message.recvMessage.body;
-                callbackMessage(new EMRubbish(body.getMemRubbish(), body.getSysRubbish(), body.getUnInstallRubbish(), body.getCacheRubbish()));
+                callbackMessage(new EMRubbish(body.getCode(), body.getSdkCode(), body.getMemRubbish(), body.getSysRubbish(), body.getUnInstallRubbish(), body.getCacheRubbish()));
             }
             break;
         }

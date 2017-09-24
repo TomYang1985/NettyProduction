@@ -1,4 +1,4 @@
-package com.tencent.tvmanager.netty.common;
+package com.tencent.tvmanager.netty.business.clean;
 
 import android.content.Context;
 import android.content.Intent;
@@ -7,10 +7,10 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 
+import com.tencent.tvmanager.netty.common.Code;
 import com.tencent.tvmanager.netty.core.EMAcceptor;
 import com.tencent.tvmanager.netty.innermsg.AppActionProto;
 import com.tencent.tvmanager.netty.innermsg.AppListResponseProto;
-import com.tencent.tvmanager.util.L;
 import com.tencent.tvmanager.netty.util.MID;
 
 import java.util.List;
