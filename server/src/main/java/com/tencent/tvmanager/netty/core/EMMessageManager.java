@@ -2,16 +2,15 @@ package com.tencent.tvmanager.netty.core;
 
 import android.text.TextUtils;
 
-import com.tencent.tvmanager.netty.common.Code;
 import com.tencent.tvmanager.netty.core.threadpool.ExecutorFactory;
 import com.tencent.tvmanager.netty.core.threadpool.MessageSendTask;
-import com.tencent.tvmanager.netty.innermsg.CleanProto;
-import com.tencent.tvmanager.netty.innermsg.NettyMessage;
-import com.tencent.tvmanager.netty.listener.EMMessageListener;
+import com.tencent.tvmanager.netty.innermsg.CleanResponseProto;
 import com.tencent.tvmanager.netty.innermsg.Header;
+import com.tencent.tvmanager.netty.innermsg.NettyMessage;
 import com.tencent.tvmanager.netty.innermsg.PayloadProto;
-import com.tencent.tvmanager.util.L;
+import com.tencent.tvmanager.netty.listener.EMMessageListener;
 import com.tencent.tvmanager.netty.util.MID;
+import com.tencent.tvmanager.util.L;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,7 +72,8 @@ public class EMMessageManager {
         Channel channel = EMConnectManager.getInstance().getChannelGroup().get(id);
         if (channel != null) {
             PayloadProto.Payload body = PayloadProto.Payload.newBuilder()
-                    .setMessageId(MID.getId()).setContent(content).build();
+                    .setMessageId(MID.getId()).setContent(content)
+                    .build();
             NettyMessage message = new NettyMessage();
             message.msgType = Header.MsgType.PAYLOAD;
             message.body = body;
@@ -85,6 +85,7 @@ public class EMMessageManager {
 
     /**
      * 垃圾清理返回
+     *
      * @param id
      * @param code
      * @param sdkErrCode
@@ -102,7 +103,7 @@ public class EMMessageManager {
 
         Channel channel = EMConnectManager.getInstance().getChannelGroup().get(id);
         if (channel != null) {
-            CleanProto.CleanResponse body = CleanProto.CleanResponse.newBuilder()
+            CleanResponseProto.CleanResponse body = CleanResponseProto.CleanResponse.newBuilder()
                     .setMessageId(MID.getId())
                     .setCode(code)
                     .setSdkCode(sdkErrCode)

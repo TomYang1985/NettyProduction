@@ -10,7 +10,7 @@ import android.content.pm.ResolveInfo;
 import com.tencent.tvmanager.netty.common.Code;
 import com.tencent.tvmanager.netty.core.EMAcceptor;
 import com.tencent.tvmanager.netty.httpserver.HttpServer;
-import com.tencent.tvmanager.netty.innermsg.AppActionProto;
+import com.tencent.tvmanager.netty.innermsg.AppActionResponseProto;
 import com.tencent.tvmanager.netty.innermsg.AppListResponseProto;
 import com.tencent.tvmanager.netty.util.MID;
 
@@ -93,7 +93,7 @@ public class BusinessHelper {
      * @param packageName
      * @return
      */
-    public static AppActionProto.AppAction getAppInfo(String packageName) {
+    public static AppActionResponseProto.AppActionResponse getAppInfo(String packageName) {
         Context context = EMAcceptor.getInstance().getContext();
         PackageManager pm = context.getPackageManager();
         PackageInfo packageInfo = null;
@@ -103,7 +103,7 @@ public class BusinessHelper {
             e.printStackTrace();
         }
 
-        AppActionProto.AppAction.Builder builder = AppActionProto.AppAction.newBuilder()
+        AppActionResponseProto.AppActionResponse.Builder builder = AppActionResponseProto.AppActionResponse.newBuilder()
                 .setMessageId(MID.getId())
                 .setPackageName(packageName);
 
@@ -142,9 +142,10 @@ public class BusinessHelper {
 
     /**
      * 获取icon的url
+     *
      * @return
      */
-    private static String getIconUrl(String localHost, String packageName){
+    private static String getIconUrl(String localHost, String packageName) {
         StringBuilder builder = new StringBuilder();
         builder.append("http://").append(localHost).append(":").append(HttpServer.PORT)
                 .append("/?action=dlicon&pkg=").append(packageName);

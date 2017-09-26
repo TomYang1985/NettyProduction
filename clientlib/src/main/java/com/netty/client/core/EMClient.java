@@ -144,7 +144,8 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
      * @return
      */
     public boolean isActive() {
-        return mStatus != null && mStatus.compareAndSet(STATUS_CONNECTED, STATUS_CONNECTED);
+        return mFuture != null && mFuture.channel() != null && mFuture.channel().isActive();
+        //return mStatus != null && mStatus.compareAndSet(STATUS_CONNECTED, STATUS_CONNECTED);
     }
 
     @Override

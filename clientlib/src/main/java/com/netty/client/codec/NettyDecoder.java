@@ -1,12 +1,12 @@
 package com.netty.client.codec;
 
 import com.google.protobuf.MessageLite;
-import com.netty.client.innermsg.CleanProto;
-import com.netty.client.innermsg.Header;
-import com.netty.client.innermsg.NettyMessage;
-import com.netty.client.innermsg.AppActionProto;
+import com.netty.client.innermsg.AppActionResponseProto;
 import com.netty.client.innermsg.AppListResponseProto;
+import com.netty.client.innermsg.CleanResponseProto;
+import com.netty.client.innermsg.Header;
 import com.netty.client.innermsg.KeyResponseProto;
+import com.netty.client.innermsg.NettyMessage;
 import com.netty.client.innermsg.PayloadProto;
 import com.netty.client.utils.L;
 
@@ -77,7 +77,7 @@ public class NettyDecoder extends ByteToMessageDecoder {
                     output(out, msgType, busynissType, priority, body);
                 } else {
                     //如果密钥交换失败，则断开连接
-                    if(msgType == Header.MsgType.EXCHANGE_KEY_RESP){
+                    if (msgType == Header.MsgType.EXCHANGE_KEY_RESP) {
                         L.print("exchange key fail");
                         ctx.channel().close();
                     }
@@ -120,15 +120,15 @@ public class NettyDecoder extends ByteToMessageDecoder {
                 switch (busynissType) {
                     case Header.BusinessType.RESPONSE_APP_ADDED://APP安装
                     case Header.BusinessType.RESPONSE_APP_REMOVED://APP删除
-                        body = AppActionProto.AppAction.getDefaultInstance().
+                        body = AppActionResponseProto.AppActionResponse.getDefaultInstance().
                                 getParserForType().parseFrom(array);
-                    break;
+                        break;
                     case Header.BusinessType.RESPONSE_APP_LIST://已安装列表
                         body = AppListResponseProto.AppListResponse.getDefaultInstance().
                                 getParserForType().parseFrom(array);
                         break;
                     case Header.BusinessType.RESPONSE_CLEAN://垃圾清理
-                        body = CleanProto.CleanResponse.getDefaultInstance().
+                        body = CleanResponseProto.CleanResponse.getDefaultInstance().
                                 getParserForType().parseFrom(array);
                         break;
                 }

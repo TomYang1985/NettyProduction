@@ -4,10 +4,10 @@ package com.netty.client.core.threadpool;
 import com.netty.client.common.Code;
 import com.netty.client.core.EMConnectManager;
 import com.netty.client.core.EMMessageManager;
-import com.netty.client.innermsg.AppActionProto;
+import com.netty.client.innermsg.AppActionResponseProto;
 import com.netty.client.innermsg.AppListResponseProto;
 import com.netty.client.innermsg.CallbackMessage;
-import com.netty.client.innermsg.CleanProto;
+import com.netty.client.innermsg.CleanResponseProto;
 import com.netty.client.innermsg.Header;
 import com.netty.client.innermsg.KeyResponseProto;
 import com.netty.client.innermsg.PayloadProto;
@@ -108,14 +108,14 @@ public class CallbackTask implements Runnable {
     private void doResponse() {
         switch (message.recvMessage.businessType) {
             case Header.BusinessType.RESPONSE_APP_ADDED: {
-                AppActionProto.AppAction body = (AppActionProto.AppAction) message.recvMessage.body;
+                AppActionResponseProto.AppActionResponse body = (AppActionResponseProto.AppActionResponse) message.recvMessage.body;
                 callbackMessage(new EMAppInstall(body.getPackageName(), body.getAppName(), body.getVersionCode()
                         , body.getVersionName(), body.getIsSystem()));
 
             }
             break;
             case Header.BusinessType.RESPONSE_APP_REMOVED: {
-                AppActionProto.AppAction body = (AppActionProto.AppAction) message.recvMessage.body;
+                AppActionResponseProto.AppActionResponse body = (AppActionResponseProto.AppActionResponse) message.recvMessage.body;
                 callbackMessage(new EMAppRemove(body.getPackageName()));
             }
             break;
@@ -130,7 +130,7 @@ public class CallbackTask implements Runnable {
             }
             break;
             case Header.BusinessType.RESPONSE_CLEAN: {
-                CleanProto.CleanResponse body = (CleanProto.CleanResponse) message.recvMessage.body;
+                CleanResponseProto.CleanResponse body = (CleanResponseProto.CleanResponse) message.recvMessage.body;
                 callbackMessage(new EMRubbish(body.getCode(), body.getSdkCode(), body.getMemRubbish(), body.getSysRubbish(), body.getCacheRubbish()
                         , body.getApkRubbish()));
             }
