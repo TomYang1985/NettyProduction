@@ -6,6 +6,7 @@ import com.netty.client.core.threadpool.MessageRecvTask;
 import com.netty.client.innermsg.CallbackMessage;
 import com.netty.client.innermsg.Header;
 import com.netty.client.innermsg.NettyMessage;
+import com.netty.client.utils.HostUtils;
 import com.netty.client.utils.L;
 
 import io.netty.channel.ChannelHandler;
@@ -26,6 +27,7 @@ public class MessageRecvHandler extends SimpleChannelInboundHandler<NettyMessage
             case Header.MsgType.EXCHANGE_KEY_RESP: {
                 CallbackMessage callbackMessage = new CallbackMessage();
                 callbackMessage.type = CallbackMessage.MSG_TYPE_RECV_MSG;
+                callbackMessage.from = HostUtils.parseHost(channelHandlerContext.channel().remoteAddress().toString());
                 callbackMessage.recvMessage = message;
                 ExecutorFactory.submitCallbackTask(new CallbackTask(callbackMessage));
             }

@@ -9,17 +9,17 @@ public class EMRubbish extends EMMessage {
     public int sdkCode;
     public long memRubbish;
     public long sysRubbish;
-    public long unInstallRubbish;
     public long cacheRubbish;
+    public long apkRubbish;
 
-    public EMRubbish(int code, int sdkCode, long memRubbish, long sysRubbish, long unInstallRubbish, long cacheRubbish) {
+    public EMRubbish(int code, int sdkCode, long memRubbish, long sysRubbish, long cacheRubbish, long apkRubbish) {
         msgType = MSG_TYPE_RUBBISH;
         this.code = code;
         this.sdkCode = sdkCode;
         this.memRubbish = memRubbish;
         this.sysRubbish = sysRubbish;
-        this.unInstallRubbish = unInstallRubbish;
         this.cacheRubbish = cacheRubbish;
+        this.apkRubbish = apkRubbish;
     }
 
 }

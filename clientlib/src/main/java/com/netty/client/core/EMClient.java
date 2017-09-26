@@ -208,7 +208,7 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
                     switch (triggerType) {
                         case TRIGGER_FROM_USER:
                             L.d("user启动连接成功");
-                            InnerMessageHelper.sendConnectSuccByUserMessage(mDevice.id);
+                            //InnerMessageHelper.sendConnectSuccByUserMessage(mDevice.id);
                             break;
                         case TRIGGER_FROM_SERVICE:
                             L.d("service启动连接成功");

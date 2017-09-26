@@ -90,11 +90,11 @@ public class EMMessageManager {
      * @param sdkErrCode
      * @param memRubbishSize
      * @param sysRubbishSize
-     * @param unInstallSize
      * @param cacheRubbishSize
+     * @param apkRubbishSize
      */
     public void sendCleanResponse(String id, int code, int sdkErrCode, long memRubbishSize, long sysRubbishSize
-            , long unInstallSize, long cacheRubbishSize) {
+            , long cacheRubbishSize, long apkRubbishSize) {
         if (TextUtils.isEmpty(id)) {
             L.print("sendCleanResponse id == null");
             return;
@@ -104,9 +104,12 @@ public class EMMessageManager {
         if (channel != null) {
             CleanProto.CleanResponse body = CleanProto.CleanResponse.newBuilder()
                     .setMessageId(MID.getId())
-                    .setCode(code).setMemRubbish(memRubbishSize)
-                    .setSysRubbish(sysRubbishSize).setUnInstallRubbish(unInstallSize)
-                    .setCacheRubbish(cacheRubbishSize).build();
+                    .setCode(code)
+                    .setSdkCode(sdkErrCode)
+                    .setMemRubbish(memRubbishSize)
+                    .setSysRubbish(sysRubbishSize)
+                    .setCacheRubbish(cacheRubbishSize)
+                    .setApkRubbish(apkRubbishSize).build();
             NettyMessage message = new NettyMessage();
             message.msgType = Header.MsgType.RESPONSE;
             message.businessType = Header.BusinessType.RESPONSE_CLEAN;

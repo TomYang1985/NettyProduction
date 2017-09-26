@@ -14,8 +14,8 @@ import com.netty.client.innermsg.PayloadProto;
 import com.netty.client.listener.EMConnectionListener;
 import com.netty.client.listener.EMMessageListener;
 import com.netty.client.msg.EMAppInstall;
+import com.netty.client.msg.EMAppList;
 import com.netty.client.msg.EMAppRemove;
-import com.netty.client.msg.EMInstalledApps;
 import com.netty.client.msg.EMMessage;
 import com.netty.client.msg.EMPayload;
 import com.netty.client.msg.EMRubbish;
@@ -62,11 +62,11 @@ public class CallbackTask implements Runnable {
         } else if (message.type == CallbackMessage.MSG_TYPE_CONNECT_FAIL) {
             connectError(Code.CODE_CONNECT_FAIL);
         } else if (message.type == CallbackMessage.MSG_TYPE_CONNECT_SUCC_BY_USER) {
-            for (EMConnectionListener listener : EMConnectManager.getInstance().getListener()) {
-                if (listener != null) {
-                    listener.onConnectSuccByUser(message.from);
-                }
-            }
+//            for (EMConnectionListener listener : EMConnectManager.getInstance().getListener()) {
+//                if (listener != null) {
+//                    listener.onConnectSuccByUser(message.from);
+//                }
+//            }
         } else if (message.type == CallbackMessage.MSG_TYPE_RECV_MSG) {
             switch (message.recvMessage.msgType) {
                 case Header.MsgType.PAYLOAD: {
@@ -76,6 +76,12 @@ public class CallbackTask implements Runnable {
                 }
                 break;
                 case Header.MsgType.EXCHANGE_KEY_RESP: {
+                    //tcp channel密钥交换成功回调
+                    for (EMConnectionListener listener : EMConnectManager.getInstance().getListener()) {
+                        if (listener != null) {
+                            listener.onChannelCheckSucc(message.from);
+                        }
+                    }
                     KeyResponseProto.KeyResponse body = (KeyResponseProto.KeyResponse) message.recvMessage.body;
                     int updateType = 0;
                     int protocol = body.getProtocol();
@@ -85,6 +91,7 @@ public class CallbackTask implements Runnable {
                     if (protocol < Header.PROTOCOL_VERSION) {
                         updateType = EMUpdate.UPDATE_TYPE_TV;
                     }
+                    //更新提示回调
                     callbackMessage(new EMUpdate(updateType));
                 }
                 break;
@@ -114,17 +121,18 @@ public class CallbackTask implements Runnable {
             break;
             case Header.BusinessType.RESPONSE_APP_LIST: {
                 AppListResponseProto.AppListResponse body = (AppListResponseProto.AppListResponse) message.recvMessage.body;
-                EMInstalledApps installedApps = new EMInstalledApps();
+                EMAppList installedApps = new EMAppList();
                 for (AppListResponseProto.AppInfo appInfo : body.getListList()) {
                     installedApps.add(appInfo.getPackageName(), appInfo.getAppName(), appInfo.getVersionCode()
-                            , appInfo.getVersionName(), appInfo.getIsSystem());
+                            , appInfo.getVersionName(), appInfo.getIsSystem(), appInfo.getIconUrl());
                 }
                 callbackMessage(installedApps);
             }
             break;
             case Header.BusinessType.RESPONSE_CLEAN: {
                 CleanProto.CleanResponse body = (CleanProto.CleanResponse) message.recvMessage.body;
-                callbackMessage(new EMRubbish(body.getCode(), body.getSdkCode(), body.getMemRubbish(), body.getSysRubbish(), body.getUnInstallRubbish(), body.getCacheRubbish()));
+                callbackMessage(new EMRubbish(body.getCode(), body.getSdkCode(), body.getMemRubbish(), body.getSysRubbish(), body.getCacheRubbish()
+                        , body.getApkRubbish()));
             }
             break;
         }

@@ -2,7 +2,7 @@ package com.tencent.tvmanager.netty.common;
 
 import android.content.Context;
 
-import com.tencent.tvmanager.netty.business.clean.BusinessHelper;
+import com.tencent.tvmanager.netty.business.BusinessHelper;
 import com.tencent.tvmanager.netty.core.EMAcceptor;
 import com.tencent.tvmanager.netty.innermsg.Header;
 import com.tencent.tvmanager.netty.innermsg.NettyMessage;
@@ -84,11 +84,11 @@ public class InnerMessageHelper {
         return message;
     }
 
-    public static NettyMessage createAppList(){
+    public static NettyMessage createAppList(String localHost){
         NettyMessage message = new NettyMessage();
         message.msgType = Header.MsgType.RESPONSE;
         message.businessType = Header.BusinessType.RESPONSE_APP_LIST;
-        message.body = BusinessHelper.getPackages();
+        message.body = BusinessHelper.getPackages(localHost);
 
         return message;
     }

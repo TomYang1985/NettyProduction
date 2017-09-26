@@ -1,4 +1,4 @@
-package com.tencent.tvmanager.netty.business.clean;
+package com.tencent.tvmanager.netty.business;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +9,7 @@ import android.content.pm.ResolveInfo;
 
 import com.tencent.tvmanager.netty.common.Code;
 import com.tencent.tvmanager.netty.core.EMAcceptor;
+import com.tencent.tvmanager.netty.httpserver.HttpServer;
 import com.tencent.tvmanager.netty.innermsg.AppActionProto;
 import com.tencent.tvmanager.netty.innermsg.AppListResponseProto;
 import com.tencent.tvmanager.netty.util.MID;
@@ -24,51 +25,11 @@ import java.util.List;
  */
 public class BusinessHelper {
     /**
-     * 获取应用列表
-     *
-     * @return
-     */
-//    public static AppListResponseProto.AppListResponse getPackages() {
-//        // 获取已经安装的所有应用, PackageInfo　系统类，包含应用信息
-//        Context context = EMAcceptor.getInstance().getContext();
-//        AppListResponseProto.AppListResponse.Builder builder = AppListResponseProto.AppListResponse.newBuilder().setMessageId(MID.getId());
-//
-//        List<PackageInfo> packages = context.getPackageManager().getInstalledPackages(0);
-//        for (int i = 0; i < packages.size(); i++) {
-//            PackageInfo packageInfo = packages.get(i);
-//
-//            if (packageInfo != null) {
-//                AppListResponseProto.AppInfo.Builder appInfoBuilder = AppListResponseProto.AppInfo.newBuilder();
-//
-//                if ((packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) { //非系统应用
-//                    appInfoBuilder.setIsSystem(false);
-//                } else { // 系统应用
-//                    appInfoBuilder.setIsSystem(true);
-//                }
-//
-//                appInfoBuilder.setPackageName(packageInfo.packageName);
-//                appInfoBuilder.setAppName(getAppName(context, packageInfo));
-//                appInfoBuilder.setVersionCode(packageInfo.versionCode);
-//                if(packageInfo.versionName == null){
-//                    L.d(appInfoBuilder.getIsSystem() + "::" + packageInfo.packageName);
-//                    appInfoBuilder.setVersionName("");
-//                }else {
-//                    appInfoBuilder.setVersionName(packageInfo.versionName);
-//                }
-//
-//                builder.addList(appInfoBuilder.build());
-//            }
-//        }
-//
-//        return builder.build();
-//    }
-
-    /**
      * 获取已安装应用列表
      *
      * @return
      */
-    public static AppListResponseProto.AppListResponse getPackages() {
+    public static AppListResponseProto.AppListResponse getPackages(String localHost) {
         // 获取已经安装的所有应用, PackageInfo　系统类，包含应用信息
         Context context = EMAcceptor.getInstance().getContext();
         PackageManager pm = context.getPackageManager();
@@ -98,13 +59,16 @@ public class BusinessHelper {
                     appInfoBuilder.setIsSystem(true);
                 }
 
+                //添加packageName
                 appInfoBuilder.setPackageName(packageInfo.packageName);
+                //添加AppName
                 CharSequence sequence = resolveInfo.loadLabel(pm);
                 if (sequence == null) {
                     appInfoBuilder.setAppName("");
                 } else {
                     appInfoBuilder.setAppName(sequence.toString());
                 }
+                //添加VersionCode和VersionName
                 appInfoBuilder.setVersionCode(packageInfo.versionCode);
                 //注：有的系统应用versionName为null
                 if (packageInfo.versionName == null) {
@@ -112,6 +76,8 @@ public class BusinessHelper {
                 } else {
                     appInfoBuilder.setVersionName(packageInfo.versionName);
                 }
+                //添加icon url
+                appInfoBuilder.setIconUrl(getIconUrl(localHost, packageInfo.packageName));
 
                 builder.addList(appInfoBuilder.build());
             }
@@ -174,4 +140,14 @@ public class BusinessHelper {
         return name;
     }
 
+    /**
+     * 获取icon的url
+     * @return
+     */
+    private static String getIconUrl(String localHost, String packageName){
+        StringBuilder builder = new StringBuilder();
+        builder.append("http://").append(localHost).append(":").append(HttpServer.PORT)
+                .append("/?action=dlicon&pkg=").append(packageName);
+        return builder.toString();
+    }
 }

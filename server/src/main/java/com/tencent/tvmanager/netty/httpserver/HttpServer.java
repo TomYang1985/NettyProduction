@@ -35,6 +35,7 @@ import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 
 public final class HttpServer {
+    public static final int PORT = 8443;
     private volatile static HttpServer sInstance;
     private Context context;
 
@@ -78,7 +79,7 @@ public final class HttpServer {
                     }
                 });
 
-        b.bind(8443).addListener(new ChannelFutureListener() {
+        b.bind(PORT).addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture channelFuture) throws Exception {
                 if (channelFuture.isSuccess()) {

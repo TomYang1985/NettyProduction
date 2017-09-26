@@ -1093,6 +1093,20 @@ public final class AppListResponseProto {
      * <code>required bool isSystem = 5;</code>
      */
     boolean getIsSystem();
+
+    /**
+     * <code>required string iconUrl = 6;</code>
+     */
+    boolean hasIconUrl();
+    /**
+     * <code>required string iconUrl = 6;</code>
+     */
+    java.lang.String getIconUrl();
+    /**
+     * <code>required string iconUrl = 6;</code>
+     */
+    com.google.protobuf.ByteString
+        getIconUrlBytes();
   }
   /**
    * Protobuf type {@code AppInfo}
@@ -1172,6 +1186,12 @@ public final class AppListResponseProto {
             case 40: {
               bitField0_ |= 0x00000010;
               isSystem_ = input.readBool();
+              break;
+            }
+            case 50: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000020;
+              iconUrl_ = bs;
               break;
             }
           }
@@ -1370,12 +1390,55 @@ public final class AppListResponseProto {
       return isSystem_;
     }
 
+    public static final int ICONURL_FIELD_NUMBER = 6;
+    private java.lang.Object iconUrl_;
+    /**
+     * <code>required string iconUrl = 6;</code>
+     */
+    public boolean hasIconUrl() {
+      return ((bitField0_ & 0x00000020) == 0x00000020);
+    }
+    /**
+     * <code>required string iconUrl = 6;</code>
+     */
+    public java.lang.String getIconUrl() {
+      java.lang.Object ref = iconUrl_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          iconUrl_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>required string iconUrl = 6;</code>
+     */
+    public com.google.protobuf.ByteString
+        getIconUrlBytes() {
+      java.lang.Object ref = iconUrl_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        iconUrl_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     private void initFields() {
       packageName_ = "";
       appName_ = "";
       versionCode_ = 0;
       versionName_ = "";
       isSystem_ = false;
+      iconUrl_ = "";
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -1403,6 +1466,10 @@ public final class AppListResponseProto {
         memoizedIsInitialized = 0;
         return false;
       }
+      if (!hasIconUrl()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
       memoizedIsInitialized = 1;
       return true;
     }
@@ -1424,6 +1491,9 @@ public final class AppListResponseProto {
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         output.writeBool(5, isSystem_);
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        output.writeBytes(6, getIconUrlBytes());
       }
       getUnknownFields().writeTo(output);
     }
@@ -1453,6 +1523,10 @@ public final class AppListResponseProto {
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(5, isSystem_);
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(6, getIconUrlBytes());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1581,6 +1655,8 @@ public final class AppListResponseProto {
         bitField0_ = (bitField0_ & ~0x00000008);
         isSystem_ = false;
         bitField0_ = (bitField0_ & ~0x00000010);
+        iconUrl_ = "";
+        bitField0_ = (bitField0_ & ~0x00000020);
         return this;
       }
 
@@ -1629,6 +1705,10 @@ public final class AppListResponseProto {
           to_bitField0_ |= 0x00000010;
         }
         result.isSystem_ = isSystem_;
+        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+          to_bitField0_ |= 0x00000020;
+        }
+        result.iconUrl_ = iconUrl_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -1666,6 +1746,11 @@ public final class AppListResponseProto {
         if (other.hasIsSystem()) {
           setIsSystem(other.getIsSystem());
         }
+        if (other.hasIconUrl()) {
+          bitField0_ |= 0x00000020;
+          iconUrl_ = other.iconUrl_;
+          onChanged();
+        }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
       }
@@ -1688,6 +1773,10 @@ public final class AppListResponseProto {
           return false;
         }
         if (!hasIsSystem()) {
+          
+          return false;
+        }
+        if (!hasIconUrl()) {
           
           return false;
         }
@@ -2005,6 +2094,82 @@ public final class AppListResponseProto {
         return this;
       }
 
+      private java.lang.Object iconUrl_ = "";
+      /**
+       * <code>required string iconUrl = 6;</code>
+       */
+      public boolean hasIconUrl() {
+        return ((bitField0_ & 0x00000020) == 0x00000020);
+      }
+      /**
+       * <code>required string iconUrl = 6;</code>
+       */
+      public java.lang.String getIconUrl() {
+        java.lang.Object ref = iconUrl_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            iconUrl_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>required string iconUrl = 6;</code>
+       */
+      public com.google.protobuf.ByteString
+          getIconUrlBytes() {
+        java.lang.Object ref = iconUrl_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          iconUrl_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>required string iconUrl = 6;</code>
+       */
+      public Builder setIconUrl(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000020;
+        iconUrl_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string iconUrl = 6;</code>
+       */
+      public Builder clearIconUrl() {
+        bitField0_ = (bitField0_ & ~0x00000020);
+        iconUrl_ = getDefaultInstance().getIconUrl();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string iconUrl = 6;</code>
+       */
+      public Builder setIconUrlBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000020;
+        iconUrl_ = value;
+        onChanged();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:AppInfo)
     }
 
@@ -2037,11 +2202,12 @@ public final class AppListResponseProto {
     java.lang.String[] descriptorData = {
       "\n\025AppListResponse.proto\"J\n\017AppListRespon" +
       "se\022\021\n\tmessageId\030\001 \002(\t\022\014\n\004code\030\002 \002(\005\022\026\n\004l" +
-      "ist\030\003 \003(\0132\010.AppInfo\"k\n\007AppInfo\022\023\n\013packag" +
+      "ist\030\003 \003(\0132\010.AppInfo\"|\n\007AppInfo\022\023\n\013packag" +
       "eName\030\001 \002(\t\022\017\n\007appName\030\002 \002(\t\022\023\n\013versionC" +
       "ode\030\003 \002(\005\022\023\n\013versionName\030\004 \002(\t\022\020\n\010isSyst" +
-      "em\030\005 \002(\010B<\n$com.tencent.tvmanager.netty." +
-      "innermsgB\024AppListResponseProto"
+      "em\030\005 \002(\010\022\017\n\007iconUrl\030\006 \002(\tB<\n$com.tencent" +
+      ".tvmanager.netty.innermsgB\024AppListRespon" +
+      "seProto"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -2066,7 +2232,7 @@ public final class AppListResponseProto {
     internal_static_AppInfo_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_AppInfo_descriptor,
-        new java.lang.String[] { "PackageName", "AppName", "VersionCode", "VersionName", "IsSystem", });
+        new java.lang.String[] { "PackageName", "AppName", "VersionCode", "VersionName", "IsSystem", "IconUrl", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

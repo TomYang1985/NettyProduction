@@ -7,12 +7,12 @@ import java.util.List;
  * Created by xiaoguochang on 2017/9/17.
  */
 
-public class EMInstalledApps extends EMMessage {
+public class EMAppList extends EMMessage {
     private List<AppInfo> appInfos = new ArrayList<>();
 
-    public void add(String packageName, String appName, int versionCode, String versionName, boolean isSystem) {
-        appInfos.add(new EMInstalledApps.AppInfo(packageName,
-                appName, versionCode, versionName, isSystem));
+    public void add(String packageName, String appName, int versionCode, String versionName, boolean isSystem, String iconUrl) {
+        appInfos.add(new EMAppList.AppInfo(packageName,
+                appName, versionCode, versionName, isSystem, iconUrl));
     }
 
     public List<AppInfo> getAppInfos() {
@@ -25,14 +25,16 @@ public class EMInstalledApps extends EMMessage {
         public int versionCode;
         public String versionName;
         public boolean isSystem;
+        public String iconUrl;
 
-        public AppInfo(String packageName, String appName, int versionCode, String versionName, boolean isSystem) {
+        public AppInfo(String packageName, String appName, int versionCode, String versionName, boolean isSystem, String iconUrl) {
             msgType = MSG_TYPE_APP_LIST;
             this.packageName = packageName;
             this.appName = appName;
             this.versionCode = versionCode;
             this.versionName = versionName;
             this.isSystem = isSystem;
+            this.iconUrl = iconUrl;
         }
     }
 }

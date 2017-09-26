@@ -10,11 +10,11 @@ public interface EMConnectionListener {
      *
      * @param id 服务器id(即host)
      */
-    void onConnectSuccByUser(String id);
+    //void onConnectSuccByUser(String id);
 
     /**
-     * 数据channel校验成功
-     *
+     * tcp channel校验成功(连接成功调用流程onActive->onChannelCheckSucc)
+     *  开发时，以onChannelCheckSucc连接成功为准
      * @param id
      */
     void onChannelCheckSucc(String id);

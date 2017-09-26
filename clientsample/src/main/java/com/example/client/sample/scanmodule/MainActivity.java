@@ -150,9 +150,8 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
     });
 
     private EMConnectionListener mEMConnectionListener = new EMConnectionListener() {
-
         @Override
-        public void onConnectSuccByUser(String id) {
+        public void onChannelCheckSucc(String id) {
             L.print("MainActivity.onConnectSuccByUser=" + id);
             if (mHandler != null) {
                 Message msg = mHandler.obtainMessage(MSG_CONNECTED_BY_USER);
@@ -161,11 +160,6 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
                 msg.setData(bundle);
                 mHandler.sendMessage(msg);
             }
-        }
-
-        @Override
-        public void onChannelCheckSucc(String id) {
-
         }
 
         @Override

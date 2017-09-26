@@ -2,7 +2,7 @@ package com.tencent.tvmanager.netty.core.threadpool;
 
 import com.tencent.tvmanager.netty.common.Code;
 import com.tencent.tvmanager.netty.common.InnerMessageHelper;
-import com.tencent.tvmanager.netty.core.EMAcceptor;
+import com.tencent.tvmanager.netty.core.EMMessageManager;
 import com.tencent.tvmanager.netty.innermsg.CallbackMessage;
 import com.tencent.tvmanager.netty.innermsg.Header;
 import com.tencent.tvmanager.netty.innermsg.NettyMessage;
@@ -52,7 +52,8 @@ public class MessageRecvTask implements Runnable {
     private void doBusiness(Channel channel, NettyMessage recvmessage) {
         switch (recvmessage.businessType) {
             case Header.BusinessType.REQUEST_APP_LIST: {//收到请求已安装的APP列表信息
-                ExecutorFactory.submitSendTask(new MessageSendTask(channel, InnerMessageHelper.createAppList()));
+                String localHost = HostUtils.parseHost(channel.localAddress().toString());
+                ExecutorFactory.submitSendTask(new MessageSendTask(channel, InnerMessageHelper.createAppList(localHost)));
             }
             break;
             case Header.BusinessType.REQUEST_TV_UPDATE: {//更新APP
@@ -60,14 +61,12 @@ public class MessageRecvTask implements Runnable {
             }
             break;
             case Header.BusinessType.REQUEST_CLEAN: {//清理
-                L.d(recvmessage);
                 String id = HostUtils.parseHostPort(channel.remoteAddress().toString());
-                L.d("id=" + id);
-                EMAcceptor.getInstance().getEMMessageManager().sendCleanResponse(id, Code.RESULT_OK, 0, 100, 200, 300, 400);
+                EMMessageManager.getInstance().sendCleanResponse(id, Code.RESULT_OK, 0, 100,
+                        200, 300, 400);
+//                CleanRubbish.getInstance().statScan(EMAcceptor.getInstance().getContext(), id);            }
+                break;
             }
-            break;
         }
     }
-
-
 }

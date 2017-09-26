@@ -76,6 +76,11 @@ public class NettyDecoder extends ByteToMessageDecoder {
                     MessageLite body = decodeProtoBody(msgType, busynissType, array);
                     output(out, msgType, busynissType, priority, body);
                 } else {
+                    //如果密钥交换失败，则断开连接
+                    if(msgType == Header.MsgType.EXCHANGE_KEY_RESP){
+                        L.print("exchange key fail");
+                        ctx.channel().close();
+                    }
                     L.print("NettyDecoder parse array null");
                 }
             }

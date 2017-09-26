@@ -9,6 +9,6 @@ message CleanResponse{
     optional int32 sdkCode = 3;//垃圾清理sdk返回的错误码
     required int64 memRubbish = 4;
     required int64 sysRubbish = 5;
-    required int64 unInstallRubbish = 6;
-    required int64 cacheRubbish = 7;
+    required int64 cacheRubbish = 6;
+    required int64 apkRubbish = 7;
 }
