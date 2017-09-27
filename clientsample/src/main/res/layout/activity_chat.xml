@@ -45,6 +45,30 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="垃圾清理" />
+
+            <Button
+                android:id="@+id/btn_start_app"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="打开app" />
+
+            <Button
+                android:id="@+id/btn_remove_APP"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="删除APP" />
+
+            <Button
+                android:id="@+id/btn_open_setting"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="设置" />
+
+            <Button
+                android:id="@+id/btn_resource_rate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="资源占比" />
         </LinearLayout>
     </LinearLayout>
 

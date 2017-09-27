@@ -6,15 +6,20 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.net.Uri;
+import android.provider.Settings;
 
 import com.tencent.tvmanager.netty.common.Code;
 import com.tencent.tvmanager.netty.core.EMAcceptor;
 import com.tencent.tvmanager.netty.httpserver.HttpServer;
 import com.tencent.tvmanager.netty.innermsg.AppActionResponseProto;
 import com.tencent.tvmanager.netty.innermsg.AppListResponseProto;
+import com.tencent.tvmanager.netty.innermsg.ResourceRateResponseProto;
 import com.tencent.tvmanager.netty.util.MID;
 
 import java.util.List;
+
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 /**
  * Created by robincxiao on 2017/9/18.
@@ -150,5 +155,67 @@ public class BusinessHelper {
         builder.append("http://").append(localHost).append(":").append(HttpServer.PORT)
                 .append("/?action=dlicon&pkg=").append(packageName);
         return builder.toString();
+    }
+
+    /**
+     * 打开APP
+     *
+     * @param packageName
+     */
+    public static void startApp(String packageName) {
+        Context context = EMAcceptor.getInstance().getContext();
+        if (context != null) {
+            Intent intent = context.getPackageManager().getLaunchIntentForPackage(packageName);
+            intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        }
+    }
+
+    /**
+     * 卸载APP
+     *
+     * @param packageName
+     */
+    public static void removApp(String packageName) {
+        Context context = EMAcceptor.getInstance().getContext();
+        if (context != null) {
+            Intent intent = new Intent(Intent.ACTION_DELETE);
+            intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+            intent.setData(Uri.parse("package:" + packageName));
+            context.startActivity(intent);
+        }
+    }
+
+    /**
+     * 安装APP
+     *
+     * @param packageName
+     * @param url
+     */
+    public static void installApp(String packageName, String url) {
+
+    }
+
+    /**
+     * 打开设置页面
+     */
+    public static void openSetting() {
+        Context context = EMAcceptor.getInstance().getContext();
+        if (context != null) {
+            Intent intent = new Intent(Settings.ACTION_SETTINGS);
+            intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        }
+    }
+
+    /**
+     * 创建资源占用率响应body
+     * @return
+     */
+    public static ResourceRateResponseProto.ResourceRateResponse getResourceRate(){
+        ResourceRateResponseProto.ResourceRateResponse body = ResourceRateResponseProto.ResourceRateResponse.newBuilder()
+                .setMessageId(MID.getId()).setResourceRate("99").build();
+
+        return body;
     }
 }

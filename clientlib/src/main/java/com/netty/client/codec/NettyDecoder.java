@@ -8,6 +8,7 @@ import com.netty.client.innermsg.Header;
 import com.netty.client.innermsg.KeyResponseProto;
 import com.netty.client.innermsg.NettyMessage;
 import com.netty.client.innermsg.PayloadProto;
+import com.netty.client.innermsg.ResourceRateResponseProto;
 import com.netty.client.utils.L;
 
 import java.util.List;
@@ -129,6 +130,10 @@ public class NettyDecoder extends ByteToMessageDecoder {
                         break;
                     case Header.BusinessType.RESPONSE_CLEAN://垃圾清理
                         body = CleanResponseProto.CleanResponse.getDefaultInstance().
+                                getParserForType().parseFrom(array);
+                        break;
+                    case Header.BusinessType.RESPONSE_RESOURCE_RATE://资源占用率
+                        body = ResourceRateResponseProto.ResourceRateResponse.getDefaultInstance().
                                 getParserForType().parseFrom(array);
                         break;
                 }

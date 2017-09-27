@@ -11,6 +11,7 @@ import com.netty.client.innermsg.CleanResponseProto;
 import com.netty.client.innermsg.Header;
 import com.netty.client.innermsg.KeyResponseProto;
 import com.netty.client.innermsg.PayloadProto;
+import com.netty.client.innermsg.ResourceRateResponseProto;
 import com.netty.client.listener.EMConnectionListener;
 import com.netty.client.listener.EMMessageListener;
 import com.netty.client.msg.EMAppInstall;
@@ -18,6 +19,7 @@ import com.netty.client.msg.EMAppList;
 import com.netty.client.msg.EMAppRemove;
 import com.netty.client.msg.EMMessage;
 import com.netty.client.msg.EMPayload;
+import com.netty.client.msg.EMResourceRate;
 import com.netty.client.msg.EMRubbish;
 import com.netty.client.msg.EMUpdate;
 
@@ -133,6 +135,11 @@ public class CallbackTask implements Runnable {
                 CleanResponseProto.CleanResponse body = (CleanResponseProto.CleanResponse) message.recvMessage.body;
                 callbackMessage(new EMRubbish(body.getCode(), body.getSdkCode(), body.getMemRubbish(), body.getSysRubbish(), body.getCacheRubbish()
                         , body.getApkRubbish()));
+            }
+            break;
+            case Header.BusinessType.RESPONSE_RESOURCE_RATE: {
+                ResourceRateResponseProto.ResourceRateResponse body = (ResourceRateResponseProto.ResourceRateResponse) message.recvMessage.body;
+                callbackMessage(new EMResourceRate(body.getResourceRate()));
             }
             break;
         }

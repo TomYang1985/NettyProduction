@@ -38,6 +38,7 @@ public class MessageRecvHandler extends SimpleChannelInboundHandler<NettyMessage
                     case Header.BusinessType.RESPONSE_APP_REMOVED://删除APP
                     case Header.BusinessType.RESPONSE_APP_LIST://已安装列表
                     case Header.BusinessType.RESPONSE_CLEAN://已安装列表
+                    case Header.BusinessType.RESPONSE_RESOURCE_RATE://资源占用率
                         CallbackMessage callbackMessage = new CallbackMessage();
                         callbackMessage.type = CallbackMessage.MSG_TYPE_RECV_MSG;
                         callbackMessage.recvMessage = message;

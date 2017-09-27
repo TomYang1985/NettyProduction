@@ -1,0 +1,9 @@
+syntax = "proto2";
+
+option java_package = "com.netty.client.innermsg";
+option java_outer_classname = "ResourceRateResponseProto";
+
+message ResourceRateResponse{
+    required string messageId = 1;//消息id
+    required string resourceRate = 2;
+}

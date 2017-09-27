@@ -1,0 +1,10 @@
+syntax = "proto2";
+
+option java_package = "com.tencent.tvmanager.netty.innermsg";
+option java_outer_classname = "AppActionRequestProto";
+
+message AppActionRequest{
+    required string messageId = 1;//消息id
+    optional string packageName = 2;
+    optional string url = 3;
+}

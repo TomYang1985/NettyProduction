@@ -8,6 +8,7 @@ import com.tencent.tvmanager.netty.innermsg.AppActionResponseProto;
 import com.tencent.tvmanager.netty.innermsg.Header;
 import com.tencent.tvmanager.netty.innermsg.KeyResponseProto;
 import com.tencent.tvmanager.netty.innermsg.NettyMessage;
+import com.tencent.tvmanager.netty.innermsg.ResourceRateResponseProto;
 import com.tencent.tvmanager.netty.util.MID;
 import com.tencent.tvmanager.util.AppUtils;
 
@@ -83,11 +84,29 @@ public class InnerMessageHelper {
         return message;
     }
 
+    /**
+     * 创建APP列表
+     * @param localHost
+     * @return
+     */
     public static NettyMessage createAppList(String localHost) {
         NettyMessage message = new NettyMessage();
         message.msgType = Header.MsgType.RESPONSE;
         message.businessType = Header.BusinessType.RESPONSE_APP_LIST;
         message.body = BusinessHelper.getPackages(localHost);
+
+        return message;
+    }
+
+    /**
+     * 请求资源占用率
+     * @return
+     */
+    public static NettyMessage createResourceRate(){
+        NettyMessage message = new NettyMessage();
+        message.msgType = Header.MsgType.RESPONSE;
+        message.businessType = Header.BusinessType.RESPONSE_RESOURCE_RATE;
+        message.body = BusinessHelper.getResourceRate();
 
         return message;
     }

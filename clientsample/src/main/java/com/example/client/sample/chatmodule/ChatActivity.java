@@ -119,7 +119,8 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
         return R.layout.activity_chat;
     }
 
-    @OnClick({R.id.btn_send, R.id.btn_app_list, R.id.btn_update_tv, R.id.btn_clean})
+    @OnClick({R.id.btn_send, R.id.btn_app_list, R.id.btn_update_tv, R.id.btn_clean, R.id.btn_start_app, R.id.btn_remove_APP
+            , R.id.btn_open_setting, R.id.btn_resource_rate})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_send:
@@ -141,6 +142,18 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
             case R.id.btn_clean:
                 EMClient.getInstance().getEMMessageManager().requestClean();
                     break;
+            case R.id.btn_start_app:
+                EMClient.getInstance().getEMMessageManager().startApp("com.yunxun.wifipassword");
+                break;
+            case R.id.btn_remove_APP:
+                EMClient.getInstance().getEMMessageManager().removeApp("com.yunxun.wifipassword");
+                break;
+            case R.id.btn_open_setting:
+                EMClient.getInstance().getEMMessageManager().startSetting();
+                break;
+            case R.id.btn_resource_rate:
+                EMClient.getInstance().getEMMessageManager().requestResourceRate();
+                break;
         }
     }
 }

@@ -68,7 +68,7 @@ public class MessageSendTask implements Runnable {
     }
 
     /**
-     * 业务请求发送
+     * 业务响应发送
      *
      * @param channel
      * @param message
@@ -77,6 +77,7 @@ public class MessageSendTask implements Runnable {
         switch (message.businessType) {
             case Header.BusinessType.RESPONSE_APP_LIST://app列表
             case Header.BusinessType.RESPONSE_CLEAN://垃圾清理
+            case Header.BusinessType.RESPONSE_RESOURCE_RATE://资源占用率
                 channel.writeAndFlush(mMessage);
                 break;
         }

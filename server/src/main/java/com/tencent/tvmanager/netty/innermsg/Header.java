@@ -29,10 +29,17 @@ public class Header {
         public static final byte REQUEST_TV_UPDATE = 1;//更新TV端
         public static final byte REQUEST_APP_LIST = 2;//请求已安装应用列表
         public static final byte REQUEST_CLEAN = 3;//清理
+        public static final byte REQUEST_OPEN_APP = 4;//打开APP
+        public static final byte REQUEST_REMOVE_APP = 5;//删除APP
+        public static final byte REQUEST_UPDATE_APP = 6;//更新APP
+        public static final byte REQUEST_INSTALL_APP = 7;//安装APP
+        public static final byte REQUEST_OPEN_SETTING = 8;//打开系统设置页面
+        public static final byte REQUEST_RESOURCE_RATE = 9;//资源占用率
 
         public static final byte RESPONSE_APP_ADDED = 1;//APP安装
         public static final byte RESPONSE_APP_REMOVED = 2;//APP卸载
         public static final byte RESPONSE_APP_LIST = 3;//已安装应用列表响应
         public static final byte RESPONSE_CLEAN = 4;//清理返回
+        public static final byte RESPONSE_RESOURCE_RATE = 5;//资源占用率返回
     }
 }

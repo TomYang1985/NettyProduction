@@ -1,8 +1,10 @@
 package com.tencent.tvmanager.netty.core.threadpool;
 
+import com.tencent.tvmanager.netty.business.BusinessHelper;
 import com.tencent.tvmanager.netty.common.Code;
 import com.tencent.tvmanager.netty.common.InnerMessageHelper;
 import com.tencent.tvmanager.netty.core.EMMessageManager;
+import com.tencent.tvmanager.netty.innermsg.AppActionRequestProto;
 import com.tencent.tvmanager.netty.innermsg.CallbackMessage;
 import com.tencent.tvmanager.netty.innermsg.Header;
 import com.tencent.tvmanager.netty.innermsg.NettyMessage;
@@ -50,14 +52,16 @@ public class MessageRecvTask implements Runnable {
      * @param recvmessage
      */
     private void doBusiness(Channel channel, NettyMessage recvmessage) {
+        L.d(recvmessage);
+
         switch (recvmessage.businessType) {
             case Header.BusinessType.REQUEST_APP_LIST: {//收到请求已安装的APP列表信息
                 String localHost = HostUtils.parseHost(channel.localAddress().toString());
                 ExecutorFactory.submitSendTask(new MessageSendTask(channel, InnerMessageHelper.createAppList(localHost)));
             }
             break;
-            case Header.BusinessType.REQUEST_TV_UPDATE: {//更新APP
-                L.d(recvmessage);
+            case Header.BusinessType.REQUEST_TV_UPDATE: {//客户端发现TV端版本过低，发送更新TV APP请求
+
             }
             break;
             case Header.BusinessType.REQUEST_CLEAN: {//清理
@@ -67,6 +71,34 @@ public class MessageRecvTask implements Runnable {
 //                CleanRubbish.getInstance().statScan(EMAcceptor.getInstance().getContext(), id);            }
                 break;
             }
+            case Header.BusinessType.REQUEST_OPEN_APP: {//打开APP
+                AppActionRequestProto.AppActionRequest body = (AppActionRequestProto.AppActionRequest) recvmessage.body;
+                BusinessHelper.startApp(body.getPackageName());
+            }
+            break;
+            case Header.BusinessType.REQUEST_REMOVE_APP: {//删除APP
+                AppActionRequestProto.AppActionRequest body = (AppActionRequestProto.AppActionRequest) recvmessage.body;
+                BusinessHelper.removApp(body.getPackageName());
+            }
+            break;
+            case Header.BusinessType.REQUEST_UPDATE_APP: {//更新APP
+                AppActionRequestProto.AppActionRequest body = (AppActionRequestProto.AppActionRequest) recvmessage.body;
+                BusinessHelper.installApp(body.getPackageName(), body.getUrl());
+            }
+            break;
+            case Header.BusinessType.REQUEST_INSTALL_APP: {//安装APP
+                AppActionRequestProto.AppActionRequest body = (AppActionRequestProto.AppActionRequest) recvmessage.body;
+                BusinessHelper.installApp(body.getPackageName(), body.getUrl());
+            }
+            break;
+            case Header.BusinessType.REQUEST_OPEN_SETTING: {//打开设置页面
+                BusinessHelper.openSetting();
+            }
+            break;
+            case Header.BusinessType.REQUEST_RESOURCE_RATE: {//请求资源占用率
+                ExecutorFactory.submitSendTask(new MessageSendTask(channel, InnerMessageHelper.createResourceRate()));
+            }
+            break;
         }
     }
 }
