@@ -78,6 +78,7 @@ public class MessageSendTask implements Runnable {
             case Header.BusinessType.RESPONSE_APP_LIST://app列表
             case Header.BusinessType.RESPONSE_CLEAN://垃圾清理
             case Header.BusinessType.RESPONSE_RESOURCE_RATE://资源占用率
+            case Header.BusinessType.RESPONSE_DEVICE_INFO://设备信息
                 channel.writeAndFlush(mMessage);
                 break;
         }

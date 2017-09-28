@@ -4,6 +4,7 @@ import com.google.protobuf.MessageLite;
 import com.netty.client.innermsg.AppActionResponseProto;
 import com.netty.client.innermsg.AppListResponseProto;
 import com.netty.client.innermsg.CleanResponseProto;
+import com.netty.client.innermsg.DeviceInfoResponseProto;
 import com.netty.client.innermsg.Header;
 import com.netty.client.innermsg.KeyResponseProto;
 import com.netty.client.innermsg.NettyMessage;
@@ -134,6 +135,10 @@ public class NettyDecoder extends ByteToMessageDecoder {
                         break;
                     case Header.BusinessType.RESPONSE_RESOURCE_RATE://资源占用率
                         body = ResourceRateResponseProto.ResourceRateResponse.getDefaultInstance().
+                                getParserForType().parseFrom(array);
+                        break;
+                    case Header.BusinessType.RESPONSE_DEVICE_INFO://设备信息
+                        body = DeviceInfoResponseProto.DeviceInfoResponse.getDefaultInstance().
                                 getParserForType().parseFrom(array);
                         break;
                 }

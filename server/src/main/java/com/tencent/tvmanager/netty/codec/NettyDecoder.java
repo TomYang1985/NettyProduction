@@ -56,7 +56,8 @@ public class NettyDecoder extends ByteToMessageDecoder {
                         || busynissType == Header.BusinessType.REQUEST_TV_UPDATE
                         || busynissType == Header.BusinessType.REQUEST_CLEAN
                         || busynissType == Header.BusinessType.REQUEST_OPEN_SETTING
-                        || busynissType == Header.BusinessType.REQUEST_RESOURCE_RATE) {
+                        || busynissType == Header.BusinessType.REQUEST_RESOURCE_RATE
+                        || busynissType == Header.BusinessType.REQUEST_DEVICE_INFO) {
                     output(out, msgType, busynissType, priority, null);
                     return;
                 }

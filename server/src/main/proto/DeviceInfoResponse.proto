@@ -1,0 +1,18 @@
+syntax = "proto2";
+
+option java_package = "com.tencent.tvmanager.netty.innermsg";
+option java_outer_classname = "DeviceInfoResponseProto";
+
+message DeviceInfoResponse{
+    required string messageId = 1;//消息id
+    required string deviceName = 2;
+    required string brand = 3;
+    required string model = 4;
+    required int64 totalSd = 5;
+    required int64 availableSd = 6;
+    required int64 totalMem = 7;
+    required string resolution = 8;
+    required string deviceDpi = 9;
+    optional string cpuFrequency = 10;
+    optional int32 cpuNum = 11;
+}

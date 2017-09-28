@@ -120,7 +120,7 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
     }
 
     @OnClick({R.id.btn_send, R.id.btn_app_list, R.id.btn_update_tv, R.id.btn_clean, R.id.btn_start_app, R.id.btn_remove_APP
-            , R.id.btn_open_setting, R.id.btn_resource_rate})
+            , R.id.btn_open_setting, R.id.btn_resource_rate, R.id.btn_device_info})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_send:
@@ -153,6 +153,9 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
                 break;
             case R.id.btn_resource_rate:
                 EMClient.getInstance().getEMMessageManager().requestResourceRate();
+                break;
+            case R.id.btn_device_info:
+                EMClient.getInstance().getEMMessageManager().requestDeviceInfo();
                 break;
         }
     }

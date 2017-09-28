@@ -99,6 +99,10 @@ public class MessageRecvTask implements Runnable {
                 ExecutorFactory.submitSendTask(new MessageSendTask(channel, InnerMessageHelper.createResourceRate()));
             }
             break;
+            case Header.BusinessType.REQUEST_DEVICE_INFO: {//设备信息
+                ExecutorFactory.submitSendTask(new MessageSendTask(channel, InnerMessageHelper.createDeviceInfo()));
+            }
+            break;
         }
     }
 }

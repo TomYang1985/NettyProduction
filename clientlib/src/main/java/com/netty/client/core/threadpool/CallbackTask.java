@@ -8,6 +8,7 @@ import com.netty.client.innermsg.AppActionResponseProto;
 import com.netty.client.innermsg.AppListResponseProto;
 import com.netty.client.innermsg.CallbackMessage;
 import com.netty.client.innermsg.CleanResponseProto;
+import com.netty.client.innermsg.DeviceInfoResponseProto;
 import com.netty.client.innermsg.Header;
 import com.netty.client.innermsg.KeyResponseProto;
 import com.netty.client.innermsg.PayloadProto;
@@ -17,6 +18,7 @@ import com.netty.client.listener.EMMessageListener;
 import com.netty.client.msg.EMAppInstall;
 import com.netty.client.msg.EMAppList;
 import com.netty.client.msg.EMAppRemove;
+import com.netty.client.msg.EMDeviceInfo;
 import com.netty.client.msg.EMMessage;
 import com.netty.client.msg.EMPayload;
 import com.netty.client.msg.EMResourceRate;
@@ -140,6 +142,12 @@ public class CallbackTask implements Runnable {
             case Header.BusinessType.RESPONSE_RESOURCE_RATE: {
                 ResourceRateResponseProto.ResourceRateResponse body = (ResourceRateResponseProto.ResourceRateResponse) message.recvMessage.body;
                 callbackMessage(new EMResourceRate(body.getResourceRate()));
+            }
+            break;
+            case Header.BusinessType.RESPONSE_DEVICE_INFO: {
+                DeviceInfoResponseProto.DeviceInfoResponse body = (DeviceInfoResponseProto.DeviceInfoResponse) message.recvMessage.body;
+                callbackMessage(new EMDeviceInfo(body.getDeviceName(), body.getBrand(), body.getModel(), body.getTotalSd()
+                        , body.getAvailableSd(), body.getTotalMem(), body.getResolution(), body.getDeviceDpi()));
             }
             break;
         }

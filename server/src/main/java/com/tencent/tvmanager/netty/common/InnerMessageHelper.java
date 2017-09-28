@@ -99,7 +99,7 @@ public class InnerMessageHelper {
     }
 
     /**
-     * 请求资源占用率
+     * 创建资源占用率
      * @return
      */
     public static NettyMessage createResourceRate(){
@@ -107,6 +107,19 @@ public class InnerMessageHelper {
         message.msgType = Header.MsgType.RESPONSE;
         message.businessType = Header.BusinessType.RESPONSE_RESOURCE_RATE;
         message.body = BusinessHelper.getResourceRate();
+
+        return message;
+    }
+
+    /**
+     * 创建设备信息
+     * @return
+     */
+    public static NettyMessage createDeviceInfo(){
+        NettyMessage message = new NettyMessage();
+        message.msgType = Header.MsgType.RESPONSE;
+        message.businessType = Header.BusinessType.RESPONSE_DEVICE_INFO;
+        message.body = BusinessHelper.getDeviceInfo();
 
         return message;
     }

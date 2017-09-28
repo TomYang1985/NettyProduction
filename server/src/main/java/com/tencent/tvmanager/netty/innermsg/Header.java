@@ -35,11 +35,13 @@ public class Header {
         public static final byte REQUEST_INSTALL_APP = 7;//安装APP
         public static final byte REQUEST_OPEN_SETTING = 8;//打开系统设置页面
         public static final byte REQUEST_RESOURCE_RATE = 9;//资源占用率
+        public static final byte REQUEST_DEVICE_INFO = 10;//设备信息
 
         public static final byte RESPONSE_APP_ADDED = 1;//APP安装
         public static final byte RESPONSE_APP_REMOVED = 2;//APP卸载
         public static final byte RESPONSE_APP_LIST = 3;//已安装应用列表响应
         public static final byte RESPONSE_CLEAN = 4;//清理返回
         public static final byte RESPONSE_RESOURCE_RATE = 5;//资源占用率返回
+        public static final byte RESPONSE_DEVICE_INFO = 6;//设备信息
     }
 }

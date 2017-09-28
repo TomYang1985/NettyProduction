@@ -50,6 +50,7 @@ public class MessageRecvHandler extends SimpleChannelInboundHandler<NettyMessage
             case Header.BusinessType.REQUEST_INSTALL_APP:
             case Header.BusinessType.REQUEST_OPEN_SETTING:
             case Header.BusinessType.REQUEST_RESOURCE_RATE:
+            case Header.BusinessType.REQUEST_DEVICE_INFO:
                 ExecutorFactory.submitRecvTask(new MessageRecvTask(channelHandlerContext.channel(), message));
                 break;
         }

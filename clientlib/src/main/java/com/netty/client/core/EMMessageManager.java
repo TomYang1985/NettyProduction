@@ -193,4 +193,15 @@ public class EMMessageManager {
 
         ExecutorFactory.submitSendTask(new MessageSendTask(mChannel, message));
     }
+
+    /**
+     * 请求设备信息
+     */
+    public void requestDeviceInfo(){
+        NettyMessage message = new NettyMessage();
+        message.msgType = Header.MsgType.REQUEST;
+        message.businessType = Header.BusinessType.REQUEST_DEVICE_INFO;
+
+        ExecutorFactory.submitSendTask(new MessageSendTask(mChannel, message));
+    }
 }
