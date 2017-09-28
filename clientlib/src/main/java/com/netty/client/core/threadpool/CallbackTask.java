@@ -9,6 +9,7 @@ import com.netty.client.innermsg.AppListResponseProto;
 import com.netty.client.innermsg.CallbackMessage;
 import com.netty.client.innermsg.CleanResponseProto;
 import com.netty.client.innermsg.DeviceInfoResponseProto;
+import com.netty.client.innermsg.DownloadResponseProto;
 import com.netty.client.innermsg.Header;
 import com.netty.client.innermsg.KeyResponseProto;
 import com.netty.client.innermsg.PayloadProto;
@@ -19,6 +20,7 @@ import com.netty.client.msg.EMAppInstall;
 import com.netty.client.msg.EMAppList;
 import com.netty.client.msg.EMAppRemove;
 import com.netty.client.msg.EMDeviceInfo;
+import com.netty.client.msg.EMDownload;
 import com.netty.client.msg.EMMessage;
 import com.netty.client.msg.EMPayload;
 import com.netty.client.msg.EMResourceRate;
@@ -148,6 +150,11 @@ public class CallbackTask implements Runnable {
                 DeviceInfoResponseProto.DeviceInfoResponse body = (DeviceInfoResponseProto.DeviceInfoResponse) message.recvMessage.body;
                 callbackMessage(new EMDeviceInfo(body.getDeviceName(), body.getBrand(), body.getModel(), body.getTotalSd()
                         , body.getAvailableSd(), body.getTotalMem(), body.getResolution(), body.getDeviceDpi()));
+            }
+            break;
+            case Header.BusinessType.RESPONSE_DOWNLOAD: {
+                DownloadResponseProto.DownloadResponse body = (DownloadResponseProto.DownloadResponse) message.recvMessage.body;
+                callbackMessage(new EMDownload(body.getCode(), body.getUrl()));
             }
             break;
         }

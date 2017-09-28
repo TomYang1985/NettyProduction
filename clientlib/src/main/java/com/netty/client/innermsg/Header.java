@@ -32,7 +32,7 @@ public class Header {
         public static final byte REQUEST_OPEN_APP = 4;//打开APP
         public static final byte REQUEST_REMOVE_APP = 5;//删除APP
         public static final byte REQUEST_UPDATE_APP = 6;//更新APP
-        public static final byte REQUEST_INSTALL_APP = 7;//安装APP
+        public static final byte REQUEST_DOWNLOAD_APP = 7;//下载APP
         public static final byte REQUEST_OPEN_SETTING = 8;//打开系统设置页面
         public static final byte REQUEST_RESOURCE_RATE = 9;//资源占用率
         public static final byte REQUEST_DEVICE_INFO = 10;//设备信息
@@ -43,5 +43,6 @@ public class Header {
         public static final byte RESPONSE_CLEAN = 4;//清理返回
         public static final byte RESPONSE_RESOURCE_RATE = 5;//资源占用率返回
         public static final byte RESPONSE_DEVICE_INFO = 6;//设备信息
+        public static final byte RESPONSE_DOWNLOAD = 7;//下载返回
     }
 }

@@ -16,4 +16,7 @@ public class Code {
     public static final int RESULT_OK = 200;
     public static final int CODE_CLEAN_ERROR = 1000;//清理错误
     public static final int CODE_CLEAN_CANCEL = 1001;//清理取消
+    public static final int CODE_DOWNLOAD_PENDING = 1002;//下载等待
+    public static final int CODE_DOWNLOAD_STARTED = 1003;//下载开始
+    public static final int CODE_DOWNLOAD_FAIL = 1004;//下载失败
 }

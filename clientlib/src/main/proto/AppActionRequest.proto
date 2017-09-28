@@ -7,4 +7,5 @@ message AppActionRequest{
     required string messageId = 1;//消息id
     optional string packageName = 2;
     optional string url = 3;
+    optional string appName = 4;
 }

@@ -64,7 +64,7 @@ public class MessageSendTask implements Runnable {
             case Header.BusinessType.REQUEST_OPEN_APP://打开APP
             case Header.BusinessType.REQUEST_REMOVE_APP://删除APP
             case Header.BusinessType.REQUEST_UPDATE_APP://更新APP
-            case Header.BusinessType.REQUEST_INSTALL_APP://安装APP
+            case Header.BusinessType.REQUEST_DOWNLOAD_APP://下载APP
             case Header.BusinessType.REQUEST_OPEN_SETTING://打开设置
             case Header.BusinessType.REQUEST_RESOURCE_RATE://资源占用率
             case Header.BusinessType.REQUEST_DEVICE_INFO://请求设备信息

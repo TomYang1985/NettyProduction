@@ -13,6 +13,7 @@ public class EMMessage {
     public static final int MSG_TYPE_RUBBISH = 6;//垃圾扫描结果
     public static final int MSG_TYPE_RESOURCE_RATE = 7;//资源占用率
     public static final int MSG_TYPE_DEVICE_INFO = 8;//设备信息
+    public static final int MSG_TYPE_DOWNLOAD = 9;//下载
 
     public int msgType;
 }

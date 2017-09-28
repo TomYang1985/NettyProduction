@@ -136,37 +136,35 @@ public class EMMessageManager {
         ExecutorFactory.submitSendTask(new MessageSendTask(mChannel, message));
     }
 
+//    /**
+//     * 更新APP
+//     * @param url
+//     * @param appName
+//     */
+//    public void updateApp(String url, String appName){
+//        AppActionRequestProto.AppActionRequest  body = AppActionRequestProto.AppActionRequest.newBuilder()
+//                .setMessageId(MID.getId())
+//                .setUrl(url).setAppName(appName).build();
+//        NettyMessage message = new NettyMessage();
+//        message.msgType = Header.MsgType.REQUEST;
+//        message.businessType = Header.BusinessType.REQUEST_UPDATE_APP;
+//        message.body = body;
+//
+//        ExecutorFactory.submitSendTask(new MessageSendTask(mChannel, message));
+//    }
+
     /**
-     * 更新APP
-     * @param packageName
+     * 下载安装APP
      * @param url
+     * @param appName
      */
-    public void updateApp(String packageName, String url){
+    public void downloadApp(String url, String appName){
         AppActionRequestProto.AppActionRequest  body = AppActionRequestProto.AppActionRequest.newBuilder()
                 .setMessageId(MID.getId())
-                .setPackageName(packageName)
-                .setUrl(url).build();
+                .setUrl(url).setAppName(appName).build();
         NettyMessage message = new NettyMessage();
         message.msgType = Header.MsgType.REQUEST;
-        message.businessType = Header.BusinessType.REQUEST_UPDATE_APP;
-        message.body = body;
-
-        ExecutorFactory.submitSendTask(new MessageSendTask(mChannel, message));
-    }
-
-    /**
-     * 安装APP
-     * @param packageName
-     * @param url
-     */
-    public void installApp(String packageName, String url){
-        AppActionRequestProto.AppActionRequest  body = AppActionRequestProto.AppActionRequest.newBuilder()
-                .setMessageId(MID.getId())
-                .setPackageName(packageName)
-                .setUrl(url).build();
-        NettyMessage message = new NettyMessage();
-        message.msgType = Header.MsgType.REQUEST;
-        message.businessType = Header.BusinessType.REQUEST_INSTALL_APP;
+        message.businessType = Header.BusinessType.REQUEST_DOWNLOAD_APP;
         message.body = body;
 
         ExecutorFactory.submitSendTask(new MessageSendTask(mChannel, message));
