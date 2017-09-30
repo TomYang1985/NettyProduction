@@ -1,13 +1,20 @@
 package com.example.client.sample.scanmodule;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.TextView;
 
 import com.example.client.sample.R;
@@ -203,6 +210,9 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
         isSetStatusBar = true;
         mStatusBarColorId = R.color.colorPrimary;
 
+        mWindowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+        mWindowParams = new WindowManager.LayoutParams();
+
         mAdpter = new DeviceListAdapter(mContext);
         mLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
@@ -347,5 +357,49 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
         EMClient.getInstance().getEMConnectManager().removeListener(mEMConnectionListener);
         ScanDevice.getInstance().setScanListener(null);
         super.onDestroy();
+    }
+
+    boolean flagWindow = false;
+    WindowManager mWindowManager;
+    WindowManager.LayoutParams mWindowParams;
+    View view;
+    ViewGroup viewGroup;
+
+    private void createWindow() {
+        if (flagWindow) {
+            flagWindow = false;
+            TranslateAnimation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0,
+                    Animation.RELATIVE_TO_SELF, -1, Animation.RELATIVE_TO_SELF, 0,
+                    Animation.RELATIVE_TO_SELF, 0);
+            animation.setDuration(1000);
+
+            viewGroup.startAnimation(animation);
+            //mWindowManager.removeViewImmediate(view);
+        } else {
+            flagWindow = true;
+            view = LayoutInflater.from(this).inflate(R.layout.window_download, null, false);
+            viewGroup = (ViewGroup) view.findViewById(R.id.layout_test);
+            mWindowParams.gravity = Gravity.TOP | Gravity.LEFT;
+            //注：要使用mLastRawX计算相对于手机屏幕的位置，不能使用mLastX
+            mWindowParams.x = 0;
+            mWindowParams.y = 100;
+            mWindowParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+            mWindowParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            mWindowParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                    | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                    | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                    | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
+            mWindowParams.format = PixelFormat.TRANSLUCENT;
+            mWindowParams.windowAnimations = 0;
+
+            mWindowManager.addView(view, mWindowParams);
+
+            TranslateAnimation animation = new TranslateAnimation(Animation.RELATIVE_TO_SELF, -1,
+                    Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0,
+                    Animation.RELATIVE_TO_SELF, 0);
+            animation.setDuration(1000);
+
+            viewGroup.startAnimation(animation);
+        }
     }
 }

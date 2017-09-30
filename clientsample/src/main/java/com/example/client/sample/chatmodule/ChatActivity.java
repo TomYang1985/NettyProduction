@@ -159,6 +159,8 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
                 break;
             case R.id.btn_download:
                 EMClient.getInstance().getEMMessageManager().downloadApp("http://softfile.3g.qq.com/msoft/misc/QQDoctor.apk", "QQDoctor");
+                EMClient.getInstance().getEMMessageManager().downloadApp("http://tvmgr.qq.com/dl/appstore/com.gitvdemo.video.apk", "云视听");
+                EMClient.getInstance().getEMMessageManager().downloadApp("http://tvmgr.qq.com/dl/appstore/com.ktcp.video.apk", "ktcp");
                 break;
         }
     }
