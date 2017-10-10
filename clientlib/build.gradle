@@ -93,6 +93,7 @@ task proguardJar(type:proguard.gradle.ProGuardTask,dependsOn:makeJar) {
     libraryjars '../proguardlib/netty-handler-4.1.13.Final.jar'
     libraryjars '../proguardlib/netty-resolver-4.1.13.Final.jar'
     libraryjars '../proguardlib/netty-transport-4.1.13.Final.jar'
+    libraryjars '../proguardlib/netty-codec-http-4.1.13.Final.jar'
     libraryjars '../proguardlib/protobuf-java-2.6.1.jar'
     libraryjars '../proguardlib/gson-2.4.jar'
 

@@ -19,6 +19,7 @@ import com.netty.client.listener.EMMessageListener;
 import com.netty.client.msg.EMAppInstall;
 import com.netty.client.msg.EMAppList;
 import com.netty.client.msg.EMAppRemove;
+import com.netty.client.msg.EMAppUpdate;
 import com.netty.client.msg.EMDeviceInfo;
 import com.netty.client.msg.EMDownload;
 import com.netty.client.msg.EMMessage;
@@ -116,13 +117,20 @@ public class CallbackTask implements Runnable {
             case Header.BusinessType.RESPONSE_APP_ADDED: {
                 AppActionResponseProto.AppActionResponse body = (AppActionResponseProto.AppActionResponse) message.recvMessage.body;
                 callbackMessage(new EMAppInstall(body.getPackageName(), body.getAppName(), body.getVersionCode()
-                        , body.getVersionName(), body.getIsSystem()));
+                        , body.getVersionName(), body.getIsSystem(), body.getIconUrl()));
 
             }
             break;
             case Header.BusinessType.RESPONSE_APP_REMOVED: {
                 AppActionResponseProto.AppActionResponse body = (AppActionResponseProto.AppActionResponse) message.recvMessage.body;
                 callbackMessage(new EMAppRemove(body.getPackageName()));
+            }
+            break;
+            case Header.BusinessType.RESPONSE_APP_UPDATE: {
+                AppActionResponseProto.AppActionResponse body = (AppActionResponseProto.AppActionResponse) message.recvMessage.body;
+                callbackMessage(new EMAppUpdate(body.getPackageName(), body.getAppName(), body.getVersionCode()
+                        , body.getVersionName(), body.getIsSystem(), body.getIconUrl()));
+
             }
             break;
             case Header.BusinessType.RESPONSE_APP_LIST: {

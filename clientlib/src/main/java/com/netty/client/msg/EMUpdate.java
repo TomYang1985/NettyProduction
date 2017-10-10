@@ -10,7 +10,7 @@ public class EMUpdate extends EMMessage {
     public int updateType;
 
     public EMUpdate(int updateType) {
-        msgType = MSG_TYPE_UPDATE;
+        msgType = MSG_TYPE_APP_UPDATE;
         this.updateType = updateType;
     }
 }

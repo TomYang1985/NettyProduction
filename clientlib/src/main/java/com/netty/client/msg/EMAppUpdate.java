@@ -4,7 +4,7 @@ package com.netty.client.msg;
  * Created by xiaoguochang on 2017/9/17.
  */
 
-public class EMAppInstall extends EMMessage {
+public class EMAppUpdate extends EMMessage {
     public String packageName;
     public String appName;
     public int versionCode;
@@ -12,8 +12,8 @@ public class EMAppInstall extends EMMessage {
     public boolean isSystem;
     public String iconUrl;
 
-    public EMAppInstall(String packageName, String appName, int versionCode, String versionName, boolean isSystem, String iconUrl) {
-        msgType = MSG_TYPE_APP_ADDED;
+    public EMAppUpdate(String packageName, String appName, int versionCode, String versionName, boolean isSystem, String iconUrl) {
+        msgType = MSG_TYPE_APP_UPDATE;
         this.packageName = packageName;
         this.appName = appName;
         this.versionCode = versionCode;

@@ -10,4 +10,5 @@ message AppActionResponse{
     optional int32 versionCode = 4;
     optional string versionName = 5;
     optional bool isSystem = 6;
+    optional string iconUrl = 7;
 }

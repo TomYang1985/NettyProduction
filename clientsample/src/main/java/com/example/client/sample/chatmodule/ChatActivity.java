@@ -2,6 +2,7 @@ package com.example.client.sample.chatmodule;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -18,6 +19,8 @@ import com.netty.client.msg.EMMessage;
 import com.netty.client.msg.EMPayload;
 import com.netty.client.utils.L;
 import com.netty.client.utils.T;
+
+import java.io.File;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -120,7 +123,7 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
     }
 
     @OnClick({R.id.btn_send, R.id.btn_app_list, R.id.btn_update_tv, R.id.btn_clean, R.id.btn_start_app, R.id.btn_remove_APP
-            , R.id.btn_open_setting, R.id.btn_resource_rate, R.id.btn_device_info, R.id.btn_download})
+            , R.id.btn_open_setting, R.id.btn_resource_rate, R.id.btn_device_info, R.id.btn_download, R.id.btn_local_download})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_send:
@@ -141,7 +144,7 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
                 break;
             case R.id.btn_clean:
                 EMClient.getInstance().getEMMessageManager().requestClean();
-                    break;
+                break;
             case R.id.btn_start_app:
                 EMClient.getInstance().getEMMessageManager().startApp("com.yunxun.wifipassword");
                 break;
@@ -161,6 +164,10 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
                 EMClient.getInstance().getEMMessageManager().downloadApp("http://softfile.3g.qq.com/msoft/misc/QQDoctor.apk", "QQDoctor");
                 EMClient.getInstance().getEMMessageManager().downloadApp("http://tvmgr.qq.com/dl/appstore/com.gitvdemo.video.apk", "云视听");
                 EMClient.getInstance().getEMMessageManager().downloadApp("http://tvmgr.qq.com/dl/appstore/com.ktcp.video.apk", "ktcp");
+                break;
+            case R.id.btn_local_download:
+                String path = EMClient.getInstance().getLocalUrl("Download/沙发管家V5.0_v5.0.4_webmarket.apk");
+                EMClient.getInstance().getEMMessageManager().downloadApp(path, "沙发管家");
                 break;
         }
     }

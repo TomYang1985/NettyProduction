@@ -123,6 +123,7 @@ public class NettyDecoder extends ByteToMessageDecoder {
                 switch (busynissType) {
                     case Header.BusinessType.RESPONSE_APP_ADDED://APP安装
                     case Header.BusinessType.RESPONSE_APP_REMOVED://APP删除
+                    case Header.BusinessType.RESPONSE_APP_UPDATE://APP更新
                         body = AppActionResponseProto.AppActionResponse.getDefaultInstance().
                                 getParserForType().parseFrom(array);
                         break;

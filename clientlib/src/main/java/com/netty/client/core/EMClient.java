@@ -10,6 +10,7 @@ import com.netty.client.core.threadpool.ExecutorFactory;
 import com.netty.client.handler.ConnectionManagerHandler;
 import com.netty.client.handler.IdleStateTrigger;
 import com.netty.client.handler.MessageRecvHandler;
+import com.netty.client.httpserver.HttpServer;
 import com.netty.client.innermsg.CallbackMessage;
 import com.netty.client.msg.EMDevice;
 import com.netty.client.utils.HostUtils;
@@ -53,6 +54,8 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
 
     private EMClient() {
         super();
+        //启动http server
+        HttpServer.getInstance().start();
     }
 
     public static EMClient getInstance() {
@@ -102,7 +105,7 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
     }
 
     public String localHost() {
-        if (mFuture != null) {
+        if (mFuture != null && mFuture.channel() != null && mFuture.channel().localAddress() != null) {
             return HostUtils.parseHostPort(mFuture.channel().localAddress().toString());
         }
 
@@ -273,6 +276,19 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
         };
     }
 
+    /**
+     * 获取本地文件url
+     * @param path 本地文件路径
+     * @return
+     */
+    public String getLocalUrl(String path){
+        if (mFuture != null && mFuture.channel() != null && mFuture.channel().localAddress() != null) {
+            return HttpServer.getInstance().getLocalUrl(HostUtils.parseHost(mFuture.channel().localAddress().toString()), path);
+        }
+
+        return "";
+    }
+
     @Override
     public void shutdownGracefully() {
         mStatus.getAndSet(STATUS_NONE);
@@ -283,5 +299,6 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
         shutdownGracefully();
         ExecutorFactory.shutdownNow();
         mWatchdog.onDestory();
+        HttpServer.getInstance().destory();
     }
 }

@@ -36,6 +36,7 @@ public class MessageRecvHandler extends SimpleChannelInboundHandler<NettyMessage
                 switch (message.businessType) {
                     case Header.BusinessType.RESPONSE_APP_ADDED://安装APP
                     case Header.BusinessType.RESPONSE_APP_REMOVED://删除APP
+                    case Header.BusinessType.RESPONSE_APP_UPDATE://APP更新
                     case Header.BusinessType.RESPONSE_APP_LIST://已安装列表
                     case Header.BusinessType.RESPONSE_CLEAN://已安装列表
                     case Header.BusinessType.RESPONSE_RESOURCE_RATE://资源占用率

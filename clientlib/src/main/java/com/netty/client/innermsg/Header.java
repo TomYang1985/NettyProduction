@@ -39,10 +39,11 @@ public class Header {
 
         public static final byte RESPONSE_APP_ADDED = 1;//APP安装
         public static final byte RESPONSE_APP_REMOVED = 2;//APP卸载
-        public static final byte RESPONSE_APP_LIST = 3;//已安装应用列表响应
-        public static final byte RESPONSE_CLEAN = 4;//清理返回
-        public static final byte RESPONSE_RESOURCE_RATE = 5;//资源占用率返回
-        public static final byte RESPONSE_DEVICE_INFO = 6;//设备信息
-        public static final byte RESPONSE_DOWNLOAD = 7;//下载返回
+        public static final byte RESPONSE_APP_UPDATE = 3;//APP更新
+        public static final byte RESPONSE_APP_LIST = 4;//已安装应用列表响应
+        public static final byte RESPONSE_CLEAN = 5;//清理返回
+        public static final byte RESPONSE_RESOURCE_RATE = 6;//资源占用率返回
+        public static final byte RESPONSE_DEVICE_INFO = 7;//设备信息
+        public static final byte RESPONSE_DOWNLOAD = 8;//下载返回
     }
 }
