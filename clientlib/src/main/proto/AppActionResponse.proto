@@ -11,4 +11,5 @@ message AppActionResponse{
     optional string versionName = 5;
     optional bool isSystem = 6;
     optional string iconUrl = 7;
+    optional int64 size = 8;
 }

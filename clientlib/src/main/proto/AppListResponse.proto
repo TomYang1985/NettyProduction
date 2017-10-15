@@ -16,4 +16,5 @@ message AppInfo {
     required string versionName = 4;
     required bool isSystem = 5;
     required string iconUrl = 6;
+    required int64 size = 7;
 }

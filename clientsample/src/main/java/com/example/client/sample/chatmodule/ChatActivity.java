@@ -137,7 +137,11 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
                 mInputEdt.setText("");
                 break;
             case R.id.btn_app_list:
-                EMClient.getInstance().getEMMessageManager().requestAppList();
+                if(EMClient.getInstance().getEMMessageManager().requestAppList() == 0){
+                    T.showShort(mContext, "发送成功");
+                }else {
+                    T.showShort(mContext, "发送失败");
+                }
                 break;
             case R.id.btn_update_tv:
                 EMClient.getInstance().getEMMessageManager().requestTvUpdate();

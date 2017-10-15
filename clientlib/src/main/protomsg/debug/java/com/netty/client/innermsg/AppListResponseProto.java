@@ -1107,6 +1107,15 @@ public final class AppListResponseProto {
      */
     com.google.protobuf.ByteString
         getIconUrlBytes();
+
+    /**
+     * <code>required int64 size = 7;</code>
+     */
+    boolean hasSize();
+    /**
+     * <code>required int64 size = 7;</code>
+     */
+    long getSize();
   }
   /**
    * Protobuf type {@code AppInfo}
@@ -1192,6 +1201,11 @@ public final class AppListResponseProto {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000020;
               iconUrl_ = bs;
+              break;
+            }
+            case 56: {
+              bitField0_ |= 0x00000040;
+              size_ = input.readInt64();
               break;
             }
           }
@@ -1432,6 +1446,21 @@ public final class AppListResponseProto {
       }
     }
 
+    public static final int SIZE_FIELD_NUMBER = 7;
+    private long size_;
+    /**
+     * <code>required int64 size = 7;</code>
+     */
+    public boolean hasSize() {
+      return ((bitField0_ & 0x00000040) == 0x00000040);
+    }
+    /**
+     * <code>required int64 size = 7;</code>
+     */
+    public long getSize() {
+      return size_;
+    }
+
     private void initFields() {
       packageName_ = "";
       appName_ = "";
@@ -1439,6 +1468,7 @@ public final class AppListResponseProto {
       versionName_ = "";
       isSystem_ = false;
       iconUrl_ = "";
+      size_ = 0L;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -1470,6 +1500,10 @@ public final class AppListResponseProto {
         memoizedIsInitialized = 0;
         return false;
       }
+      if (!hasSize()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
       memoizedIsInitialized = 1;
       return true;
     }
@@ -1494,6 +1528,9 @@ public final class AppListResponseProto {
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
         output.writeBytes(6, getIconUrlBytes());
+      }
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        output.writeInt64(7, size_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -1527,6 +1564,10 @@ public final class AppListResponseProto {
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(6, getIconUrlBytes());
+      }
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(7, size_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1657,6 +1698,8 @@ public final class AppListResponseProto {
         bitField0_ = (bitField0_ & ~0x00000010);
         iconUrl_ = "";
         bitField0_ = (bitField0_ & ~0x00000020);
+        size_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000040);
         return this;
       }
 
@@ -1709,6 +1752,10 @@ public final class AppListResponseProto {
           to_bitField0_ |= 0x00000020;
         }
         result.iconUrl_ = iconUrl_;
+        if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
+          to_bitField0_ |= 0x00000040;
+        }
+        result.size_ = size_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -1751,6 +1798,9 @@ public final class AppListResponseProto {
           iconUrl_ = other.iconUrl_;
           onChanged();
         }
+        if (other.hasSize()) {
+          setSize(other.getSize());
+        }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
       }
@@ -1777,6 +1827,10 @@ public final class AppListResponseProto {
           return false;
         }
         if (!hasIconUrl()) {
+          
+          return false;
+        }
+        if (!hasSize()) {
           
           return false;
         }
@@ -2170,6 +2224,38 @@ public final class AppListResponseProto {
         return this;
       }
 
+      private long size_ ;
+      /**
+       * <code>required int64 size = 7;</code>
+       */
+      public boolean hasSize() {
+        return ((bitField0_ & 0x00000040) == 0x00000040);
+      }
+      /**
+       * <code>required int64 size = 7;</code>
+       */
+      public long getSize() {
+        return size_;
+      }
+      /**
+       * <code>required int64 size = 7;</code>
+       */
+      public Builder setSize(long value) {
+        bitField0_ |= 0x00000040;
+        size_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required int64 size = 7;</code>
+       */
+      public Builder clearSize() {
+        bitField0_ = (bitField0_ & ~0x00000040);
+        size_ = 0L;
+        onChanged();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:AppInfo)
     }
 
@@ -2202,11 +2288,12 @@ public final class AppListResponseProto {
     java.lang.String[] descriptorData = {
       "\n\025AppListResponse.proto\"J\n\017AppListRespon" +
       "se\022\021\n\tmessageId\030\001 \002(\t\022\014\n\004code\030\002 \002(\005\022\026\n\004l" +
-      "ist\030\003 \003(\0132\010.AppInfo\"|\n\007AppInfo\022\023\n\013packag" +
-      "eName\030\001 \002(\t\022\017\n\007appName\030\002 \002(\t\022\023\n\013versionC" +
-      "ode\030\003 \002(\005\022\023\n\013versionName\030\004 \002(\t\022\020\n\010isSyst" +
-      "em\030\005 \002(\010\022\017\n\007iconUrl\030\006 \002(\tB1\n\031com.netty.c" +
-      "lient.innermsgB\024AppListResponseProto"
+      "ist\030\003 \003(\0132\010.AppInfo\"\212\001\n\007AppInfo\022\023\n\013packa" +
+      "geName\030\001 \002(\t\022\017\n\007appName\030\002 \002(\t\022\023\n\013version" +
+      "Code\030\003 \002(\005\022\023\n\013versionName\030\004 \002(\t\022\020\n\010isSys" +
+      "tem\030\005 \002(\010\022\017\n\007iconUrl\030\006 \002(\t\022\014\n\004size\030\007 \002(\003" +
+      "B1\n\031com.netty.client.innermsgB\024AppListRe" +
+      "sponseProto"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -2231,7 +2318,7 @@ public final class AppListResponseProto {
     internal_static_AppInfo_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_AppInfo_descriptor,
-        new java.lang.String[] { "PackageName", "AppName", "VersionCode", "VersionName", "IsSystem", "IconUrl", });
+        new java.lang.String[] { "PackageName", "AppName", "VersionCode", "VersionName", "IsSystem", "IconUrl", "Size", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

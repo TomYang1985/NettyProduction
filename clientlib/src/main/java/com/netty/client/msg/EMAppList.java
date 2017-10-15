@@ -10,9 +10,10 @@ import java.util.List;
 public class EMAppList extends EMMessage {
     private List<AppInfo> appInfos = new ArrayList<>();
 
-    public void add(String packageName, String appName, int versionCode, String versionName, boolean isSystem, String iconUrl) {
+    public void add(String packageName, String appName, int versionCode, String versionName, boolean isSystem,
+                    String iconUrl, long size) {
         appInfos.add(new EMAppList.AppInfo(packageName,
-                appName, versionCode, versionName, isSystem, iconUrl));
+                appName, versionCode, versionName, isSystem, iconUrl, size));
     }
 
     public List<AppInfo> getAppInfos() {
@@ -26,8 +27,10 @@ public class EMAppList extends EMMessage {
         public String versionName;
         public boolean isSystem;
         public String iconUrl;
+        public long size;
 
-        public AppInfo(String packageName, String appName, int versionCode, String versionName, boolean isSystem, String iconUrl) {
+        public AppInfo(String packageName, String appName, int versionCode, String versionName, boolean isSystem,
+                       String iconUrl, long size) {
             msgType = MSG_TYPE_APP_LIST;
             this.packageName = packageName;
             this.appName = appName;
@@ -35,6 +38,7 @@ public class EMAppList extends EMMessage {
             this.versionName = versionName;
             this.isSystem = isSystem;
             this.iconUrl = iconUrl;
+            this.size = size;
         }
     }
 }

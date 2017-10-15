@@ -11,8 +11,9 @@ public class EMAppUpdate extends EMMessage {
     public String versionName;
     public boolean isSystem;
     public String iconUrl;
+    public long size;
 
-    public EMAppUpdate(String packageName, String appName, int versionCode, String versionName, boolean isSystem, String iconUrl) {
+    public EMAppUpdate(String packageName, String appName, int versionCode, String versionName, boolean isSystem, String iconUrl, long size) {
         msgType = MSG_TYPE_APP_UPDATE;
         this.packageName = packageName;
         this.appName = appName;
@@ -20,5 +21,6 @@ public class EMAppUpdate extends EMMessage {
         this.versionName = versionName;
         this.isSystem = isSystem;
         this.iconUrl = iconUrl;
+        this.size = size;
     }
 }
