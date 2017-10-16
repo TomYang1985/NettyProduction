@@ -165,13 +165,13 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
                 EMClient.getInstance().getEMMessageManager().requestDeviceInfo();
                 break;
             case R.id.btn_download:
-                EMClient.getInstance().getEMMessageManager().downloadApp("http://softfile.3g.qq.com/msoft/misc/QQDoctor.apk", "QQDoctor");
-                EMClient.getInstance().getEMMessageManager().downloadApp("http://tvmgr.qq.com/dl/appstore/com.gitvdemo.video.apk", "云视听");
-                EMClient.getInstance().getEMMessageManager().downloadApp("http://tvmgr.qq.com/dl/appstore/com.ktcp.video.apk", "ktcp");
+                EMClient.getInstance().getEMMessageManager().downloadCloudApp("http://softfile.3g.qq.com/msoft/misc/QQDoctor.apk", "QQDoctor");
+                EMClient.getInstance().getEMMessageManager().downloadCloudApp("http://tvmgr.qq.com/dl/appstore/com.gitvdemo.video.apk", "云视听");
+                EMClient.getInstance().getEMMessageManager().downloadCloudApp("http://tvmgr.qq.com/dl/appstore/com.ktcp.video.apk", "ktcp");
                 break;
             case R.id.btn_local_download:
                 String path = EMClient.getInstance().getLocalUrl("Download/沙发管家V5.0_v5.0.4_webmarket.apk");
-                EMClient.getInstance().getEMMessageManager().downloadApp(path, "沙发管家");
+                EMClient.getInstance().getEMMessageManager().downloadLocalApp(path, "沙发管家");
                 break;
         }
     }

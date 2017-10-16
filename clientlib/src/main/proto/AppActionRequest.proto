@@ -8,4 +8,5 @@ message AppActionRequest{
     optional string packageName = 2;
     optional string url = 3;
     optional string appName = 4;
+    optional int32 downloadType = 5;//下载时的类型，1：云端下载；2：本地下载；3：更新下载
 }

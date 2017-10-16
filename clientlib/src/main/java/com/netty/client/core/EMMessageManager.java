@@ -177,18 +177,65 @@ public class EMMessageManager {
     }
 
     /**
-     * 下载安装APP
+     * 下载云端APP
      * @param url
      * @param appName
      */
-    public int downloadApp(String url, String appName){
+    public int downloadCloudApp(String url, String appName){
         if(!isActive()){
             return -1;
         }
 
         AppActionRequestProto.AppActionRequest  body = AppActionRequestProto.AppActionRequest.newBuilder()
                 .setMessageId(MID.getId())
-                .setUrl(url).setAppName(appName).build();
+                .setUrl(url).setAppName(appName).setDownloadType(Header.DownloadType.DOWNLOAD_TYPE_CLOUD).build();
+        NettyMessage message = new NettyMessage();
+        message.msgType = Header.MsgType.REQUEST;
+        message.businessType = Header.BusinessType.REQUEST_DOWNLOAD_APP;
+        message.body = body;
+
+        ExecutorFactory.submitSendTask(new MessageSendTask(mChannel, message));
+
+        return 0;
+    }
+
+    /**
+     * 下载本地APP
+     * @param url
+     * @param appName
+     */
+    public int downloadLocalApp(String url, String appName){
+        if(!isActive()){
+            return -1;
+        }
+
+        AppActionRequestProto.AppActionRequest  body = AppActionRequestProto.AppActionRequest.newBuilder()
+                .setMessageId(MID.getId())
+                .setUrl(url).setAppName(appName).setDownloadType(Header.DownloadType.DOWNLOAD_TYPE_LOCAL).build();
+        NettyMessage message = new NettyMessage();
+        message.msgType = Header.MsgType.REQUEST;
+        message.businessType = Header.BusinessType.REQUEST_DOWNLOAD_APP;
+        message.body = body;
+
+        ExecutorFactory.submitSendTask(new MessageSendTask(mChannel, message));
+
+        return 0;
+    }
+
+    /**
+     * 更新APP
+     * @param url
+     * @param appName
+     * @return
+     */
+    public int updateApp(String url, String appName){
+        if(!isActive()){
+            return -1;
+        }
+
+        AppActionRequestProto.AppActionRequest  body = AppActionRequestProto.AppActionRequest.newBuilder()
+                .setMessageId(MID.getId())
+                .setUrl(url).setAppName(appName).setDownloadType(Header.DownloadType.DOWNLOAD_TYPE_UPDATE).build();
         NettyMessage message = new NettyMessage();
         message.msgType = Header.MsgType.REQUEST;
         message.businessType = Header.BusinessType.REQUEST_DOWNLOAD_APP;
