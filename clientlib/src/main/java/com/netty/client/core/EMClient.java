@@ -17,6 +17,7 @@ import com.netty.client.utils.HostUtils;
 import com.netty.client.utils.L;
 import com.netty.client.utils.NetUtils;
 
+import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -104,13 +105,7 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
         return EMConnectManager.getInstance();
     }
 
-    public String localHost() {
-        if (mFuture != null && mFuture.channel() != null && mFuture.channel().localAddress() != null) {
-            return HostUtils.parseHostPort(mFuture.channel().localAddress().toString());
-        }
 
-        return "";
-    }
 
     public void init(Context context) {
         mContext = context;
@@ -149,6 +144,29 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
     public boolean isActive() {
         return mFuture != null && mFuture.channel() != null && mFuture.channel().isActive();
         //return mStatus != null && mStatus.compareAndSet(STATUS_CONNECTED, STATUS_CONNECTED);
+    }
+
+    public String localHost() {
+        if (mFuture != null && mFuture.channel() != null && mFuture.channel().localAddress() != null) {
+            return HostUtils.parseHostPort(mFuture.channel().localAddress().toString());
+        }
+
+        return "";
+    }
+
+    /**
+     * 获取server host(已连接状态时)
+     * @return
+     */
+    public String remoteHost(){
+        if(isActive()){
+            SocketAddress address = mFuture.channel().remoteAddress();
+            if(address != null) {
+                return HostUtils.parseHost(address.toString());
+            }
+
+        }
+        return "";
     }
 
     @Override

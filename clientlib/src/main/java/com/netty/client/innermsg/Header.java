@@ -31,10 +31,10 @@ public class Header {
         public static final byte REQUEST_CLEAN = 3;//清理
         public static final byte REQUEST_OPEN_APP = 4;//打开APP
         public static final byte REQUEST_REMOVE_APP = 5;//删除APP
-        public static final byte REQUEST_DOWNLOAD_APP = 7;//下载APP
-        public static final byte REQUEST_OPEN_SETTING = 8;//打开系统设置页面
-        public static final byte REQUEST_RESOURCE_RATE = 9;//资源占用率
-        public static final byte REQUEST_DEVICE_INFO = 10;//设备信息
+        public static final byte REQUEST_DOWNLOAD_APP = 6;//下载APP
+        public static final byte REQUEST_OPEN_SETTING = 7;//打开系统设置页面
+        public static final byte REQUEST_RESOURCE_RATE = 8;//资源占用率
+        public static final byte REQUEST_DEVICE_INFO = 9;//设备信息
 
         public static final byte RESPONSE_APP_ADDED = 1;//APP安装
         public static final byte RESPONSE_APP_REMOVED = 2;//APP卸载
@@ -47,8 +47,8 @@ public class Header {
     }
 
     public interface DownloadType{
-        public static final int DOWNLOAD_TYPE_CLOUD = 1;//云端下载
-        public static final int DOWNLOAD_TYPE_LOCAL = 2;//本地下载
-        public static final int DOWNLOAD_TYPE_UPDATE = 3;//更新下载
+        static final int DOWNLOAD_TYPE_CLOUD = 1;//云端下载
+        static final int DOWNLOAD_TYPE_LOCAL = 2;//本地下载
+        static final int DOWNLOAD_TYPE_UPDATE = 3;//更新下载
     }
 }

@@ -7,4 +7,5 @@ message DownloadResponse{
     required string messageId = 1;//消息id
     required int32 code = 2;//返回码，200表示正确
     required string url = 3;
+    required int32 downloadType = 4;//下载时的类型，1：云端下载；2：本地下载；3：更新下载
 }

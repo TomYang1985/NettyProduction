@@ -27,6 +27,7 @@ import com.netty.client.msg.EMPayload;
 import com.netty.client.msg.EMResourceRate;
 import com.netty.client.msg.EMRubbish;
 import com.netty.client.msg.EMUpdate;
+import com.netty.client.utils.L;
 
 /**
  * Created by xiaoguochang on 2017/8/27.
@@ -162,6 +163,7 @@ public class CallbackTask implements Runnable {
             break;
             case Header.BusinessType.RESPONSE_DOWNLOAD: {
                 DownloadResponseProto.DownloadResponse body = (DownloadResponseProto.DownloadResponse) message.recvMessage.body;
+                L.d(body);
                 callbackMessage(new EMDownload(body.getCode(), body.getUrl()));
             }
             break;

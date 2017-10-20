@@ -17,6 +17,7 @@ import com.netty.client.listener.EMMessageListener;
 import com.netty.client.msg.EMDevice;
 import com.netty.client.msg.EMMessage;
 import com.netty.client.msg.EMPayload;
+import com.netty.client.utils.GsonUtils;
 import com.netty.client.utils.L;
 import com.netty.client.utils.T;
 
@@ -77,13 +78,23 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
             mContext.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (message.msgType == EMMessage.MSG_TYPE_PAYLOAD) {
-                        EMPayload payload = (EMPayload) message;
-                        mContentBuilder.append(payload.from).append("\n").append(payload.content).append("\n");
-                        mChatContentText.setText(mContentBuilder.toString());
-                    } else {
+                    if(mChatContentText != null){
+                        if(message.msgType != EMMessage.MSG_TYPE_APP_LIST){
+                            mContentBuilder.append(GsonUtils.toJson(message)).append("\n---------------");
+                            mChatContentText.setText(mContentBuilder.toString());
+                        }
                         L.d(message);
                     }
+//                    if (message.msgType == EMMessage.MSG_TYPE_PAYLOAD) {
+//                        EMPayload payload = (EMPayload) message;
+//                        mContentBuilder.append(payload.from).append("\n").append(payload.content).append("\n");
+//                        mChatContentText.setText(mContentBuilder.toString());
+//                    } else {
+//                        if(message.msgType != EMMessage.MSG_TYPE_APP_LIST){
+//                            mContentBuilder.append(GsonUtils.toJson(message));
+//                        }
+//                        L.d(message);
+//                    }
                 }
             });
         }
@@ -142,6 +153,7 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
                 }else {
                     T.showShort(mContext, "发送失败");
                 }
+                L.d("host=" + EMClient.getInstance().remoteHost());
                 break;
             case R.id.btn_update_tv:
                 EMClient.getInstance().getEMMessageManager().requestTvUpdate();
@@ -165,9 +177,10 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
                 EMClient.getInstance().getEMMessageManager().requestDeviceInfo();
                 break;
             case R.id.btn_download:
-                EMClient.getInstance().getEMMessageManager().downloadCloudApp("http://softfile.3g.qq.com/msoft/misc/QQDoctor.apk", "QQDoctor");
+//                EMClient.getInstance().getEMMessageManager().updateApp("http://tvmgr.qq.com/dl/appstore/com.gitvdemo.video.apk", "云视听");
+                //EMClient.getInstance().getEMMessageManager().downloadCloudApp("http://softfile.3g.qq.com/msoft/misc/QQDoctor.apk", "QQDoctor");
                 EMClient.getInstance().getEMMessageManager().downloadCloudApp("http://tvmgr.qq.com/dl/appstore/com.gitvdemo.video.apk", "云视听");
-                EMClient.getInstance().getEMMessageManager().downloadCloudApp("http://tvmgr.qq.com/dl/appstore/com.ktcp.video.apk", "ktcp");
+                //EMClient.getInstance().getEMMessageManager().downloadCloudApp("http://tvmgr.qq.com/dl/appstore/com.ktcp.video.apk", "ktcp");
                 break;
             case R.id.btn_local_download:
                 String path = EMClient.getInstance().getLocalUrl("Download/沙发管家V5.0_v5.0.4_webmarket.apk");
