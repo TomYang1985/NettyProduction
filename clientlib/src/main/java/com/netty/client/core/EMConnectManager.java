@@ -4,6 +4,7 @@ import com.netty.client.listener.EMConnectionListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by robincxiao on 2017/9/1.
@@ -11,10 +12,10 @@ import java.util.List;
 
 public class EMConnectManager {
     private volatile static EMConnectManager sInstance;
-    private List<EMConnectionListener> mListeners;
+    private CopyOnWriteArrayList<EMConnectionListener> mListeners;
 
     private EMConnectManager() {
-        mListeners = new ArrayList<>();
+        mListeners = new CopyOnWriteArrayList<>();
     }
 
     public List<EMConnectionListener> getListener() {
@@ -34,10 +35,14 @@ public class EMConnectManager {
     }
 
     public void addListener(EMConnectionListener listener){
-        mListeners .add(listener);
+        if(listener != null) {
+            mListeners.add(listener);
+        }
     }
 
     public void removeListener(EMConnectionListener listener){
-        mListeners.remove(listener);
+        if(listener != null) {
+            mListeners.remove(listener);
+        }
     }
 }

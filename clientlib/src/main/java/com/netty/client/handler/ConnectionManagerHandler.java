@@ -1,5 +1,6 @@
 package com.netty.client.handler;
 
+import com.netty.client.common.ETvModelID;
 import com.netty.client.common.InnerMessageHelper;
 import com.netty.client.core.EMMessageManager;
 import com.netty.client.utils.L;
@@ -17,7 +18,7 @@ public class ConnectionManagerHandler extends ChannelDuplexHandler {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
-        L.print("ConnectionManagerHandler.channelActive");
+        L.writeFile("ConnectionManagerHandler.channelActive");
 
         EMMessageManager.getInstance().setChannel(ctx.channel());//设置消息管理的channel
         //发送动态密钥
@@ -25,12 +26,14 @@ public class ConnectionManagerHandler extends ChannelDuplexHandler {
 
         String remoteAddress = ctx.channel().remoteAddress().toString();
         InnerMessageHelper.sendActiveCallbackMessage(remoteAddress);
+
+        ETvModelID.saveActionData(ETvModelID.EMID_Secure_RemoteControl_TVcommunication_ConnectTV_Successed_Count);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
-        L.print("ConnectionManagerHandler.channelInactive");
+        L.writeFile("ConnectionManagerHandler.channelInactive");
 
         String remoteAddress = ctx.channel().remoteAddress().toString();
         InnerMessageHelper.sendInActiveCallbackMessage(remoteAddress);
@@ -39,6 +42,6 @@ public class ConnectionManagerHandler extends ChannelDuplexHandler {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         super.exceptionCaught(ctx, cause);
-        L.d(cause.toString());
+        L.writeFile(cause.toString());
     }
 }

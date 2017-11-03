@@ -13,6 +13,8 @@ public class Code {
     public static final int CODE_HOST_NULL = 5;//host为null
     public static final int CODE_CONNECT_FAIL = 6;//连接失败
     public static final int CODE_CONNECT_SUCC_BY_USER = 7;//用户点击连接成功
+    public static final int CODE_UPDATE_PHONE = 8;//手机端需要更新
+    public static final int CODE_UPDATE_TV = 9;//TV端需要更新
     //服务端错误码
     public static final int RESULT_OK = 200;
     public static final int CODE_CLEAN_ERROR = 1000;//清理错误

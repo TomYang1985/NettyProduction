@@ -21,40 +21,38 @@ public class L {
     private static Logger fileLogger;
 
     static {
-        LogConfiguration config = new LogConfiguration.Builder()
-                .tag(Config.TAG)                   // Specify TAG, default: "X-LOG"
-                .t()                                                // Enable thread info, disabled by default
-                .st(3)                                              // Enable stack trace info with depth 2, disabled by default
-                .b()                                                // Enable border, disabled by default
-                // .jsonFormatter(new MyJsonFormatter())               // Default: DefaultJsonFormatter
-                // .xmlFormatter(new MyXmlFormatter())                 // Default: DefaultXmlFormatter
-                // .throwableFormatter(new MyThrowableFormatter())     // Default: DefaultThrowableFormatter
-                // .threadFormatter(new MyThreadFormatter())           // Default: DefaultThreadFormatter
-                // .stackTraceFormatter(new MyStackTraceFormatter())   // Default: DefaultStackTraceFormatter
-                // .borderFormatter(new MyBoardFormatter())            // Default: DefaultBorderFormatter
-                // .addObjectFormatter(AnyClass.class,                 // Add formatter for specific class of object
-                //     new AnyClassObjectFormatter())                  // Use Object.toString() by default
-                // .addInterceptor(new WhitelistTagsFilterInterceptor( // Add whitelist tags filter
-                //     "whitelist1", "whitelist2", "whitelist3"))
-                // .addInterceptor(new MyInterceptor())                // Add a log interceptor
-                .build();
-
-        XLog.init(config);
-
-        Printer filePrinter = new FilePrinter                      // Printer that print the log to the file system
-                .Builder(Config.getLogPath())       // Specify the path to save log file
-                .fileNameGenerator(new DateFileNameGenerator())        // Default: ChangelessFileNameGenerator("log")
-                // .backupStrategy(new MyBackupStrategy())             // Default: FileSizeBackupStrategy(1024 * 1024)
-                .logFlattener(new ClassicFlattener())                  // Default: DefaultFlattener
-                .setFileLogRetentionPeriod(Config.LOG_RETENTION_PERIOD)
-                .build();
-
-
         if (Config.isDebug) {
-            androidLogger = new Logger.Builder().printers(new AndroidPrinter()).build();
-        }
+            LogConfiguration config = new LogConfiguration.Builder()
+                    .tag(Config.TAG)                   // Specify TAG, default: "X-LOG"
+                    .t()                                                // Enable thread info, disabled by default
+                    .st(3)                                              // Enable stack trace info with depth 2, disabled by default
+                    .b()                                                // Enable border, disabled by default
+                    // .jsonFormatter(new MyJsonFormatter())               // Default: DefaultJsonFormatter
+                    // .xmlFormatter(new MyXmlFormatter())                 // Default: DefaultXmlFormatter
+                    // .throwableFormatter(new MyThrowableFormatter())     // Default: DefaultThrowableFormatter
+                    // .threadFormatter(new MyThreadFormatter())           // Default: DefaultThreadFormatter
+                    // .stackTraceFormatter(new MyStackTraceFormatter())   // Default: DefaultStackTraceFormatter
+                    // .borderFormatter(new MyBoardFormatter())            // Default: DefaultBorderFormatter
+                    // .addObjectFormatter(AnyClass.class,                 // Add formatter for specific class of object
+                    //     new AnyClassObjectFormatter())                  // Use Object.toString() by default
+                    // .addInterceptor(new WhitelistTagsFilterInterceptor( // Add whitelist tags filter
+                    //     "whitelist1", "whitelist2", "whitelist3"))
+                    // .addInterceptor(new MyInterceptor())                // Add a log interceptor
+                    .build();
 
-        fileLogger = new Logger.Builder().printers(filePrinter).build();
+            XLog.init(config);
+
+            androidLogger = new Logger.Builder().printers(new AndroidPrinter()).build();
+
+            Printer filePrinter = new FilePrinter                      // Printer that print the log to the file system
+                    .Builder(Config.getLogPath())       // Specify the path to save log file
+                    .fileNameGenerator(new DateFileNameGenerator())        // Default: ChangelessFileNameGenerator("log")
+                    // .backupStrategy(new MyBackupStrategy())             // Default: FileSizeBackupStrategy(1024 * 1024)
+                    .logFlattener(new ClassicFlattener())                  // Default: DefaultFlattener
+                    .setFileLogRetentionPeriod(Config.LOG_RETENTION_PERIOD)
+                    .build();
+            fileLogger = new Logger.Builder().printers(filePrinter).build();
+        }
     }
 
     public static void d(String msg) {
@@ -119,25 +117,25 @@ public class L {
     }
 
     public static void writeFile(String msg) {
-        if (!TextUtils.isEmpty(msg)) {
+        if (Config.isDebug && !TextUtils.isEmpty(msg)) {
             fileLogger.d(msg);
         }
     }
 
     public static void writeFileJson(String json) {
-        if (!TextUtils.isEmpty(json)) {
+        if (Config.isDebug && !TextUtils.isEmpty(json)) {
             fileLogger.json(json);
         }
     }
 
     public static void writeFile(Object object) {
-        if (object != null) {
+        if (Config.isDebug && object != null) {
             fileLogger.json(new GsonBuilder().serializeNulls().create().toJson(object));
         }
     }
 
     public static void writeFile(Object[] array) {
-        if (array != null) {
+        if (Config.isDebug && array != null) {
             fileLogger.d(array);
         }
     }

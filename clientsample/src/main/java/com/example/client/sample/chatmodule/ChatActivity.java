@@ -79,10 +79,10 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
                 @Override
                 public void run() {
                     if(mChatContentText != null){
-                        if(message.msgType != EMMessage.MSG_TYPE_APP_LIST){
+                        //if(message.msgType != EMMessage.MSG_TYPE_APP_LIST){
                             mContentBuilder.append(GsonUtils.toJson(message)).append("\n---------------");
                             mChatContentText.setText(mContentBuilder.toString());
-                        }
+                        //}
                         L.d(message);
                     }
 //                    if (message.msgType == EMMessage.MSG_TYPE_PAYLOAD) {
@@ -179,7 +179,7 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
             case R.id.btn_download:
 //                EMClient.getInstance().getEMMessageManager().updateApp("http://tvmgr.qq.com/dl/appstore/com.gitvdemo.video.apk", "云视听");
                 //EMClient.getInstance().getEMMessageManager().downloadCloudApp("http://softfile.3g.qq.com/msoft/misc/QQDoctor.apk", "QQDoctor");
-                EMClient.getInstance().getEMMessageManager().downloadCloudApp("http://tvmgr.qq.com/dl/appstore/com.gitvdemo.video.apk", "云视听");
+                EMClient.getInstance().getEMMessageManager().downloadCloudApp("http://tvmgr.qq.com/appstore/dl?p=com.elinkway.tvlive2&v=2.11.9", "云视听");
                 //EMClient.getInstance().getEMMessageManager().downloadCloudApp("http://tvmgr.qq.com/dl/appstore/com.ktcp.video.apk", "ktcp");
                 break;
             case R.id.btn_local_download:

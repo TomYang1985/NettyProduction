@@ -212,13 +212,13 @@ public class ScanDevice implements Runnable {
                 EMDevice.lastActiveTime = System.currentTimeMillis();
                 mDevicesMap.put(ip, EMDevice);
                 L.print("update EMDevice :: " + EMDevice.toString());
-                L.writeFile("update EMDevice :: " + EMDevice.toString());
+                //L.writeFile("update EMDevice :: " + EMDevice.toString());
             } else {
                 mTimer.stop();//发现设备后停止超时设置
                 EMDevice = new EMDevice(ip, multicastMsg.deviceName, System.currentTimeMillis());
                 mDevicesMap.put(ip, EMDevice);
                 L.print("find EMDevice :: " + EMDevice.toString());
-                L.writeFile("find EMDevice :: " + EMDevice.toString());
+                //L.writeFile("find EMDevice :: " + EMDevice.toString());
                 if (mScanListener != null) {
                     mScanListener.findOneDevice(EMDevice);
                 }

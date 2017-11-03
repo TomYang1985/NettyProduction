@@ -15,10 +15,12 @@
  */
 package com.netty.client.httpserver;
 
+import com.netty.client.common.ETvModelID;
 import com.netty.client.utils.L;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.net.BindException;
 import java.net.URLEncoder;
 
 import io.netty.bootstrap.ServerBootstrap;
@@ -81,9 +83,19 @@ public final class HttpServer {
             @Override
             public void operationComplete(ChannelFuture channelFuture) throws Exception {
                 if (channelFuture.isSuccess()) {
-                    L.d("HttpFileServer bind succ");
+                    L.writeFile("HttpFileServer bind succ");
                 } else {
-                    L.d("HttpFileServer bind fail");
+                    L.writeFile("HttpFileServer bind fail");
+                    ETvModelID.saveActionData(ETvModelID.EMID_Secure_RemoteControl_TVcommunication_HTTP_SERVER_Bind_Fail);
+                    Throwable throwable = channelFuture.cause();
+                    if (throwable != null) {
+                        if (throwable instanceof BindException) {//bind异常(bind failed: EADDRINUSE (Address already in use))
+                            L.writeFile("HttpFileServer BindException Address already in use");
+                            ETvModelID.saveActionData(ETvModelID.EMID_Secure_RemoteControl_TVcommunication_HTTP_SERVER_Address_Already_In_Use);
+                        } else {
+                            L.writeFile("HttpFileServer bind fail : " + throwable.toString());
+                        }
+                    }
                 }
             }
         });

@@ -26,8 +26,10 @@ import com.netty.client.msg.EMMessage;
 import com.netty.client.msg.EMPayload;
 import com.netty.client.msg.EMResourceRate;
 import com.netty.client.msg.EMRubbish;
-import com.netty.client.msg.EMUpdate;
 import com.netty.client.utils.L;
+
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Created by xiaoguochang on 2017/8/27.
@@ -54,9 +56,17 @@ public class CallbackTask implements Runnable {
                 }
             }
         } else if (message.type == CallbackMessage.MSG_TYPE_INACTIVE) {
-            for (EMConnectionListener listener : EMConnectManager.getInstance().getListener()) {
-                if (listener != null) {
-                    listener.onInActive(message.from);
+            List<EMConnectionListener> list = EMConnectManager.getInstance().getListener();
+            if(list != null) {
+                Iterator iterator = list.iterator();
+                while (iterator.hasNext()){
+                    EMConnectionListener listener = (EMConnectionListener) iterator.next();
+                    //发现有空则移除
+                    if(listener == null){
+                        iterator.remove();
+                    }else {
+                        listener.onInActive(message.from);
+                    }
                 }
             }
         } else if (message.type == CallbackMessage.MSG_TYPE_NOT_WIFI) {
@@ -84,23 +94,25 @@ public class CallbackTask implements Runnable {
                 }
                 break;
                 case Header.MsgType.EXCHANGE_KEY_RESP: {
-                    //tcp channel密钥交换成功回调
-                    for (EMConnectionListener listener : EMConnectManager.getInstance().getListener()) {
-                        if (listener != null) {
-                            listener.onChannelCheckSucc(message.from);
-                        }
-                    }
                     KeyResponseProto.KeyResponse body = (KeyResponseProto.KeyResponse) message.recvMessage.body;
                     int updateType = 0;
                     int protocol = body.getProtocol();
                     if (protocol > Header.PROTOCOL_VERSION) {
-                        updateType = EMUpdate.UPDATE_TYPE_PHONE;
+                        updateType = Code.CODE_UPDATE_PHONE;
                     }
                     if (protocol < Header.PROTOCOL_VERSION) {
-                        updateType = EMUpdate.UPDATE_TYPE_TV;
+                        updateType = Code.CODE_UPDATE_TV;
                     }
-                    //更新提示回调
-                    callbackMessage(new EMUpdate(updateType));
+
+                    //tcp channel密钥交换成功回调
+                    for (EMConnectionListener listener : EMConnectManager.getInstance().getListener()) {
+                        if (listener != null) {
+                            listener.onChannelCheckSucc(message.from);
+                            if (updateType != 0) {
+                                listener.onError(updateType);
+                            }
+                        }
+                    }
                 }
                 break;
                 case Header.MsgType.RESPONSE:
@@ -184,9 +196,16 @@ public class CallbackTask implements Runnable {
     }
 
     private void callbackMessage(EMMessage message) {
-        for (EMMessageListener listener : EMMessageManager.getInstance().getListener()) {
-            if (listener != null) {
-                listener.onMessageReceived(message);
+        List<EMMessageListener> list = EMMessageManager.getInstance().getListener();
+        if(list != null) {
+            Iterator iterator = list.iterator();
+            while (iterator.hasNext()){
+                EMMessageListener listener = (EMMessageListener) iterator.next();
+                if(listener == null){
+                    iterator.remove();
+                }else {
+                    listener.onMessageReceived(message);
+                }
             }
         }
     }

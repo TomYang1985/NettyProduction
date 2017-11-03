@@ -1,1 +1,1 @@
-include ':server', ':xlog', ':framework', ':clientlib', ':clientsample'
+include ':server', ':xlog', ':framework', ':clientlib', ':clientsample', ':nettyTest'

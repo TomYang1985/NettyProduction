@@ -11,6 +11,7 @@ import com.netty.client.utils.MID;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import io.netty.channel.Channel;
 
@@ -20,11 +21,11 @@ import io.netty.channel.Channel;
 
 public class EMMessageManager {
     private volatile static EMMessageManager sInstance;
-    private List<EMMessageListener> mListeners;
+    private CopyOnWriteArrayList<EMMessageListener> mListeners;
     private Channel mChannel;
 
     private EMMessageManager() {
-        mListeners = new ArrayList<>();
+        mListeners = new CopyOnWriteArrayList<>();
     }
 
     public static EMMessageManager getInstance() {
@@ -48,11 +49,15 @@ public class EMMessageManager {
     }
 
     public void addListener(EMMessageListener listener) {
-        mListeners.add(listener);
+        if(listener != null) {
+            mListeners.add(listener);
+        }
     }
 
     public void removeListener(EMMessageListener listener) {
-        mListeners.remove(listener);
+        if(listener != null) {
+            mListeners.remove(listener);
+        }
     }
 
     /**

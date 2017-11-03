@@ -18,7 +18,7 @@ public class IdleStateTrigger extends ChannelInboundHandlerAdapter {
             if (state == IdleState.WRITER_IDLE) {
                 InnerMessageHelper.sendPing(ctx.channel());
             } else if (state == IdleState.READER_IDLE) {
-                L.print("server " + ctx.channel().remoteAddress() + " lose");
+                L.writeFile("server " + ctx.channel().remoteAddress() + " lose");
                 ctx.channel().close();//server失联，关闭channel，一定要关闭连接，否则userEventTriggered会被不停调用
             }
         } else {

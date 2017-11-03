@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.client.sample.R;
@@ -30,9 +32,11 @@ import com.netty.client.msg.EMDevice;
 import com.netty.client.multicast.ScanDevice;
 import com.netty.client.utils.L;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 import xiao.framework.activity.BaseFragmentActivity;
 import xiao.framework.adapter.XGCOnRVItemClickListener;
 import xiao.framework.template.BaseTemplate;
@@ -54,6 +58,10 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
     RecyclerView mRecyclerView;
     @BindView(R.id.text_hint)
     TextView mHintText;
+    @BindView(R.id.edt_host)
+    EditText mHostEdt;
+    @BindView(R.id.btn_connect)
+    TextView mConenctBtn;
 
     private DeviceListAdapter mAdpter;
     private LinearLayoutManager mLinearLayoutManager;
@@ -349,6 +357,14 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
             mConnectLoadingDialog = new LoadingDialog(mContext).setMsg("正在连接");
             mConnectLoadingDialog.show();
             EMClient.getInstance().connectDevice(new EMDevice(willConnectDevice.id, willConnectDevice.name));
+        }
+    }
+
+    @OnClick(R.id.btn_connect)
+    void onConnect(){
+        String host = mHostEdt.getText().toString();
+        if(!TextUtils.isEmpty(host)) {
+            EMClient.getInstance().connectDevice(host);
         }
     }
 

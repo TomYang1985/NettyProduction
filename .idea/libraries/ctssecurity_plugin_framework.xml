@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="ctssecurity_plugin_framework">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/clientlib/libs/ctssecurity_plugin_framework.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

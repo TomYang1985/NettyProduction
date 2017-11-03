@@ -43,7 +43,7 @@ public class Header {
         public static final byte RESPONSE_CLEAN = 5;//清理返回
         public static final byte RESPONSE_RESOURCE_RATE = 6;//资源占用率返回
         public static final byte RESPONSE_DEVICE_INFO = 7;//设备信息
-        public static final byte RESPONSE_DOWNLOAD = 8;//下载返回
+        public static final byte RESPONSE_DOWNLOAD = 8;//APP下载返回过程
     }
 
     public interface DownloadType{

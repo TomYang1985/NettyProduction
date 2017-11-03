@@ -10,6 +10,8 @@ import com.netty.client.core.threadpool.ExecutorFactory;
 import com.netty.client.handler.ConnectionManagerHandler;
 import com.netty.client.handler.IdleStateTrigger;
 import com.netty.client.handler.MessageRecvHandler;
+import com.netty.client.handler.StatisticsRecvHandler;
+import com.netty.client.handler.StatisticsSendHandler;
 import com.netty.client.httpserver.HttpServer;
 import com.netty.client.innermsg.CallbackMessage;
 import com.netty.client.msg.EMDevice;
@@ -105,10 +107,12 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
         return EMConnectManager.getInstance();
     }
 
-
+    public Context getContext() {
+        return mContext;
+    }
 
     public void init(Context context) {
-        mContext = context;
+        mContext = context.getApplicationContext();
         mStatus = new AtomicInteger(STATUS_NONE);
 
         mWatchdog = new ConnectionWatchdog(context);
@@ -120,7 +124,6 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
 
             @Override
             public void channelInActive(ChannelHandlerContext ctx) {
-
                 mStatus.getAndSet(STATUS_NONE);//断线后需要重新设置状态，这样Watchdog才能重连(这个设置很重要)
             }
 
@@ -177,35 +180,35 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
     private void connect(final int triggerType) {
         synchronized (bootstrap()) {
             if (mContext == null) {
-                L.print("return mContext == null , triggerType = " + triggerType);
+                L.writeFile("return mContext == null , triggerType = " + triggerType);
                 return;
             }
 
             if (!NetUtils.isWifi(mContext)) {
                 handlerUserSpaceCallback(triggerType, CallbackMessage.MSG_TYPE_NOT_WIFI);
-                L.print("return when net is not wifi , triggerType = " + triggerType);
+                L.writeFile("return when net is not wifi , triggerType = " + triggerType);
                 return;
             }
 
             if (mStatus.compareAndSet(STATUS_CONNECTING, STATUS_CONNECTING)) {
                 handlerUserSpaceCallback(triggerType, CallbackMessage.MSG_TYPE_CONNECTING);
-                L.print("return when connecting , triggerType = " + triggerType);
+                L.writeFile("return when connecting , triggerType = " + triggerType);
                 return;
             }
 
             if (mStatus.compareAndSet(STATUS_CONNECTED, STATUS_CONNECTED)) {
                 handlerUserSpaceCallback(triggerType, CallbackMessage.MSG_TYPE_CONNECTED);
-                L.print("return when connected , triggerType = " + triggerType);
+                L.writeFile("return when connected , triggerType = " + triggerType);
                 return;
             }
 
             if (mDevice == null) {
                 handlerUserSpaceCallback(triggerType, CallbackMessage.MSG_TYPE_HOST_NULL);
-                L.print("mDevice = null , triggerType = " + triggerType);
+                L.writeFile("mDevice = null , triggerType = " + triggerType);
                 return;
             }
 
-            L.print("connecting.....................");
+            L.writeFile("connecting.....................");
             mStatus.getAndSet(STATUS_CONNECTING);
 
             bootstrap().handler(new ChannelInitializer<Channel>() {
@@ -229,17 +232,17 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
                     mStatus.getAndSet(STATUS_CONNECTED);
                     switch (triggerType) {
                         case TRIGGER_FROM_USER:
-                            L.d("user启动连接成功");
+                            L.writeFile("user启动连接成功");
                             //InnerMessageHelper.sendConnectSuccByUserMessage(mDevice.id);
                             break;
                         case TRIGGER_FROM_SERVICE:
-                            L.d("service启动连接成功");
+                            L.writeFile("service启动连接成功");
                             break;
                         case TRIGGER_FROM_DISCONNECT_RETRY:
-                            L.d("断线重连成功");
+                            L.writeFile("断线重连成功");
                             break;
                         case TRIGGER_FROM_TIMER_DETECTION:
-                            L.d("定时重连成功");
+                            L.writeFile("定时重连成功");
                             break;
                     }
                 } else {
@@ -247,24 +250,24 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
                     switch (triggerType) {
                         case TRIGGER_FROM_USER:
                             InnerMessageHelper.sendErrorCallbackMessage(CallbackMessage.MSG_TYPE_CONNECT_FAIL);
-                            L.d("user启动连接失败，启动断线重连");
+                            L.writeFile("user启动连接失败，启动断线重连");
                             mWatchdog.retry();
                             break;
                         case TRIGGER_FROM_SERVICE:
-                            L.d("service启动连接失败，启动断线重连");
+                            L.writeFile("service启动连接失败，启动断线重连");
                             mWatchdog.retry();
                             break;
                         case TRIGGER_FROM_DISCONNECT_RETRY:
-                            L.d("断线重连失败");
+                            L.writeFile("断线重连失败");
                             mWatchdog.retry();
                             break;
                         case TRIGGER_FROM_TIMER_DETECTION:
-                            L.d("定时重连失败");
+                            L.writeFile("定时重连失败");
                             break;
                     }
                     Throwable throwable = channelFuture.cause();
                     if (throwable != null) {
-                        L.d(throwable.toString());
+                        L.writeFile(throwable.toString());
                     }
                 }
             }
@@ -290,6 +293,8 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
                 new ConnectionManagerHandler(),
                 new NettyEncoder(),
                 new NettyDecoder(),
+                new StatisticsSendHandler(),
+                new StatisticsRecvHandler(),
                 new MessageRecvHandler()
         };
     }
