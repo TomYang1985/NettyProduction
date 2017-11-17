@@ -1,6 +1,10 @@
 package com.netty.client.common;
 
+import android.util.Log;
+
 import com.anguanjia.framework.base.PiInstance;
+import com.netty.client.Config;
+import com.netty.client.utils.L;
 
 import java.io.Serializable;
 
@@ -35,6 +39,8 @@ public class ETvModelID implements Serializable {
 
 
     public static void saveActionData(int modelId){
-        FeatureUtil.reportAction(PiInstance.getPluginContext(508), modelId, FeatureUtil.FeatureType.TYPE_ADD_UP);
+        if(!Config.isDebug) {
+            FeatureUtil.reportAction(PiInstance.getPluginContext(508), modelId, FeatureUtil.FeatureType.TYPE_ADD_UP);
+        }
     }
 }

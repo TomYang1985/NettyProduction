@@ -20,7 +20,7 @@ public class L {
     private static Logger androidLogger;
     private static Logger fileLogger;
 
-    static {
+    public static void init() {
         if (Config.isDebug) {
             LogConfiguration config = new LogConfiguration.Builder()
                     .tag(Config.TAG)                   // Specify TAG, default: "X-LOG"

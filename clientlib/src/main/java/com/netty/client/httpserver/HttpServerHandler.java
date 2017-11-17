@@ -58,6 +58,7 @@ import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.stream.ChunkedFile;
 import io.netty.handler.stream.ChunkedStream;
 import io.netty.util.CharsetUtil;
@@ -230,10 +231,16 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<FullHttpReque
             }
         });
 
+        /**
+         * 当发送完数据之后，由于采用的是Transfer-Encoding：chunk模式来传输数据，因此需要在发送一个长度为0的chunk用来标记数据传输完成。
+         * 参考：HTTP协议头部与Keep-Alive模式详解
+         */
+        ChannelFuture lastContentFuture = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
         // Decide whether to close the connection or not.
+        //使用Keep-Alive，可以减少HTTP连接建立的次数，在HTTP1.1中该选项是默认开启的
         if (!HttpUtil.isKeepAlive(request)) {
             // Close the connection when the whole content is written out.
-            sendFileFuture.addListener(ChannelFutureListener.CLOSE);
+            lastContentFuture.addListener(ChannelFutureListener.CLOSE);
         }
     }
 

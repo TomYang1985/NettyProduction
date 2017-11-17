@@ -1,7 +1,10 @@
 package com.netty.client.core;
 
+import android.app.ActivityManager;
 import android.content.Context;
+import android.util.Log;
 
+import com.netty.client.Config;
 import com.netty.client.codec.NettyDecoder;
 import com.netty.client.codec.NettyEncoder;
 import com.netty.client.common.ConnectionWatchdog;
@@ -20,6 +23,7 @@ import com.netty.client.utils.L;
 import com.netty.client.utils.NetUtils;
 
 import java.net.SocketAddress;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -57,8 +61,6 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
 
     private EMClient() {
         super();
-        //启动http server
-        HttpServer.getInstance().start();
     }
 
     public static EMClient getInstance() {
@@ -113,6 +115,10 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
 
     public void init(Context context) {
         mContext = context.getApplicationContext();
+
+        L.init();//log的初始化，需要放在mContext的初始化后面
+
+        HttpServer.getInstance().start();//启动http server
         mStatus = new AtomicInteger(STATUS_NONE);
 
         mWatchdog = new ConnectionWatchdog(context);
@@ -314,14 +320,17 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
 
     @Override
     public void shutdownGracefully() {
+        L.print("shutdownGracefully");
         mStatus.getAndSet(STATUS_NONE);
         super.shutdownGracefully();
     }
 
     public void onDestory() {
+        L.print("onDestory");
         shutdownGracefully();
         ExecutorFactory.shutdownNow();
         mWatchdog.onDestory();
         HttpServer.getInstance().destory();
+        sInstance = null;
     }
 }

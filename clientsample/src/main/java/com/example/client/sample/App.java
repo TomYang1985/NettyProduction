@@ -7,6 +7,8 @@ import android.support.multidex.MultiDex;
 
 import com.netty.client.NettyClientService;
 
+import xiao.framework.imageloader.ImageLoadTool;
+
 /**
  * Created by robincxiao on 2017/8/30.
  */
@@ -16,6 +18,7 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
 
+        ImageLoadTool.getInstance().init(this);
         startService(new Intent(this, NettyClientService.class));
     }
 

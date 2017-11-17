@@ -34,6 +34,10 @@
             android:name=".chatmodule.ChatActivity"
             android:theme="@style/SlideActivityAnim1" />
 
+        <activity
+            android:name=".applistmodule.AppListActivity"
+            android:theme="@style/SlideActivityAnim1" />
+
         <service android:name="com.netty.client.NettyClientService" />
     </application>
 

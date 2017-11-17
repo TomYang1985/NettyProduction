@@ -1,6 +1,7 @@
 package com.example.client.sample.chatmodule;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
@@ -10,8 +11,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.client.sample.R;
+import com.example.client.sample.applistmodule.AppListActivity;
 import com.example.client.sample.template.WhiteTitleTemplate;
 import com.netty.client.core.EMClient;
+import com.netty.client.httpserver.HttpServer;
 import com.netty.client.listener.EMConnectionListener;
 import com.netty.client.listener.EMMessageListener;
 import com.netty.client.msg.EMDevice;
@@ -138,22 +141,23 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_send:
-                String content = mInputEdt.getText().toString();
-                if (TextUtils.isEmpty(content)) {
-                    return;
-                }
-                EMClient.getInstance().getEMMessageManager().sendPayload(content);
-                mContentBuilder.append(EMClient.getInstance().localHost()).append("\n").append(content).append("\n");
-                mChatContentText.setText(mContentBuilder.toString());
-                mInputEdt.setText("");
+                HttpServer.getInstance().start();
+//                String content = mInputEdt.getText().toString();
+//                if (TextUtils.isEmpty(content)) {
+//                    return;
+//                }
+//                EMClient.getInstance().getEMMessageManager().sendPayload(content);
+//                mContentBuilder.append(EMClient.getInstance().localHost()).append("\n").append(content).append("\n");
+//                mChatContentText.setText(mContentBuilder.toString());
+//                mInputEdt.setText("");
                 break;
             case R.id.btn_app_list:
-                if(EMClient.getInstance().getEMMessageManager().requestAppList() == 0){
-                    T.showShort(mContext, "发送成功");
-                }else {
-                    T.showShort(mContext, "发送失败");
-                }
-                L.d("host=" + EMClient.getInstance().remoteHost());
+//                if(EMClient.getInstance().getEMMessageManager().requestAppList() == 0){
+//                    T.showShort(mContext, "发送成功");
+//                }else {
+//                    T.showShort(mContext, "发送失败");
+//                }
+                startActivity(new Intent(mContext, AppListActivity.class));
                 break;
             case R.id.btn_update_tv:
                 EMClient.getInstance().getEMMessageManager().requestTvUpdate();

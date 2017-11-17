@@ -204,11 +204,17 @@
 }
 
 
--keep class io.netty.** {*;}
--keep class com.google.protobuf.** {*;}
--keep class com.netty.client.** {*;}
+#-keep class io.netty.** {*;}
+#-keep class com.google.protobuf.** {*;}
+#-keep class com.netty.client.** {*;}
+#-keep class com.elvishew.xlog.** {*;}
+#-keep class com.netty.client.** {*;}
+#-dontwarn io.netty.**
+#-dontwarn com.google.protobuf.**
+#-dontwarn com.netty.client.**
+#-dontwarn com.elvishew.xlog.**
+
 -keep class com.elvishew.xlog.** {*;}
--dontwarn io.netty.**
--dontwarn com.google.protobuf.**
--dontwarn com.netty.client.**
+-keep class com.netty.client.utils.L {*;}
+
 -dontwarn com.elvishew.xlog.**

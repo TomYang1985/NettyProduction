@@ -42,13 +42,21 @@ public class NetUtils {
      * 判断是否是wifi连接
      */
     public static boolean isWifi(Context context) {
-        ConnectivityManager cm = (ConnectivityManager) context
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        if (cm == null || cm.getActiveNetworkInfo() == null)
+        if(context == null){
             return false;
-        return cm.getActiveNetworkInfo().getType() == ConnectivityManager.TYPE_WIFI;
+        }
 
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = null;
+        try {
+            networkInfo = cm.getActiveNetworkInfo();
+            if (cm != null && networkInfo != null)
+                return cm.getActiveNetworkInfo().getType() == ConnectivityManager.TYPE_WIFI;
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
     public static String getConnectWifiSsid(Context context) {

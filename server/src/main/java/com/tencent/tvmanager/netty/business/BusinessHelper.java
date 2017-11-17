@@ -198,25 +198,32 @@ public class BusinessHelper {
     }
 
     /**
-     * 安装APP
-     *
-     * @param packageName
-     * @param url
-     */
-    public static void installApp(String packageName, String url) {
-
-    }
-
-    /**
      * 打开设置页面
      */
     public static void openSetting() {
         Context context = EMAcceptor.getInstance().getContext();
+        String model = (Build.MODEL != null) ? Build.MODEL.toLowerCase().trim() : "";
+        String host = (Build.HOST != null) ? Build.HOST.toLowerCase().trim() : "";
+
         if (context != null) {
-            Intent intent = new Intent(Settings.ACTION_SETTINGS);
-            intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(intent);
+            if (model.contains("mitv") || model.contains("mibox")) {
+                Intent intent = getSettingIntent(context, "com.xiaomi.mitv.settings");
+                intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+            } else {
+                Intent intent = new Intent(Settings.ACTION_SETTINGS);
+                intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+            }
         }
+    }
+
+    private static Intent getSettingIntent(Context context, String packageName) {
+        if (context != null) {
+            return context.getPackageManager().getLaunchIntentForPackage(packageName);
+        }
+
+        return null;
     }
 
     /**
@@ -292,16 +299,16 @@ public class BusinessHelper {
         return totalBlocks * blockSize;
     }
 
-    public static long getTotalMem(Context context){
+    public static long getTotalMem(Context context) {
         long totalMem = 0;
         ActivityManager am = (ActivityManager) context.getSystemService(Activity.ACTIVITY_SERVICE);
         ActivityManager.MemoryInfo outInfo = new ActivityManager.MemoryInfo();
-        if(am != null) {
+        if (am != null) {
             am.getMemoryInfo(outInfo);
             try {
                 //totalMem字段在某些手机上不存在
                 totalMem = outInfo.totalMem;
-            }catch (NoSuchFieldError e){
+            } catch (NoSuchFieldError e) {
                 totalMem = getTotalMemory();
             }
         }
@@ -311,6 +318,7 @@ public class BusinessHelper {
 
     /**
      * 通过文件描述符获取总内存信息
+     *
      * @return
      */
     private static long getTotalMemory() {
@@ -328,7 +336,7 @@ public class BusinessHelper {
             arrayOfString = str2.split("\\s+");
             localBufferedReader.close();
 
-            if(arrayOfString.length < 1){
+            if (arrayOfString.length < 1) {
                 return 0;
             }
 
