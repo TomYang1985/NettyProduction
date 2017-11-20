@@ -83,12 +83,12 @@ public class MessageRecvTask implements Runnable {
             break;
             case Header.BusinessType.REQUEST_UPDATE_APP: {//更新APP
                 AppActionRequestProto.AppActionRequest body = (AppActionRequestProto.AppActionRequest) recvmessage.body;
-                BusinessHelper.installApp(body.getPackageName(), body.getUrl());
+                //BusinessHelper.installApp(body.getPackageName(), body.getUrl());
             }
             break;
             case Header.BusinessType.REQUEST_INSTALL_APP: {//安装APP
                 AppActionRequestProto.AppActionRequest body = (AppActionRequestProto.AppActionRequest) recvmessage.body;
-                BusinessHelper.installApp(body.getPackageName(), body.getUrl());
+                //BusinessHelper.installApp(body.getPackageName(), body.getUrl());
             }
             break;
             case Header.BusinessType.REQUEST_OPEN_SETTING: {//打开设置页面

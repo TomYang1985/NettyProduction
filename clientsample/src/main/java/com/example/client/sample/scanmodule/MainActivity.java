@@ -2,7 +2,8 @@ package com.example.client.sample.scanmodule;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.PixelFormat;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -10,13 +11,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.TranslateAnimation;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -27,21 +23,18 @@ import com.example.client.sample.scanmodule.entity.Device;
 import com.example.client.sample.template.WhiteTitleTemplate;
 import com.example.client.sample.widget.RecycleViewDivider;
 import com.example.client.sample.widget.dialog.LoadingDialog;
+import com.netty.client.Config;
 import com.netty.client.core.EMClient;
-import com.netty.client.core.threadpool.AbortPolicyWithReport;
-import com.netty.client.core.threadpool.NamedThreadFactory;
-import com.netty.client.core.threadpool.RpcThreadPool;
 import com.netty.client.listener.EMConnectionListener;
 import com.netty.client.msg.EMDevice;
 import com.netty.client.multicast.ScanDevice;
 import com.netty.client.utils.L;
 
-import java.nio.ByteBuffer;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.Enumeration;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -338,8 +331,13 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
 
     @Override
     protected BaseTemplate createTemplate() {
+        String ip = getLocalIpAddress();
         mTemplate = new WhiteTitleTemplate(this);
-        mTemplate.setTitleText("设备列表");
+        if(TextUtils.isEmpty(ip)) {
+            mTemplate.setTitleText("设备列表");
+        }else {
+            mTemplate.setTitleText("设备列表(" + ip + ")");
+        }
         return mTemplate;
     }
 
@@ -366,9 +364,9 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
     }
 
     @OnClick(R.id.btn_connect)
-    void onConnect(){
+    void onConnect() {
         String host = mHostEdt.getText().toString();
-        if(!TextUtils.isEmpty(host)) {
+        if (!TextUtils.isEmpty(host)) {
             EMClient.getInstance().connectDevice(host);
         }
     }
@@ -378,5 +376,25 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
         EMClient.getInstance().getEMConnectManager().removeListener(mEMConnectionListener);
         ScanDevice.getInstance().setScanListener(null);
         super.onDestroy();
+    }
+
+    public String getLocalIpAddress() {
+        //获取wifi服务
+        WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        //判断wifi是否开启
+        if (wifiManager != null && wifiManager.isWifiEnabled()) {
+            WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+            int ipAddress = wifiInfo.getIpAddress();
+            return intToIp(ipAddress);
+        }
+
+        return "";
+    }
+
+    private String intToIp(int i) {
+        return (i & 0xFF ) + "." +
+                ((i >> 8 ) & 0xFF) + "." +
+                ((i >> 16 ) & 0xFF) + "." +
+                ( i >> 24 & 0xFF) ;
     }
 }

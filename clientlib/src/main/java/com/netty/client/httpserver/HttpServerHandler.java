@@ -347,26 +347,31 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<FullHttpReque
 
                 .append("<h3>Listing of: ")
                 .append(dirPath)
-                .append("</h3>\r\n")
+                .append("</h3>\r\n");
 
-                .append("<ul>")
-                .append("<li><a href=\"../\">..</a></li>\r\n");
+        File[] listFiles = dir.listFiles();
+        if(listFiles == null){
+            buf.append("<h4>error listFiles is null")
+                    .append("</h4>\r\n");
+        }else {
+            buf.append("<ul>").append("<li><a href=\"../\">..</a></li>\r\n");
 
-        for (File f : dir.listFiles()) {
-            if (f.isHidden() || !f.canRead()) {
-                continue;
+            for (File f : dir.listFiles()) {
+                if (f.isHidden() || !f.canRead()) {
+                    continue;
+                }
+
+                String name = f.getName();
+                if (!ALLOWED_FILE_NAME.matcher(name).matches()) {
+                    continue;
+                }
+
+                buf.append("<li><a href=\"")
+                        .append(name)
+                        .append("\">")
+                        .append(name)
+                        .append("</a></li>\r\n");
             }
-
-            String name = f.getName();
-            if (!ALLOWED_FILE_NAME.matcher(name).matches()) {
-                continue;
-            }
-
-            buf.append("<li><a href=\"")
-                    .append(name)
-                    .append("\">")
-                    .append(name)
-                    .append("</a></li>\r\n");
         }
 
         buf.append("</ul></body></html>\r\n");
