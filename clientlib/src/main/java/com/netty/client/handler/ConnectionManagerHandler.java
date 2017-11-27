@@ -25,8 +25,8 @@ public class ConnectionManagerHandler extends ChannelDuplexHandler {
         //发送动态密钥
         InnerMessageHelper.sendKey(ctx.channel());
 
-        String remoteAddress = ctx.channel().remoteAddress().toString();
-        InnerMessageHelper.sendActiveCallbackMessage(remoteAddress);
+//        String remoteAddress = ctx.channel().remoteAddress().toString();
+//        InnerMessageHelper.sendActiveCallbackMessage(remoteAddress);
 
         ETvModelID.saveActionData(ETvModelID.EMID_Secure_RemoteControl_TVcommunication_ConnectTV_Successed_Count);
     }
@@ -39,8 +39,8 @@ public class ConnectionManagerHandler extends ChannelDuplexHandler {
         //连接断开则复位密钥交换状态
         KeyManager.getInstance().resetKeyExchangeStatus();
 
-        String remoteAddress = ctx.channel().remoteAddress().toString();
-        InnerMessageHelper.sendInActiveCallbackMessage(remoteAddress);
+//        String remoteAddress = ctx.channel().remoteAddress().toString();
+//        InnerMessageHelper.sendInActiveCallbackMessage(remoteAddress);
     }
 
     @Override

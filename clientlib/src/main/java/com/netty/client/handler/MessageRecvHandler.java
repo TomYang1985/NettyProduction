@@ -32,7 +32,7 @@ public class MessageRecvHandler extends SimpleChannelInboundHandler<NettyMessage
 
                     CallbackMessage callbackMessage = new CallbackMessage();
                     callbackMessage.type = CallbackMessage.MSG_TYPE_RECV_MSG;
-                    callbackMessage.from = HostUtils.parseHost(channelHandlerContext.channel().remoteAddress().toString());
+                    //callbackMessage.from = HostUtils.parseHost(channelHandlerContext.channel().remoteAddress().toString());
                     callbackMessage.recvMessage = message;
                     ExecutorFactory.submitCallbackTask(new CallbackTask(callbackMessage));
                 } else {//密钥交换失败

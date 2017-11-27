@@ -49,17 +49,12 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
     private EMConnectionListener mEMConnectionListener = new EMConnectionListener() {
 
         @Override
-        public void onChannelCheckSucc(String id) {
+        public void onConnect() {
 
         }
 
         @Override
-        public void onActive(String id) {
-
-        }
-
-        @Override
-        public void onInActive(String id) {
+        public void onDisconnect() {
             mContext.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -67,6 +62,11 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
                     ((Activity) mContext).finish();
                 }
             });
+        }
+
+        @Override
+        public void onReconnect() {
+
         }
 
         @Override

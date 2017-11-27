@@ -49,13 +49,14 @@ public class CallbackTask implements Runnable {
             return;
         }
 
-        if (message.type == CallbackMessage.MSG_TYPE_ACTIVE) {
+        if (message.type == CallbackMessage.MSG_TYPE_RECONNECTING) {
             for (EMConnectionListener listener : EMConnectManager.getInstance().getListener()) {
                 if (listener != null) {
-                    listener.onActive(message.from);
+                    listener.onReconnect();
                 }
             }
-        } else if (message.type == CallbackMessage.MSG_TYPE_INACTIVE) {
+        } else
+            if (message.type == CallbackMessage.MSG_TYPE_INACTIVE) {
             List<EMConnectionListener> list = EMConnectManager.getInstance().getListener();
             if(list != null) {
                 Iterator iterator = list.iterator();
@@ -65,7 +66,7 @@ public class CallbackTask implements Runnable {
                     if(listener == null){
                         iterator.remove();
                     }else {
-                        listener.onInActive(message.from);
+                        listener.onDisconnect();
                     }
                 }
             }
@@ -107,9 +108,9 @@ public class CallbackTask implements Runnable {
                     //tcp channel密钥交换成功回调
                     for (EMConnectionListener listener : EMConnectManager.getInstance().getListener()) {
                         if (listener != null) {
-                            listener.onChannelCheckSucc(message.from);
+                            listener.onConnect();//密钥交换完成，表示连接成功
                             if (updateType != 0) {
-                                listener.onError(updateType);
+                                listener.onError(updateType);//如果客户端与服务端协议版本不匹配，那就调用onError接口
                             }
                         }
                     }

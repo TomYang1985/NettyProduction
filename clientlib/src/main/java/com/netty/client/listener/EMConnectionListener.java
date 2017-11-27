@@ -6,32 +6,26 @@ package com.netty.client.listener;
 
 public interface EMConnectionListener {
     /**
-     * 连接成功(用户主动连接)
+     * 连接成功，该接口回调的场景有如下几种情况：
+     * 1.首次连接成功时；
+     * 2.断线后自动重连成功后；
      *
-     * @param id 服务器id(即host)
      */
-    //void onConnectSuccByUser(String id);
-
-    /**
-     * tcp channel校验成功(连接成功调用流程onActive->onChannelCheckSucc)
-     *  开发时，以onChannelCheckSucc连接成功为准
-     * @param id
-     */
-    void onChannelCheckSucc(String id);
-
-    /**
-     * 连接成功(用户主动连接和自动恢复连接)
-     *
-     * @param id 服务器id(即host)
-     */
-    void onActive(String id);
+    void onConnect();
 
     /**
      * 连接断开
      *
-     * @param id 服务器id(即host)
      */
-    void onInActive(String id);
+    void onDisconnect();
+
+    /**
+     * 正在尝试重连，该接口回调的场景有如下几种情况：
+     * 1.断线后，开始自动重连前被调用；
+     * 2.检测到服务端异常时，开始自动重连前被调用；
+     *
+     */
+    void onReconnect();
 
     /**
      * 连接错误

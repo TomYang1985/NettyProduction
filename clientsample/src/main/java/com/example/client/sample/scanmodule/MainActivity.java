@@ -10,7 +10,6 @@ import android.os.Message;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -24,18 +23,13 @@ import com.example.client.sample.scanmodule.entity.Device;
 import com.example.client.sample.template.WhiteTitleTemplate;
 import com.example.client.sample.widget.RecycleViewDivider;
 import com.example.client.sample.widget.dialog.LoadingDialog;
-import com.netty.client.Config;
 import com.netty.client.core.EMClient;
 import com.netty.client.listener.EMConnectionListener;
 import com.netty.client.msg.EMDevice;
 import com.netty.client.multicast.ScanDevice;
 import com.netty.client.utils.L;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.Enumeration;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -51,9 +45,8 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
     private static final int MSG_WIFI_DISCONNECT = 5;
     private static final int MSG_WIFI_CONNECTED = 6;
     private static final int MSG_TIMEOUT = 7;
-    private static final int MSG_CONNECTED_BY_USER = 8;
-    private static final int MSG_ACTIVE = 9;
-    private static final int MSG_INACTIVE = 10;
+    private static final int MSG_CONNECTED = 9;
+    private static final int MSG_DISCONNECT = 10;
     private static final int MSG_CONNECT_ERROR = 11;
 
     @BindView(R.id.recyclerview)
@@ -121,37 +114,28 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
                     mHintText.setText("扫描超时，未发现可连接设备...");
                     mHintText.setVisibility(View.VISIBLE);
                     break;
-                case MSG_CONNECTED_BY_USER: {
-                    startActivity(new Intent(mContext, ChatActivity.class));
-                }
-                case MSG_ACTIVE: {
+                case MSG_CONNECTED: {
                     //刷新UI上的连接状态
                     mHintText.setVisibility(View.GONE);
-                    String id = msg.getData().getString("id");
                     EMDevice connectedDevice = EMClient.getInstance().getDevice();
                     Device device = new Device(connectedDevice);
                     device.isConnected = true;
                     mAdpter.setConnectedDevice(device);
 
-//                    if (flag) {
-//                        //连接新设备成功则，启动ChatActivity
-//                        flag = false;
-//                        startActivity(new Intent(mContext, ChatActivity.class));
-//                    }
                     if (mConnectLoadingDialog != null) {
                         mConnectLoadingDialog.dismiss();
                     }
                 }
                 break;
-                case MSG_INACTIVE: {
+                case MSG_DISCONNECT: {
                     //刷新UI上的连接状态
                     flag = false;
-                    String id = msg.getData().getString("id");
-                    mAdpter.setDisconnectedDevice(id);
+                    //mAdpter.setDisconnectedDevice(id);
+                    mAdpter.resetDevice();
 
                     //因为切换连接设备时，之前的设备先断开，会调用onDisconnected，但此时mConnectLoadingDialog为新的连接启动的loading，
                     // 所以需要对DeviceId进行判断，是否关闭
-                    if (mConnectLoadingDialog != null && id.equals(mConnectingDeviceId)) {
+                    if (mConnectLoadingDialog != null) {
                         mConnectLoadingDialog.dismiss();
                     }
                 }
@@ -167,40 +151,34 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
     });
 
     private EMConnectionListener mEMConnectionListener = new EMConnectionListener() {
+
         @Override
-        public void onChannelCheckSucc(String id) {
-            L.print("MainActivity.onConnectSuccByUser=" + id);
+        public void onConnect() {
+            L.print("MainActivity.onConnect");
             if (mHandler != null) {
-                Message msg = mHandler.obtainMessage(MSG_CONNECTED_BY_USER);
+                Message msg = mHandler.obtainMessage(MSG_CONNECTED);
                 Bundle bundle = new Bundle();
-                bundle.putString("id", id);
+                //bundle.putString("id", id);
                 msg.setData(bundle);
                 mHandler.sendMessage(msg);
             }
         }
 
         @Override
-        public void onActive(String id) {
-            L.print("MainActivity.onActive=" + id);
+        public void onDisconnect() {
+            L.print("MainActivity.onDisconnect");
             if (mHandler != null) {
-                Message msg = mHandler.obtainMessage(MSG_ACTIVE);
+                Message msg = mHandler.obtainMessage(MSG_DISCONNECT);
                 Bundle bundle = new Bundle();
-                bundle.putString("id", id);
+                //bundle.putString("id", id);
                 msg.setData(bundle);
                 mHandler.sendMessage(msg);
             }
         }
 
         @Override
-        public void onInActive(String id) {
-            L.print("MainActivity.onInActive=" + id);
-            if (mHandler != null) {
-                Message msg = mHandler.obtainMessage(MSG_INACTIVE);
-                Bundle bundle = new Bundle();
-                bundle.putString("id", id);
-                msg.setData(bundle);
-                mHandler.sendMessage(msg);
-            }
+        public void onReconnect() {
+            L.print("MainActivity.onReconnect");
         }
 
         @Override
@@ -334,9 +312,9 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
     protected BaseTemplate createTemplate() {
         String ip = getLocalIpAddress();
         mTemplate = new WhiteTitleTemplate(this);
-        if(TextUtils.isEmpty(ip)) {
+        if (TextUtils.isEmpty(ip)) {
             mTemplate.setTitleText("设备列表");
-        }else {
+        } else {
             mTemplate.setTitleText("设备列表(" + ip + ")");
         }
         return mTemplate;
@@ -400,9 +378,9 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
     }
 
     private String intToIp(int i) {
-        return (i & 0xFF ) + "." +
-                ((i >> 8 ) & 0xFF) + "." +
-                ((i >> 16 ) & 0xFF) + "." +
-                ( i >> 24 & 0xFF) ;
+        return (i & 0xFF) + "." +
+                ((i >> 8) & 0xFF) + "." +
+                ((i >> 16) & 0xFF) + "." +
+                (i >> 24 & 0xFF);
     }
 }

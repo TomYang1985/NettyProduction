@@ -59,6 +59,24 @@ public class NetUtils {
         return false;
     }
 
+    /**
+     * wifi是否正在关闭或已关闭
+     * @return
+     */
+    public static boolean wifiIsDisable(Context context){
+        if(context != null) {
+            WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+            if (wifiManager != null) {
+                int wifiState = wifiManager.getWifiState();
+                if(wifiState == WifiManager.WIFI_STATE_DISABLED || wifiState == WifiManager.WIFI_STATE_DISABLING){
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     public static String getConnectWifiSsid(Context context) {
         WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();

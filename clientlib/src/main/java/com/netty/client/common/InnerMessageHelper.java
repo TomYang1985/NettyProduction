@@ -9,7 +9,6 @@ import com.netty.client.innermsg.NettyMessage;
 import com.netty.client.innermsg.CallbackMessage;
 import com.netty.client.innermsg.Header;
 import com.netty.client.innermsg.KeyRequestProto;
-import com.netty.client.utils.HostUtils;
 import com.netty.client.utils.MID;
 
 import io.netty.channel.Channel;
@@ -20,26 +19,22 @@ import io.netty.channel.Channel;
 
 public class InnerMessageHelper {
     /**
-     * 发送设备连接成功回调消息
+     * 发送设备重连回调消息
      *
-     * @param remoteAddress(host:port)
      */
-    public static void sendActiveCallbackMessage(String remoteAddress) {
+    public static void sendReconnectingCallbackMessage() {
         CallbackMessage message = new CallbackMessage();
-        message.type = CallbackMessage.MSG_TYPE_ACTIVE;
-        message.from = HostUtils.parseHost(remoteAddress);
+        message.type = CallbackMessage.MSG_TYPE_RECONNECTING;
         ExecutorFactory.submitCallbackTask(new CallbackTask(message));
     }
 
     /**
-     * 发送设备连接成功回调消息
+     * 发送设备断开连接回调消息
      *
-     * @param remoteAddress(host:port)
      */
-    public static void sendInActiveCallbackMessage(String remoteAddress) {
+    public static void sendInActiveCallbackMessage() {
         CallbackMessage message = new CallbackMessage();
         message.type = CallbackMessage.MSG_TYPE_INACTIVE;
-        message.from = HostUtils.parseHost(remoteAddress);
         ExecutorFactory.submitCallbackTask(new CallbackTask(message));
     }
 

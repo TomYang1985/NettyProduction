@@ -97,4 +97,12 @@ public class DeviceListAdapter extends XGCRecyclerViewAdapter<Device, DeviceList
 
         notifyDataSetChanged();
     }
+
+    public void resetDevice(){
+        for (Device device : getDatas()) {
+            device.isConnected = false;
+        }
+
+        notifyDataSetChanged();
+    }
 }

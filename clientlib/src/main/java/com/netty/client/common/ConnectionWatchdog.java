@@ -8,7 +8,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.SystemClock;
 
+import com.netty.client.core.EMClient;
 import com.netty.client.utils.L;
+import com.netty.client.utils.NetUtils;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -57,6 +59,10 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
         mWatchdogEnable.set(false);
     }
 
+    public void enableWatchdog() {
+        mWatchdogEnable.set(true);
+    }
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         L.print("ConnectionWatchdog.channelActive");
@@ -82,10 +88,17 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
             mWatchdogListener.channelInActive(ctx);
         }
 
-        if (mWatchdogEnable.compareAndSet(true, true)) {
-            disconnectRetry();
-        } else {
-            L.print("channelInactive Watchdog disable");
+        /**
+         * 如果连接断开的原因是因为wifi关闭，那么就不用进行断线重连，并且通知上层设备连接已断开
+         */
+        if(NetUtils.wifiIsDisable(EMClient.getInstance().getContext())){
+            InnerMessageHelper.sendInActiveCallbackMessage();
+        }else {
+            if (mWatchdogEnable.compareAndSet(true, true)) {
+                disconnectRetry();
+            } else {
+                L.print("channelInactive Watchdog disable");
+            }
         }
         ctx.fireChannelInactive();
     }
@@ -94,6 +107,14 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
      * 断线重连
      */
     public void disconnectRetry() {
+        if(mCounter == 0){
+            //如果第一次尝试重连，需要通知上层，设备正在重连连接
+            InnerMessageHelper.sendReconnectingCallbackMessage();
+        }else if(mCounter >= MAX_RETRY_NUM){
+            //如果断线重连次数超过了MAX_RETRY_NUM次，需要通知上层，设备已断开连接
+            InnerMessageHelper.sendInActiveCallbackMessage();
+        }
+
         if (mCounter++ < MAX_RETRY_NUM && mTimer != null) {
             //重连的间隔时间会越来越长
             int timeout = 2 << mCounter;
