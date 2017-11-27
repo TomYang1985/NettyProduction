@@ -1,13 +1,15 @@
 package com.netty.client.handler;
 
+import com.netty.client.codec.KeyManager;
+import com.netty.client.common.Code;
 import com.netty.client.core.threadpool.CallbackTask;
 import com.netty.client.core.threadpool.ExecutorFactory;
 import com.netty.client.core.threadpool.MessageRecvTask;
 import com.netty.client.innermsg.CallbackMessage;
 import com.netty.client.innermsg.Header;
+import com.netty.client.innermsg.KeyResponseProto;
 import com.netty.client.innermsg.NettyMessage;
 import com.netty.client.utils.HostUtils;
-import com.netty.client.utils.L;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -25,11 +27,18 @@ public class MessageRecvHandler extends SimpleChannelInboundHandler<NettyMessage
                 ExecutorFactory.submitRecvTask(new MessageRecvTask(channelHandlerContext.channel(), message));
                 break;
             case Header.MsgType.EXCHANGE_KEY_RESP: {
-                CallbackMessage callbackMessage = new CallbackMessage();
-                callbackMessage.type = CallbackMessage.MSG_TYPE_RECV_MSG;
-                callbackMessage.from = HostUtils.parseHost(channelHandlerContext.channel().remoteAddress().toString());
-                callbackMessage.recvMessage = message;
-                ExecutorFactory.submitCallbackTask(new CallbackTask(callbackMessage));
+                if (((KeyResponseProto.KeyResponse) message.body).getCode() == Code.RESULT_OK) {//密钥交换成功
+                    KeyManager.getInstance().setKeyExchangeStatus(KeyManager.KEY_EXCHANGE_SUCC);
+
+                    CallbackMessage callbackMessage = new CallbackMessage();
+                    callbackMessage.type = CallbackMessage.MSG_TYPE_RECV_MSG;
+                    callbackMessage.from = HostUtils.parseHost(channelHandlerContext.channel().remoteAddress().toString());
+                    callbackMessage.recvMessage = message;
+                    ExecutorFactory.submitCallbackTask(new CallbackTask(callbackMessage));
+                } else {//密钥交换失败
+                    KeyManager.getInstance().setKeyExchangeStatus(KeyManager.KEY_EXCHANGE_FAIL);
+                    channelHandlerContext.channel().close();
+                }
             }
             break;
             case Header.MsgType.RESPONSE:

@@ -115,14 +115,12 @@ public class ScanDevice implements Runnable {
         }
 
         if (mStatus.compareAndSet(STATUS_RUNNING, STATUS_RUNNING)) {
-            L.print("socket thread return when running or stoping");
             L.writeFile("socket thread return when running or stoping");
             return;
         }
         mStatus.getAndSet(STATUS_RUNNING);
 
-        L.print("connecting.........");
-        L.writeFile("connecting.........");
+        L.writeFile("ScanDevice connecting.........");
         IntentFilter filter = new IntentFilter();
         filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
@@ -132,7 +130,6 @@ public class ScanDevice implements Runnable {
             socket = new MulticastSocket(BOADCAST_PORT);
             //socket.setNetworkInterface(NetworkInterface.getByName("wlan0"));
             socket.joinGroup(broadcastAddress);
-            L.print("create multicastsocket succ");
             L.writeFile("create multicastsocket succ");
             mTimer = new HashedWheelTimer();
             mTimer.newTimeout(mTimerTask, 30, TimeUnit.SECONDS);//扫描设备超时
@@ -140,7 +137,6 @@ public class ScanDevice implements Runnable {
             startMonitorThread();
         } catch (IOException e) {
             e.printStackTrace();
-            L.print("create multicastsocket IOException");
             L.writeFile("create multicastsocket IOException");
             mStatus.set(STATUS_NONE);
         }
@@ -148,7 +144,6 @@ public class ScanDevice implements Runnable {
 
     private void startMonitorThread() {
         if (mMonitorThreadStatus.compareAndSet(STATUS_RUNNING, STATUS_RUNNING)) {
-            L.print("MonitorThread return when running or stoping");
             L.writeFile("MonitorThread return when running or stoping");
             return;
         }
@@ -193,7 +188,6 @@ public class ScanDevice implements Runnable {
             }
 
             if (mStatus.compareAndSet(STATUS_NONE, STATUS_NONE)) {
-                L.print("receive thread closeSocket");
                 L.writeFile("receive thread closeSocket");
                 return;
             }
@@ -237,13 +231,11 @@ public class ScanDevice implements Runnable {
                     e.printStackTrace();
                 }
                 if (mMonitorThreadStatus.compareAndSet(STATUS_NONE, STATUS_NONE)) {
-                    L.print("monitor thread close");
                     L.writeFile("monitor thread close");
                     return;
                 }
 
                 if (mDevicesMap == null) {
-                    L.print("monitor thread mDevicesMap == null");
                     L.writeFile("monitor thread mDevicesMap == null");
                     return;
                 }
@@ -261,7 +253,6 @@ public class ScanDevice implements Runnable {
                 }
 
                 if (mScanListener != null && disconnectEMDeviceList.size() > 0) {
-                    L.print("mScanListener.disconnectDevices");
                     L.writeFile("mScanListener.disconnectDevices");
                     mScanListener.disconnectDevices(disconnectEMDeviceList);
                 }
@@ -278,29 +269,24 @@ public class ScanDevice implements Runnable {
                 int wifiState = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, -1);
                 switch (wifiState) {
                     case WifiManager.WIFI_STATE_DISABLED:
-                        L.print("Wifi disabled");
                         L.writeFile("Wifi disabled");
                         if (mScanListener != null) {
                             mScanListener.wifiDisabled();
                         }
                         break;
                     case WifiManager.WIFI_STATE_DISABLING:
-                        L.print("Wifi disabling");
                         L.writeFile("Wifi disabling");
                         break;
                     case WifiManager.WIFI_STATE_ENABLED:
-                        L.print("Wifi enabled");
                         L.writeFile("Wifi enabled");
                         break;
                     case WifiManager.WIFI_STATE_ENABLING:
-                        L.print("Wifi enabling");
                         L.writeFile("Wifi enabling");
                         if (mScanListener != null) {
                             mScanListener.wifiConnected();
                         }
                         break;
                     case WifiManager.WIFI_STATE_UNKNOWN:
-                        L.print("Wifi unknown");
                         L.writeFile("Wifi unknown");
                         break;
                 }
@@ -313,7 +299,6 @@ public class ScanDevice implements Runnable {
                     if (networkInfo != null) {
                         NetworkInfo.State state = networkInfo.getState();
                         if (state == NetworkInfo.State.DISCONNECTED) {
-                            L.print("Wifi disconnected");
                             L.writeFile("Wifi disconnected");
                             closeSocket();//Wifi断开时时，关闭接收socket
                             if (mScanListener != null) {
@@ -321,7 +306,6 @@ public class ScanDevice implements Runnable {
                             }
                         } else if (state == NetworkInfo.State.CONNECTED) {
                             String wifiName = networkInfo.getExtraInfo();
-                            L.print("Wifi connected = " + wifiName);
                             L.writeFile("Wifi connected = " + wifiName);
                             //如果两次连接的不同网络，则清空设备列表
                             if (!TextUtils.isEmpty(mLastWifiName) && !mLastWifiName.equals(wifiName)) {

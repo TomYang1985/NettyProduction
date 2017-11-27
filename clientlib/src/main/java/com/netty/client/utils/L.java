@@ -118,6 +118,7 @@ public class L {
 
     public static void writeFile(String msg) {
         if (Config.isDebug && !TextUtils.isEmpty(msg)) {
+            print(msg);
             fileLogger.d(msg);
         }
     }

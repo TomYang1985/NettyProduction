@@ -1,5 +1,6 @@
 package com.netty.client.handler;
 
+import com.netty.client.codec.KeyManager;
 import com.netty.client.common.ETvModelID;
 import com.netty.client.common.InnerMessageHelper;
 import com.netty.client.core.EMMessageManager;
@@ -34,6 +35,9 @@ public class ConnectionManagerHandler extends ChannelDuplexHandler {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
         L.writeFile("ConnectionManagerHandler.channelInactive");
+
+        //连接断开则复位密钥交换状态
+        KeyManager.getInstance().resetKeyExchangeStatus();
 
         String remoteAddress = ctx.channel().remoteAddress().toString();
         InnerMessageHelper.sendInActiveCallbackMessage(remoteAddress);

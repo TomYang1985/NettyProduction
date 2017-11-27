@@ -1,6 +1,6 @@
 package com.netty.client.codec;
 
-import com.netty.client.utils.L;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -9,8 +9,8 @@ import javax.crypto.spec.SecretKeySpec;
 /**
  * Created by guochang on 2015/3/16.
  */
-public class Algorithm {
-//    //    private static Algorithm mInstance;
+public class KeyManager {
+//    //    private static KeyManager mInstance;
 ////    private static final int AES_KEY_LENGTH = 16;
 //    private static byte[] aesKey = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 //
@@ -58,25 +58,50 @@ public class Algorithm {
 //        return decodedBytes;
 //    }
 
-
-    private volatile static Algorithm mInstance;
+    public static final int KEY_EXCHANGE_NULL = -1;//未接收到服务端交换密钥的响应
+    public static final int KEY_EXCHANGE_SUCC = 1;//密钥交换成功
+    public static final int KEY_EXCHANGE_FAIL = 2;//服务端交换密钥的响应返回，但返回状态码！=200
+    public static final int KEY_EXCHANGE_RESPONSE_DECODE_ERROR = 3;//交换密钥响应解码错误
+    private volatile static KeyManager mInstance;
     private static final int AES_KEY_LENGTH = 16;
-    private byte[] bodyAESKey;
+    private volatile byte[] bodyAESKey;
     private byte[] aesKey = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    private AtomicInteger mKeyExchangeStatus;//密钥交换的状态
 
-    private Algorithm() {
+    private KeyManager() {
+        mKeyExchangeStatus = new AtomicInteger(KEY_EXCHANGE_NULL);
     }
 
-    public static Algorithm getInstance() {
+    public static KeyManager getInstance() {
         if (mInstance == null) {
-            synchronized (Algorithm.class) {
+            synchronized (KeyManager.class) {
                 if (mInstance == null) {
-                    mInstance = new Algorithm();
+                    mInstance = new KeyManager();
                 }
             }
         }
 
         return mInstance;
+    }
+
+    /**
+     * 设置密钥交换状态
+     * @param status
+     */
+    public void setKeyExchangeStatus(int status) {
+        mKeyExchangeStatus.set(status);
+    }
+
+    /**
+     * 获取密钥交换状态
+     * @return
+     */
+    public int getKeyExchangeStatus() {
+        return mKeyExchangeStatus.get();
+    }
+
+    public void resetKeyExchangeStatus(){
+        setKeyExchangeStatus(KEY_EXCHANGE_NULL);
     }
 
     public void setBodyAESKey(byte[] bodyAESKey) {

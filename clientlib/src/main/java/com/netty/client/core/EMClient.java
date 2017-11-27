@@ -1,10 +1,8 @@
 package com.netty.client.core;
 
-import android.app.ActivityManager;
 import android.content.Context;
-import android.util.Log;
 
-import com.netty.client.Config;
+import com.netty.client.codec.KeyManager;
 import com.netty.client.codec.NettyDecoder;
 import com.netty.client.codec.NettyEncoder;
 import com.netty.client.common.ConnectionWatchdog;
@@ -23,16 +21,14 @@ import com.netty.client.utils.L;
 import com.netty.client.utils.NetUtils;
 
 import java.net.SocketAddress;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInitializer;
 import io.netty.handler.timeout.IdleStateHandler;
 
 /**
@@ -42,22 +38,28 @@ import io.netty.handler.timeout.IdleStateHandler;
 public class EMClient extends BaseConnector implements ChannelHandlerHolder {
     //private static final String DEAULT_HOST = "192.168.1.112";
     private static final int DEAULT_PORT = 9987;
+    private static final int MAX_TRY_COUNT = 2;//最大port尝试次数
     private static final int STATUS_NONE = 1;
     private static final int STATUS_CONNECTING = 2;
     private static final int STATUS_CONNECTED = 3;
     private static final long WRITER_IDLE_TIME = 10;
     private static final long READER_IDLE_TIME = 20;
-    private static final int TRIGGER_FROM_USER = 1;//用户启动连接
-    private static final int TRIGGER_FROM_SERVICE = 2;//service启动连接
-    private static final int TRIGGER_FROM_DISCONNECT_RETRY = 3;//断线重连
-    private static final int TRIGGER_FROM_TIMER_DETECTION = 4;//定时检测
-    private static final int TRIGGER_FROM_NET_RECONNECTED = 5;//设备网络重新建立
+    /*******触发连接的因素********/
+    private static final int TRIGGER_FROM_USER = 1;//用户主动启动连接
+    private static final int TRIGGER_FROM_DISCONNECT_RETRY = 2;//断线重连
+    private static final int TRIGGER_FROM_TIMER_DETECTION = 3;//定时检测
+    private static final int TRIGGER_FROM_KEY_EXCHANGE_EXCEPTION = 4;//未收到服务端交换密钥的响应(可能的原因是服务端端口被占用，连接上了非我们自己的服务器)
+    private static final int TRIGGER_FROM_USER_RETRY = 5;//由TRIGGER_FROM_USER触发的连接失败，进而在进行端口号递增重连
+    private static final int TRIGGER_FROM_NET_RECONNECTED = 6;//设备网络重新建立
+
     private volatile static EMClient sInstance;
     private Context mContext;
     private ChannelFuture mFuture;
     private ConnectionWatchdog mWatchdog;
     private AtomicInteger mStatus;
     private EMDevice mDevice;//当前连接设备
+    private volatile int currentPort = DEAULT_PORT;
+    private ReentrantLock mainLock = new ReentrantLock();
 
     private EMClient() {
         super();
@@ -76,10 +78,12 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
     }
 
     public void connectDevice(String host){
-        connectDevice(new EMDevice(host, ""));
+        connectDevice(host, "");
     }
 
-    public void connectDevice(EMDevice newDevice) {
+    public void connectDevice(String host, String name) {
+        EMDevice newDevice = new EMDevice(host, name);
+
         if (mDevice == null) {
             this.mDevice = newDevice;
             connect(TRIGGER_FROM_USER);
@@ -88,10 +92,14 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
             if (mDevice.id.equals(newDevice.id)) {
                 connect(TRIGGER_FROM_USER);
             } else {
-                //如果连接的不同设备，先关闭当前连接，然后再初始化
+                /**
+                 * 如果切换设备，先关闭Watchdog的功能，因为此时不需要断线重连和定时功能功能；然后关闭当前连接；最后再重新初始化，建立新的连接
+                 */
+                mWatchdog.disableWatchdog();
                 shutdownGracefully();
                 initInner();
                 this.mDevice = newDevice;
+                currentPort = DEAULT_PORT;//切换设备需要复位为初始端口
                 connect(TRIGGER_FROM_USER);
             }
         }
@@ -124,11 +132,6 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
         mWatchdog = new ConnectionWatchdog(context);
         mWatchdog.setListener(new ConnectionWatchdog.WatchdogListener() {
             @Override
-            public void channelActive(ChannelHandlerContext ctx) {
-
-            }
-
-            @Override
             public void channelInActive(ChannelHandlerContext ctx) {
                 mStatus.getAndSet(STATUS_NONE);//断线后需要重新设置状态，这样Watchdog才能重连(这个设置很重要)
             }
@@ -141,6 +144,27 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
             @Override
             public void timerCheck() {
                 connect(TRIGGER_FROM_TIMER_DETECTION);
+            }
+
+            @Override
+            public void checkKeyExchange() {
+                int keyExchangeStatus = KeyManager.getInstance().getKeyExchangeStatus();
+
+                L.writeFile("keyExchangeStatus=" + keyExchangeStatus);
+                if(keyExchangeStatus == KeyManager.KEY_EXCHANGE_NULL) {//未收到服务端交换密钥的响应，则应该修改port
+                    if(currentPort < DEAULT_PORT + MAX_TRY_COUNT) {
+                        /**
+                         * 连接的是非法的服务设备，先关闭Watchdog的功能，因为此时不需要断线重连和定时功能功能；
+                         * 然后关闭当前连接；最后再重新初始化，建立新的连接
+                         */
+                        mWatchdog.disableWatchdog();
+                        shutdownGracefully();
+                        initInner();
+                        connect(TRIGGER_FROM_KEY_EXCHANGE_EXCEPTION);
+                    }else {
+                        currentPort =DEAULT_PORT;
+                    }
+                }
             }
         });
     }
@@ -178,34 +202,44 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
         return "";
     }
 
-    @Override
-    public void connect() {
-        connect(TRIGGER_FROM_SERVICE);
-    }
+//    @Override
+//    public void connect() {
+//        connect(TRIGGER_FROM_SERVICE);
+//    }
 
     private void connect(final int triggerType) {
-        synchronized (bootstrap()) {
-            if (mContext == null) {
-                L.writeFile("return mContext == null , triggerType = " + triggerType);
-                return;
-            }
+        if (mContext == null) {
+            L.writeFile("return mContext == null , triggerType = " + triggerType);
+            return;
+        }
 
-            if (!NetUtils.isWifi(mContext)) {
-                handlerUserSpaceCallback(triggerType, CallbackMessage.MSG_TYPE_NOT_WIFI);
-                L.writeFile("return when net is not wifi , triggerType = " + triggerType);
-                return;
-            }
+        if (!NetUtils.isWifi(mContext)) {
+            handlerUserSpaceCallback(triggerType, CallbackMessage.MSG_TYPE_NOT_WIFI);
+            L.writeFile("return when net is not wifi , triggerType = " + triggerType);
+            return;
+        }
 
-            if (mStatus.compareAndSet(STATUS_CONNECTING, STATUS_CONNECTING)) {
-                handlerUserSpaceCallback(triggerType, CallbackMessage.MSG_TYPE_CONNECTING);
-                L.writeFile("return when connecting , triggerType = " + triggerType);
-                return;
-            }
+        mainLock.lock();
+        try {
+            /**
+             * 如下两种触发重连过程，进行端口号递增重连
+             * 1.未收到服务端交换密钥的响应，则应该修改port，重新进行连接
+             * 2.TRIGGER_FROM_USER_RETRY触发的重连
+             */
+            if(triggerType == TRIGGER_FROM_KEY_EXCHANGE_EXCEPTION || triggerType == TRIGGER_FROM_USER_RETRY) {
+                currentPort++;
+            }else {
+                if (mStatus.compareAndSet(STATUS_CONNECTING, STATUS_CONNECTING)) {
+                    handlerUserSpaceCallback(triggerType, CallbackMessage.MSG_TYPE_CONNECTING);
+                    L.writeFile("return when connecting , triggerType = " + triggerType);
+                    return;
+                }
 
-            if (mStatus.compareAndSet(STATUS_CONNECTED, STATUS_CONNECTED)) {
-                handlerUserSpaceCallback(triggerType, CallbackMessage.MSG_TYPE_CONNECTED);
-                L.writeFile("return when connected , triggerType = " + triggerType);
-                return;
+                if (mStatus.compareAndSet(STATUS_CONNECTED, STATUS_CONNECTED)) {
+                    handlerUserSpaceCallback(triggerType, CallbackMessage.MSG_TYPE_CONNECTED);
+                    L.writeFile("return when connected , triggerType = " + triggerType);
+                    return;
+                }
             }
 
             if (mDevice == null) {
@@ -214,17 +248,12 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
                 return;
             }
 
-            L.writeFile("connecting.....................");
-            mStatus.getAndSet(STATUS_CONNECTING);
+            L.writeFile("EMClient connecting.....................");
+            mStatus.set(STATUS_CONNECTING);
 
-            bootstrap().handler(new ChannelInitializer<Channel>() {
-
-                @Override
-                protected void initChannel(Channel ch) throws Exception {
-                    ch.pipeline().addLast(handlers());
-                }
-            });
-            mFuture = bootstrap().connect(mDevice.id, DEAULT_PORT);
+            mFuture = bootstrap().connect(mDevice.id, currentPort);
+        }finally {
+            mainLock.unlock();
         }
 
         /**
@@ -236,44 +265,64 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
             public void operationComplete(ChannelFuture channelFuture) throws Exception {
                 if (channelFuture.isSuccess()) {
                     mStatus.getAndSet(STATUS_CONNECTED);
+
                     switch (triggerType) {
                         case TRIGGER_FROM_USER:
-                            L.writeFile("user启动连接成功");
+                            L.writeFile("user启动连接成功" + currentPort);
                             //InnerMessageHelper.sendConnectSuccByUserMessage(mDevice.id);
                             break;
-                        case TRIGGER_FROM_SERVICE:
-                            L.writeFile("service启动连接成功");
-                            break;
                         case TRIGGER_FROM_DISCONNECT_RETRY:
-                            L.writeFile("断线重连成功");
+                            L.writeFile("断线重连成功" + currentPort);
                             break;
                         case TRIGGER_FROM_TIMER_DETECTION:
-                            L.writeFile("定时重连成功");
+                            L.writeFile("定时重连成功" + currentPort);
+                            break;
+                        case TRIGGER_FROM_KEY_EXCHANGE_EXCEPTION:
+                            L.writeFile("key exchange connect succ port = " + currentPort);
+                            break;
+                        case TRIGGER_FROM_USER_RETRY:
+                            L.writeFile("user retry connect succ port = " + currentPort);
                             break;
                     }
                 } else {
+                    Throwable throwable = channelFuture.cause();
+                    if (throwable != null) {
+                        L.writeFile("connect fail cause :: " + throwable.toString());
+                    }
+
+                    //连接失败后必须要设置状态为STATUS_NONE
                     mStatus.getAndSet(STATUS_NONE);
+
                     switch (triggerType) {
                         case TRIGGER_FROM_USER:
                             InnerMessageHelper.sendErrorCallbackMessage(CallbackMessage.MSG_TYPE_CONNECT_FAIL);
-                            L.writeFile("user启动连接失败，启动断线重连");
-                            mWatchdog.retry();
-                            break;
-                        case TRIGGER_FROM_SERVICE:
-                            L.writeFile("service启动连接失败，启动断线重连");
-                            mWatchdog.retry();
+                            L.writeFile("user connect fail port =" + currentPort);
+                            if(currentPort >= DEAULT_PORT + MAX_TRY_COUNT){
+                                currentPort = DEAULT_PORT;
+                            }else {
+                                connect(TRIGGER_FROM_USER_RETRY);
+                            }
                             break;
                         case TRIGGER_FROM_DISCONNECT_RETRY:
-                            L.writeFile("断线重连失败");
-                            mWatchdog.retry();
+                            L.writeFile("断线重连失败" + currentPort);
+                            mWatchdog.disconnectRetry();
                             break;
                         case TRIGGER_FROM_TIMER_DETECTION:
-                            L.writeFile("定时重连失败");
+                            L.writeFile("定时重连失败" + currentPort);
                             break;
-                    }
-                    Throwable throwable = channelFuture.cause();
-                    if (throwable != null) {
-                        L.writeFile(throwable.toString());
+                        case TRIGGER_FROM_KEY_EXCHANGE_EXCEPTION:
+                            L.writeFile("key exchange connect fail port = " + currentPort);
+                            //调整端口进行连接依然失败，则继续连接
+                            connect(TRIGGER_FROM_KEY_EXCHANGE_EXCEPTION);
+                            break;
+                        case TRIGGER_FROM_USER_RETRY:
+                            L.writeFile("user retry connect fail port = " + currentPort);
+                            if(currentPort >= DEAULT_PORT + MAX_TRY_COUNT){
+                                currentPort = DEAULT_PORT;
+                            }else {
+                                connect(TRIGGER_FROM_USER_RETRY);
+                            }
+                            break;
                     }
                 }
             }

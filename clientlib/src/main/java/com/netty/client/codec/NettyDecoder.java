@@ -70,21 +70,23 @@ public class NettyDecoder extends ByteToMessageDecoder {
                     bodyByteBuf.getBytes(bodyByteBuf.readerIndex(), array, 0, readableLen);
                 }
 
-
                 //AES解码
-                array = Algorithm.getInstance().decryptBody(array);
+                array = KeyManager.getInstance().decryptBody(array);
 
                 //反序列化
                 if (array != null) {
                     MessageLite body = decodeProtoBody(msgType, busynissType, array);
                     output(out, msgType, busynissType, priority, body);
                 } else {
-                    //如果密钥交换失败，则断开连接
                     if (msgType == Header.MsgType.EXCHANGE_KEY_RESP) {
-                        L.print("exchange key fail");
+                        //密钥交换响应解码失败
+                        KeyManager.getInstance().setKeyExchangeStatus(KeyManager.KEY_EXCHANGE_RESPONSE_DECODE_ERROR);
+                        L.writeFile("exchange key fail");
+                        ctx.channel().close();
+                    } else {
+                        L.writeFile("NettyDecoder parse array null");
                         ctx.channel().close();
                     }
-                    L.print("NettyDecoder parse array null");
                 }
             }
         }
@@ -112,8 +114,7 @@ public class NettyDecoder extends ByteToMessageDecoder {
         MessageLite body = null;
         switch (msgType) {
             case Header.MsgType.PAYLOAD:
-                body = PayloadProto.Payload.getDefaultInstance().
-                        getParserForType().parseFrom(array);
+                body = PayloadProto.Payload.getDefaultInstance().getParserForType().parseFrom(array);
                 break;
             case Header.MsgType.EXCHANGE_KEY_RESP://交换密钥响应
                 body = KeyResponseProto.KeyResponse.getDefaultInstance().

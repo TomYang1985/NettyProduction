@@ -11,6 +11,7 @@ import android.os.SystemClock;
 import com.netty.client.utils.L;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -23,17 +24,26 @@ import io.netty.util.TimerTask;
  * Created by robincxiao on 2017/8/21.
  */
 @ChannelHandler.Sharable
-public class ConnectionWatchdog extends ChannelInboundHandlerAdapter implements TimerTask {
-    private static final int ALARM_TIMEOUT = 60000;
-    private static final int MAX_RETRY_NUM = 4;
+public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
+    private static final int ALARM_TIMEOUT = 60000;//周期定时(单位ms)
+    private static final int KEY_EXCHANGE_TIMEOUT = 2;//密钥检测超时(单位s)
+    private static final int MAX_RETRY_NUM = 3;
     private Context mContext;
-    private int mCounter = 0;
+    private volatile int mCounter = 0;
     protected final HashedWheelTimer mTimer = new HashedWheelTimer();
     private WatchdogListener mWatchdogListener;
     private TimerReceiver mTimerReceiver;
+    /**
+     * Watchdog是否使能
+     * 1.Watchdog主要负责监控连接状态从已连接到断开连接后，进行重连的机制；
+     * 2.当进行端口递增重连时，可能会产生channelInactive导致断线重连，这种情况下需要disable断线重连功能和定时重连功能，
+     * 就是通过mWatchdogEnable来控制的
+     */
+    private AtomicBoolean mWatchdogEnable;
 
     public ConnectionWatchdog(Context context) {
         mContext = context;
+        mWatchdogEnable = new AtomicBoolean(true);
         mTimerReceiver = new TimerReceiver();
         context.registerReceiver(mTimerReceiver, new IntentFilter(TimerReceiver.ACTION_TIMER));
         setAlarmRepeat();
@@ -43,41 +53,67 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter implements 
         this.mWatchdogListener = listener;
     }
 
+    public void disableWatchdog() {
+        mWatchdogEnable.set(false);
+    }
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         L.print("ConnectionWatchdog.channelActive");
+        //必须要复位的，两者必须复位
         mCounter = 0;
-        if (mWatchdogListener != null) {
-            mWatchdogListener.channelActive(ctx);
-        }
+        mWatchdogEnable.set(true);
+
+        checkKeyExchange();
         ctx.fireChannelActive();
     }
 
+    /**
+     * 断线监测
+     *
+     * @param ctx
+     * @throws Exception
+     */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         L.print("ConnectionWatchdog.channelInactive");
+
         if (mWatchdogListener != null) {
             mWatchdogListener.channelInActive(ctx);
         }
-        retry();
+
+        if (mWatchdogEnable.compareAndSet(true, true)) {
+            disconnectRetry();
+        } else {
+            L.print("channelInactive Watchdog disable");
+        }
         ctx.fireChannelInactive();
     }
 
-    public void retry(){
-        if (mCounter++ < MAX_RETRY_NUM) {
+    /**
+     * 断线重连
+     */
+    public void disconnectRetry() {
+        if (mCounter++ < MAX_RETRY_NUM && mTimer != null) {
             //重连的间隔时间会越来越长
             int timeout = 2 << mCounter;
-            mTimer.newTimeout(this, timeout, TimeUnit.SECONDS);
+            mTimer.newTimeout(new TimerRetryTask(TimerRetryTask.TYPE_DISCONNECT_RETRY), timeout, TimeUnit.SECONDS);
         }
     }
 
-    @Override
-    public void run(Timeout timeout) throws Exception {
-        if (mWatchdogListener != null) {
-            mWatchdogListener.disconnectRetry();
+    /**
+     * 检测密钥交换是否成功
+     * 一定时间定时器触发后，检测密钥交换是否成功
+     */
+    private void checkKeyExchange() {
+        if (mTimer != null) {
+            mTimer.newTimeout(new TimerRetryTask(TimerRetryTask.TYPE_KEY_EXCHANGE), KEY_EXCHANGE_TIMEOUT, TimeUnit.SECONDS);
         }
     }
 
+    /**
+     * 启动定时器
+     */
     public void setAlarmRepeat() {
         cancelAlarmRepeat();
         Intent intent = new Intent(TimerReceiver.ACTION_TIMER);
@@ -87,6 +123,9 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter implements 
         alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, l, ALARM_TIMEOUT, pendingIntent);
     }
 
+    /**
+     * 取消定时器
+     */
     private void cancelAlarmRepeat() {
         Intent intent = new Intent();
         PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -94,6 +133,9 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter implements 
         alarmManager.cancel(pendingIntent);
     }
 
+    /**
+     * 定时检测TCP连接状态（周期为ALARM_TIMEOUT）
+     */
     public class TimerReceiver extends BroadcastReceiver {
         public final static String ACTION_TIMER = "netty.client.watchdog.timer";
 
@@ -101,14 +143,49 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter implements 
         public void onReceive(final Context context, Intent intent) {
             String action = intent.getAction();
             if (ACTION_TIMER.equals(action) && mWatchdogListener != null) {
-                mWatchdogListener.timerCheck();
+                if (mWatchdogEnable.compareAndSet(true, true)) {
+                    mWatchdogListener.timerCheck();
+                } else {
+                    L.writeFile("disable timer");
+                }
+            }
+        }
+    }
+
+    /**
+     * 定时重连task
+     * 1.TCP连接成功后，发送定时任务检测密钥交换是否成功；
+     * 2.TCP连接从连接到断开后，发送定时任务进行重试；
+     */
+    public class TimerRetryTask implements TimerTask {
+        private static final int TYPE_KEY_EXCHANGE = 1;//密钥交换
+        private static final int TYPE_DISCONNECT_RETRY = 2;//断线重连
+        private int type;
+
+        public TimerRetryTask(int type) {
+            this.type = type;
+        }
+
+        @Override
+        public void run(Timeout timeout) throws Exception {
+            if (mWatchdogListener != null) {
+                switch (type) {
+                    case TYPE_KEY_EXCHANGE:
+                        mWatchdogListener.checkKeyExchange();
+                        break;
+                    case TYPE_DISCONNECT_RETRY:
+                        if (mWatchdogEnable.compareAndSet(true, true)) {
+                            mWatchdogListener.disconnectRetry();
+                        } else {
+                            L.writeFile("disable disconnectRetry");
+                        }
+                        break;
+                }
             }
         }
     }
 
     public interface WatchdogListener {
-        //连接的监听回调，用于EMClient内部业务处理
-        void channelActive(ChannelHandlerContext ctx);
         //连接的监听回调，用于EMClient内部业务处理
         void channelInActive(ChannelHandlerContext ctx);
 
@@ -117,6 +194,8 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter implements 
 
         //定时检测
         void timerCheck();
+
+        void checkKeyExchange();
     }
 
     public void onDestory() {

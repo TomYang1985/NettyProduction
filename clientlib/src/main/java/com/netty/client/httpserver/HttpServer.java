@@ -128,10 +128,8 @@ public final class HttpServer {
                         mBindStatus = STATUS_BINDED;
                     }
                     L.writeFile("HttpFileServer bind succ port = " + mPort);
-                    L.print("HttpFileServer bind succ port = " + mPort);
                 } else {
                     L.writeFile("HttpFileServer bind fail");
-                    L.print("HttpFileServer bind fail = " + mPort);
 
                     //当端口数已经测试到不可用后，记录统计点
                     if(mPort == DEFAULT_PORT + MAX_TRY_COUNT) {

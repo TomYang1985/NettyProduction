@@ -48,9 +48,9 @@ public class NettyEncoder extends MessageToByteEncoder<NettyMessage> {
 
     private byte[] encryptBody(int messageType, byte[] body) {
         if(messageType == Header.MsgType.EXCHANGE_KEY) {
-            return Algorithm.getInstance().encryptAESKey(body);
+            return KeyManager.getInstance().encryptAESKey(body);
         }else {
-            return Algorithm.getInstance().encryptBody(body);
+            return KeyManager.getInstance().encryptBody(body);
         }
     }
 }

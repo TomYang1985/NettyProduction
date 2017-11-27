@@ -41,7 +41,6 @@ public class NettyClientService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        mClientConnector.connect();
         ScanDevice.getInstance().start();
         return super.onStartCommand(intent, flags, startId);
     }

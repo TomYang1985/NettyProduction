@@ -1,7 +1,7 @@
 package com.netty.client.common;
 
 import com.google.protobuf.ByteString;
-import com.netty.client.codec.Algorithm;
+import com.netty.client.codec.KeyManager;
 import com.netty.client.core.threadpool.CallbackTask;
 import com.netty.client.core.threadpool.ExecutorFactory;
 import com.netty.client.core.threadpool.MessageSendTask;
@@ -80,7 +80,7 @@ public class InnerMessageHelper {
      * 发送数据加密key到服务端
      */
     public static void sendKey(Channel channel) {
-        byte[] keys = Algorithm.getInstance().generateAESKey();
+        byte[] keys = KeyManager.getInstance().generateAESKey();
 
         KeyRequestProto.KeyRequest request = KeyRequestProto.KeyRequest.newBuilder()
                 .setMessageId(MID.getId())

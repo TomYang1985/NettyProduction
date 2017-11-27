@@ -5,6 +5,9 @@ import java.util.concurrent.ThreadFactory;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.DefaultMessageSizeEstimator;
 import io.netty.channel.EventLoopGroup;
@@ -45,7 +48,7 @@ public abstract class BaseConnector implements Connector {
         ThreadFactory workerFactory = new DefaultThreadFactory("client.connector");
         worker = new NioEventLoopGroup(nWorkers, workerFactory);
 
-        bootstrap = new Bootstrap().group(worker)
+        bootstrap = new Bootstrap()
                 .option(ChannelOption.ALLOCATOR, allocator)
                 .option(ChannelOption.MESSAGE_SIZE_ESTIMATOR, DefaultMessageSizeEstimator.DEFAULT)
                 .option(ChannelOption.SO_REUSEADDR, true)
@@ -53,7 +56,13 @@ public abstract class BaseConnector implements Connector {
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.ALLOW_HALF_CLOSURE, false)
-                .channel(NioSocketChannel.class);
+                .channel(NioSocketChannel.class)
+                .handler(new ChannelInitializer<Channel>() {
+                    @Override
+                    protected void initChannel(Channel ch) throws Exception {
+                        ch.pipeline().addLast(handlers());
+                    }
+                }).group(worker);
     }
 
     protected Bootstrap bootstrap() {
@@ -63,4 +72,6 @@ public abstract class BaseConnector implements Connector {
     public void shutdownGracefully() {
         worker.shutdownGracefully();
     }
+
+    public abstract ChannelHandler[] handlers();
 }

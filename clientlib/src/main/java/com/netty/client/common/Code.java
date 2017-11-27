@@ -22,4 +22,5 @@ public class Code {
     public static final int CODE_DOWNLOAD_PENDING = 1002;//下载等待
     public static final int CODE_DOWNLOAD_STARTED = 1003;//下载开始
     public static final int CODE_DOWNLOAD_FAIL = 1004;//下载失败
+    public static final int CODE_KEY_EXCHANGE_FAIL = 1005;//密钥交换失败
 }
