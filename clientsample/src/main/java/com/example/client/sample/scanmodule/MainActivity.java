@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.client.sample.R;
+import com.example.client.sample.applistmodule.ServiceCheckActivity;
 import com.example.client.sample.chatmodule.ChatActivity;
 import com.example.client.sample.scanmodule.adapter.DeviceListAdapter;
 import com.example.client.sample.scanmodule.entity.Device;
@@ -59,7 +60,7 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
     RecyclerView mRecyclerView;
     @BindView(R.id.text_hint)
     TextView mHintText;
-    @BindView(R.id.edt_host)
+    @BindView(R.id.edt_ip)
     EditText mHostEdt;
     @BindView(R.id.btn_connect)
     TextView mConenctBtn;
@@ -359,7 +360,7 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
             mConnectingDeviceId = willConnectDevice.id;
             mConnectLoadingDialog = new LoadingDialog(mContext).setMsg("正在连接");
             mConnectLoadingDialog.show();
-            EMClient.getInstance().connectDevice(new EMDevice(willConnectDevice.id, willConnectDevice.name));
+            EMClient.getInstance().connectDevice(willConnectDevice.id, willConnectDevice.name);
         }
     }
 
@@ -369,6 +370,13 @@ public class MainActivity extends BaseFragmentActivity implements XGCOnRVItemCli
         if (!TextUtils.isEmpty(host)) {
             EMClient.getInstance().connectDevice(host);
         }
+    }
+
+    @OnClick(R.id.btn_check_service)
+    void onCheckService() {
+        Intent intent = new Intent(this, ServiceCheckActivity.class);
+        intent.putExtra("ip", mHostEdt.getText().toString());
+        startActivity(intent);
     }
 
     @Override

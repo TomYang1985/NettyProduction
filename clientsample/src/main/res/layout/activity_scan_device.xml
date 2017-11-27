@@ -1,50 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/c_page_bg">
+    android:background="@color/c_page_bg"
+    android:orientation="vertical">
 
     <LinearLayout
-        android:id="@+id/layout_connect"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_below="@+id/text_ip"
         android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp">
+        android:layout_marginRight="10dp"
+        android:orientation="horizontal">
+
         <EditText
-            android:id="@+id/edt_host"
+            android:id="@+id/edt_ip"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1.0"
-            android:hint="请输入IP地址"
+            android:layout_weight="4.0"
+            android:background="@drawable/shape_input_edt"
             android:text="192.168.1.1"
-            android:textSize="16sp"
-            android:layout_gravity="center_vertical"
-            android:background="@drawable/shape_input_edt"/>
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/btn_connect"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="0"
+            android:layout_weight="1"
+            android:text="连接" />
 
-            android:text="连接"/>
+        <Button
+            android:id="@+id/btn_check_service"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="检测服务存活" />
     </LinearLayout>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerview"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/layout_connect"/>
+        android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/text_hint"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="需要在WIFI下使用，请先连接WiFi"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="200dp"
-        android:visibility="gone"/>
-</RelativeLayout>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/text_hint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="200dp"
+            android:text="需要在WIFI下使用，请先连接WiFi"
+            android:visibility="gone" />
+    </RelativeLayout>
+</LinearLayout>

@@ -38,6 +38,10 @@
             android:name=".applistmodule.AppListActivity"
             android:theme="@style/SlideActivityAnim1" />
 
+        <activity
+            android:name=".applistmodule.ServiceCheckActivity"
+            android:theme="@style/SlideActivityAnim1" />
+
         <service android:name="com.netty.client.NettyClientService" />
     </application>
 
