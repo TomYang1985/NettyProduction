@@ -202,16 +202,22 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
     }
 
     private void connect(final int triggerType) {
-        if (mContext == null) {
-            L.writeFile("return mContext == null , triggerType = " + triggerType);
-            return;
-        }
-
-        if (!NetUtils.isWifi(mContext)) {
-            handlerUserSpaceCallback(triggerType, CallbackMessage.MSG_TYPE_NOT_WIFI);
-            L.writeFile("return when net is not wifi , triggerType = " + triggerType);
-            return;
-        }
+//        if (mContext == null) {
+//            mWatchdog.reset();//原因同下
+//            L.writeFile("return mContext == null , triggerType = " + triggerType);
+//            return;
+//        }
+//
+//        if (!NetUtils.isWifi(mContext)) {
+//            /**
+//             * 当wifi断开，进行断线重连过程时，此处会直接返回，导致不会执行disconnectRetry中mCounter >= MAX_RETRY_NUM
+//             * 去设置mTimerEnable的状态标记，所以此处需要复位
+//             */
+//            mWatchdog.reset();
+//            handlerUserSpaceCallback(triggerType, CallbackMessage.MSG_TYPE_NOT_WIFI);
+//            L.writeFile("return when net is not wifi , triggerType = " + triggerType);
+//            return;
+//        }
 
         mainLock.lock();
         try {

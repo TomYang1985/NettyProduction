@@ -27,11 +27,11 @@ import io.netty.util.TimerTask;
  */
 @ChannelHandler.Sharable
 public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
-    private static final int ALARM_TIMEOUT = 60000;//周期定时(单位ms)
+    private static final int ALARM_TIMEOUT = 10000;//周期定时(单位ms)
     private static final int KEY_EXCHANGE_TIMEOUT = 2;//密钥检测超时(单位s)
     private static final int MAX_RETRY_NUM = 3;
     private Context mContext;
-    private volatile int mCounter = 0;
+    private volatile int mCounter = 0;//断线重连次数
     protected final HashedWheelTimer mTimer = new HashedWheelTimer();
     private WatchdogListener mWatchdogListener;
     private TimerReceiver mTimerReceiver;
@@ -42,10 +42,13 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
      * 就是通过mWatchdogEnable来控制的
      */
     private AtomicBoolean mWatchdogEnable;
+    //周期性定时重连使能开关
+    private AtomicBoolean mTimerEnable;
 
     public ConnectionWatchdog(Context context) {
         mContext = context;
         mWatchdogEnable = new AtomicBoolean(true);
+        mTimerEnable = new AtomicBoolean(true);
         mTimerReceiver = new TimerReceiver();
         context.registerReceiver(mTimerReceiver, new IntentFilter(TimerReceiver.ACTION_TIMER));
         setAlarmRepeat();
@@ -63,12 +66,20 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
         mWatchdogEnable.set(true);
     }
 
+    /**
+     * 复位所有状态变量
+     */
+    public void reset(){
+        mCounter = 0;
+        mWatchdogEnable.set(true);
+        mTimerEnable.set(true);
+    }
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         L.print("ConnectionWatchdog.channelActive");
-        //必须要复位的，两者必须复位
-        mCounter = 0;
-        mWatchdogEnable.set(true);
+        //必须要复位的
+        reset();
 
         checkKeyExchange();
         ctx.fireChannelActive();
@@ -89,11 +100,11 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
         }
 
         /**
-         * 如果连接断开的原因是因为wifi关闭，那么就不用进行断线重连，并且通知上层设备连接已断开
+         * wifi断开才进行断线重连，wifi关闭直接通知上层设备连接已断开
          */
-        if(NetUtils.wifiIsDisable(EMClient.getInstance().getContext())){
+        if (NetUtils.wifiIsDisable(EMClient.getInstance().getContext())) {
             InnerMessageHelper.sendInActiveCallbackMessage();
-        }else {
+        } else {
             if (mWatchdogEnable.compareAndSet(true, true)) {
                 disconnectRetry();
             } else {
@@ -107,10 +118,12 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
      * 断线重连
      */
     public void disconnectRetry() {
-        if(mCounter == 0){
+        if (mCounter == 0) {
+            mTimerEnable.set(false);//断线重连开始时，关闭定时重连
             //如果第一次尝试重连，需要通知上层，设备正在重连连接
             InnerMessageHelper.sendReconnectingCallbackMessage();
-        }else if(mCounter >= MAX_RETRY_NUM){
+        } else if (mCounter >= MAX_RETRY_NUM) {
+            mTimerEnable.set(true);//断线重连未成功时，恢复定时重连
             //如果断线重连次数超过了MAX_RETRY_NUM次，需要通知上层，设备已断开连接
             InnerMessageHelper.sendInActiveCallbackMessage();
         }
@@ -118,7 +131,7 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
         if (mCounter++ < MAX_RETRY_NUM && mTimer != null) {
             //重连的间隔时间会越来越长
             int timeout = 2 << mCounter;
-            mTimer.newTimeout(new TimerRetryTask(TimerRetryTask.TYPE_DISCONNECT_RETRY), timeout, TimeUnit.SECONDS);
+            mTimer.newTimeout(new DisconnectRetryTask(DisconnectRetryTask.TYPE_DISCONNECT_RETRY), timeout, TimeUnit.SECONDS);
         }
     }
 
@@ -128,7 +141,7 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
      */
     private void checkKeyExchange() {
         if (mTimer != null) {
-            mTimer.newTimeout(new TimerRetryTask(TimerRetryTask.TYPE_KEY_EXCHANGE), KEY_EXCHANGE_TIMEOUT, TimeUnit.SECONDS);
+            mTimer.newTimeout(new DisconnectRetryTask(DisconnectRetryTask.TYPE_KEY_EXCHANGE), KEY_EXCHANGE_TIMEOUT, TimeUnit.SECONDS);
         }
     }
 
@@ -164,26 +177,27 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
         public void onReceive(final Context context, Intent intent) {
             String action = intent.getAction();
             if (ACTION_TIMER.equals(action) && mWatchdogListener != null) {
-                if (mWatchdogEnable.compareAndSet(true, true)) {
+                if (mWatchdogEnable.compareAndSet(true, true)
+                        && mTimerEnable.compareAndSet(true, true)) {
                     mWatchdogListener.timerCheck();
                 } else {
-                    L.writeFile("disable timer");
+                    L.writeFile("disable timer reconnect");
                 }
             }
         }
     }
 
     /**
-     * 定时重连task
+     * 断线重连task
      * 1.TCP连接成功后，发送定时任务检测密钥交换是否成功；
      * 2.TCP连接从连接到断开后，发送定时任务进行重试；
      */
-    public class TimerRetryTask implements TimerTask {
+    public class DisconnectRetryTask implements TimerTask {
         private static final int TYPE_KEY_EXCHANGE = 1;//密钥交换
         private static final int TYPE_DISCONNECT_RETRY = 2;//断线重连
         private int type;
 
-        public TimerRetryTask(int type) {
+        public DisconnectRetryTask(int type) {
             this.type = type;
         }
 
