@@ -59,6 +59,7 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
     private EMDevice mDevice;//当前连接设备
     private volatile int currentPort = DEAULT_PORT;
     private ReentrantLock mainLock = new ReentrantLock();
+    private boolean isInited = false;
 
     private EMClient() {
         super();
@@ -98,7 +99,7 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
                 shutdownGracefully();
                 initInner();
                 this.mDevice = newDevice;
-                currentPort = DEAULT_PORT;//切换设备需要复位为初始端口
+                resetCurrentPort();//切换设备需要复位为初始端口
                 connect(TRIGGER_FROM_USER);
             }
         }
@@ -121,6 +122,16 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
     }
 
     public void init(Context context) {
+        mainLock.lock();
+        try {
+            if(isInited){
+                return;
+            }
+            isInited = true;
+        }finally {
+            mainLock.unlock();
+        }
+
         mContext = context.getApplicationContext();
 
         L.init();//log的初始化，需要放在mContext的初始化后面
@@ -161,7 +172,7 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
                         initInner();
                         connect(TRIGGER_FROM_KEY_EXCHANGE_EXCEPTION);
                     }else {
-                        currentPort =DEAULT_PORT;
+                        resetCurrentPort();
                     }
                 }
             }
@@ -199,6 +210,15 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
 
         }
         return "";
+    }
+
+    private void resetCurrentPort(){
+        mainLock.lock();
+        try {
+            currentPort = DEAULT_PORT;
+        }finally {
+            mainLock.unlock();
+        }
     }
 
     private void connect(final int triggerType) {
@@ -311,28 +331,26 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
                             L.writeFile("定时重连失败" + currentPort);
                             break;
                         case TRIGGER_FROM_KEY_EXCHANGE_EXCEPTION:
-                            L.writeFile("key exchange connect fail port = " + currentPort);
-                            if(currentPort >= DEAULT_PORT + MAX_TRY_COUNT){
+                        case TRIGGER_FROM_USER_RETRY: {
+                            switch (triggerType){
+                                case TRIGGER_FROM_KEY_EXCHANGE_EXCEPTION:
+                                    L.writeFile("key exchange connect fail port = " + currentPort);
+                                    break;
+                                case TRIGGER_FROM_USER_RETRY:
+                                    L.writeFile("user retry connect fail port = " + currentPort);
+                                    break;
+                            }
+
+                            if (currentPort >= DEAULT_PORT + MAX_TRY_COUNT) {
                                 //如果连接的端口已经是最大端口且还未连接成功，需要通知上层，设备正在重连连接
                                 InnerMessageHelper.sendInActiveCallbackMessage();
                                 currentPort = DEAULT_PORT;
                                 mWatchdog.enableWatchdog();//注意：如果进行3次连接后依然失败，记得使能Watchdog的断线重连和定时功能
-                            }else {
-                                //调整端口进行连接依然失败，则继续连接
-                                connect(TRIGGER_FROM_KEY_EXCHANGE_EXCEPTION);
+                            } else {
+                                connect(triggerType);
                             }
                             break;
-                        case TRIGGER_FROM_USER_RETRY:
-                            L.writeFile("user retry connect fail port = " + currentPort);
-                            if(currentPort >= DEAULT_PORT + MAX_TRY_COUNT){
-                                //如果连接的端口已经是最大端口且还未连接成功，需要通知上层，设备正在重连连接
-                                InnerMessageHelper.sendInActiveCallbackMessage();
-                                currentPort = DEAULT_PORT;
-                                mWatchdog.enableWatchdog();//注意：如果进行3次连接后依然失败，记得使能Watchdog的断线重连和定时功能
-                            }else {
-                                connect(TRIGGER_FROM_USER_RETRY);
-                            }
-                            break;
+                        }
                     }
                 }
             }

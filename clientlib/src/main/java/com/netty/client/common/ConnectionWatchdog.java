@@ -27,7 +27,7 @@ import io.netty.util.TimerTask;
  */
 @ChannelHandler.Sharable
 public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
-    private static final int ALARM_TIMEOUT = 10000;//周期定时(单位ms)
+    private static final int ALARM_TIMEOUT = 60000;//周期定时(单位ms)
     private static final int KEY_EXCHANGE_TIMEOUT = 2;//密钥检测超时(单位s)
     private static final int MAX_RETRY_NUM = 3;
     private Context mContext;
@@ -42,13 +42,10 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
      * 就是通过mWatchdogEnable来控制的
      */
     private AtomicBoolean mWatchdogEnable;
-    //周期性定时重连使能开关
-    private AtomicBoolean mTimerEnable;
 
     public ConnectionWatchdog(Context context) {
         mContext = context;
         mWatchdogEnable = new AtomicBoolean(true);
-        mTimerEnable = new AtomicBoolean(true);
         mTimerReceiver = new TimerReceiver();
         context.registerReceiver(mTimerReceiver, new IntentFilter(TimerReceiver.ACTION_TIMER));
         setAlarmRepeat();
@@ -72,7 +69,6 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
     public void reset(){
         mCounter = 0;
         mWatchdogEnable.set(true);
-        mTimerEnable.set(true);
     }
 
     @Override
@@ -119,11 +115,11 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
      */
     public void disconnectRetry() {
         if (mCounter == 0) {
-            mTimerEnable.set(false);//断线重连开始时，关闭定时重连
+            //mTimerEnable.set(false);//断线重连开始时，关闭定时重连
             //如果第一次尝试重连，需要通知上层，设备正在重连连接
             InnerMessageHelper.sendReconnectingCallbackMessage();
         } else if (mCounter >= MAX_RETRY_NUM) {
-            mTimerEnable.set(true);//断线重连未成功时，恢复定时重连
+            //mTimerEnable.set(true);//断线重连未成功时，恢复定时重连
             //如果断线重连次数超过了MAX_RETRY_NUM次，需要通知上层，设备已断开连接
             InnerMessageHelper.sendInActiveCallbackMessage();
         }
@@ -177,8 +173,7 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
         public void onReceive(final Context context, Intent intent) {
             String action = intent.getAction();
             if (ACTION_TIMER.equals(action) && mWatchdogListener != null) {
-                if (mWatchdogEnable.compareAndSet(true, true)
-                        && mTimerEnable.compareAndSet(true, true)) {
+                if (mWatchdogEnable.compareAndSet(true, true)) {
                     mWatchdogListener.timerCheck();
                 } else {
                     L.writeFile("disable timer reconnect");
