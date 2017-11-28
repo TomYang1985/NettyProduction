@@ -126,7 +126,8 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
 
         if (mCounter++ < MAX_RETRY_NUM && mTimer != null) {
             //重连的间隔时间会越来越长
-            int timeout = 2 << mCounter;
+            //int timeout = 2 << mCounter;
+            int timeout = 2 * mCounter;
             mTimer.newTimeout(new DisconnectRetryTask(DisconnectRetryTask.TYPE_DISCONNECT_RETRY), timeout, TimeUnit.SECONDS);
         }
     }

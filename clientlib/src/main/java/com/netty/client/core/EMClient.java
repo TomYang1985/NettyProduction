@@ -50,6 +50,7 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
     private static final int TRIGGER_FROM_TIMER_DETECTION = 3;//定时检测
     private static final int TRIGGER_FROM_KEY_EXCHANGE_EXCEPTION = 4;//未收到服务端交换密钥的响应(可能的原因是服务端端口被占用，连接上了非我们自己的服务器)
     private static final int TRIGGER_FROM_USER_RETRY = 5;//由TRIGGER_FROM_USER触发的连接失败，进而在进行端口号递增重连
+    //private static final int TRIGGER_FROM_WIFI_CONNECTED = 6;//监听到WIFI连接成功，进行端口号递增连接流程；其实与TRIGGER_FROM_USER_RETRY类似，但是连接失败的处理结果
 
     private volatile static EMClient sInstance;
     private Context mContext;
