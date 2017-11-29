@@ -6,9 +6,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiManager;
+import android.os.Parcelable;
 import android.os.SystemClock;
 
-import com.netty.client.core.EMClient;
+import com.netty.client.codec.KeyManager;
 import com.netty.client.utils.L;
 import com.netty.client.utils.NetUtils;
 
@@ -35,6 +38,7 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
     protected final HashedWheelTimer mTimer = new HashedWheelTimer();
     private WatchdogListener mWatchdogListener;
     private TimerReceiver mTimerReceiver;
+    private NetChangeReceiver mNetChangeReceiver;
     /**
      * Watchdog是否使能
      * 1.Watchdog主要负责监控连接状态从已连接到断开连接后，进行重连的机制；
@@ -42,12 +46,20 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
      * 就是通过mWatchdogEnable来控制的
      */
     private AtomicBoolean mWatchdogEnable;
+    private AtomicBoolean mWifiDisable;//WIFI是否关闭
 
     public ConnectionWatchdog(Context context) {
         mContext = context;
         mWatchdogEnable = new AtomicBoolean(true);
+        mWifiDisable = new AtomicBoolean(NetUtils.wifiIsDisable(context));
         mTimerReceiver = new TimerReceiver();
+        mNetChangeReceiver = new NetChangeReceiver();
         context.registerReceiver(mTimerReceiver, new IntentFilter(TimerReceiver.ACTION_TIMER));
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+        filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+        context.registerReceiver(mNetChangeReceiver, filter);
+
         setAlarmRepeat();
     }
 
@@ -64,9 +76,9 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
     }
 
     /**
-     * 复位所有状态变量
+     * 复位状态变量
      */
-    public void reset(){
+    public void reset() {
         mCounter = 0;
         mWatchdogEnable.set(true);
     }
@@ -97,16 +109,16 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
 
         /**
          * wifi断开才进行断线重连，wifi关闭直接通知上层设备连接已断开
+         * 但是，channelInactive回调的速度比监听WIFI状态的回调速度快，所以进行一个延时后，在对网络进行判断后决定
+         * 进行断线重连还是通知上层设备连接已断开
          */
-        if (NetUtils.wifiIsDisable(EMClient.getInstance().getContext())) {
-            InnerMessageHelper.sendInActiveCallbackMessage();
+        if (mWatchdogEnable.compareAndSet(true, true) && mTimer != null) {
+            mTimer.newTimeout(new DisconnectRetryTask(DisconnectRetryTask.TYPE_DISCONNECT_DELAY),
+                    DisconnectRetryTask.DELAY, TimeUnit.MILLISECONDS);
         } else {
-            if (mWatchdogEnable.compareAndSet(true, true)) {
-                disconnectRetry();
-            } else {
-                L.print("channelInactive Watchdog disable");
-            }
+            L.print("channelInactive Watchdog disable");
         }
+
         ctx.fireChannelInactive();
     }
 
@@ -173,9 +185,11 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
         @Override
         public void onReceive(final Context context, Intent intent) {
             String action = intent.getAction();
-            if (ACTION_TIMER.equals(action) && mWatchdogListener != null) {
+            if (ACTION_TIMER.equals(action)) {
                 if (mWatchdogEnable.compareAndSet(true, true)) {
-                    mWatchdogListener.timerCheck();
+                    if (mWatchdogListener != null && !NetUtils.wifiIsDisable(mContext)) {
+                        mWatchdogListener.timerCheck();
+                    }
                 } else {
                     L.writeFile("disable timer reconnect");
                 }
@@ -189,8 +203,11 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
      * 2.TCP连接从连接到断开后，发送定时任务进行重试；
      */
     public class DisconnectRetryTask implements TimerTask {
+        public static final int DELAY = 700;//ms
         private static final int TYPE_KEY_EXCHANGE = 1;//密钥交换
         private static final int TYPE_DISCONNECT_RETRY = 2;//断线重连
+        private static final int TYPE_DISCONNECT_DELAY = 3;//进行断线重连功能时的延时
+        private static final int TYPE_CONNECTED_DELAY = 4;//WIFI连接成功的延时
         private int type;
 
         public DisconnectRetryTask(int type) {
@@ -202,7 +219,12 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
             if (mWatchdogListener != null) {
                 switch (type) {
                     case TYPE_KEY_EXCHANGE:
-                        mWatchdogListener.checkKeyExchange();
+                        int keyExchangeStatus = KeyManager.getInstance().getKeyExchangeStatus();
+                        L.writeFile("keyExchangeStatus=" + keyExchangeStatus);
+                        if (keyExchangeStatus == KeyManager.KEY_EXCHANGE_NULL) {
+                            //服务端开发得到正确的校验(因为服务端没有返回校验包)
+                            mWatchdogListener.unValidationServer();
+                        }
                         break;
                     case TYPE_DISCONNECT_RETRY:
                         if (mWatchdogEnable.compareAndSet(true, true)) {
@@ -211,6 +233,69 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
                             L.writeFile("disable disconnectRetry");
                         }
                         break;
+                    case TYPE_DISCONNECT_DELAY:
+                        if (mWifiDisable.get()) {
+                            InnerMessageHelper.sendInActiveCallbackMessage();
+                        } else {
+                            disconnectRetry();
+                        }
+                        break;
+                    case TYPE_CONNECTED_DELAY:
+                        L.writeFile("watchdog wifi connected");
+                        if (mWatchdogEnable.compareAndSet(true, true)) {
+                            if (mWatchdogListener != null) {
+                                mWatchdogListener.wifiEnabled();
+                            }
+                        } else {
+                            L.writeFile("disable wifi enabled connect");
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    /**
+     * 监听Wifi的连接
+     */
+    public class NetChangeReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent == null) {
+                return;
+            }
+
+            String action = intent.getAction();
+            if (action.equals(WifiManager.WIFI_STATE_CHANGED_ACTION)) {
+                int wifiState = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, -1);
+                switch (wifiState) {
+                    case WifiManager.WIFI_STATE_DISABLED:
+                        mWifiDisable.set(true);
+                        break;
+                    case WifiManager.WIFI_STATE_DISABLING:
+                        mWifiDisable.set(true);
+                        break;
+                    case WifiManager.WIFI_STATE_ENABLING:
+                        mWifiDisable.set(false);
+                        break;
+                    case WifiManager.WIFI_STATE_ENABLED:
+                        mWifiDisable.set(false);
+                        break;
+                }
+            } else if (WifiManager.NETWORK_STATE_CHANGED_ACTION.equals(action)) {
+                Parcelable parcelableExtra = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+                if (parcelableExtra != null) {
+                    NetworkInfo networkInfo = (NetworkInfo) parcelableExtra;
+                    if (networkInfo != null) {
+                        NetworkInfo.State state = networkInfo.getState();
+                        if (state == NetworkInfo.State.CONNECTED) {
+                            if (mTimer != null) {
+                                mTimer.newTimeout(new DisconnectRetryTask(DisconnectRetryTask.TYPE_CONNECTED_DELAY),
+                                        DisconnectRetryTask.DELAY, TimeUnit.MILLISECONDS);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -226,13 +311,20 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
         //定时检测
         void timerCheck();
 
-        void checkKeyExchange();
+        //无法校验的服务端
+        void unValidationServer();
+
+        //wifi enabled
+        void wifiEnabled();
     }
 
     public void onDestory() {
         L.print("ConnectionWatchdog.onDestory");
         if (mContext != null && mTimerReceiver != null) {
             mContext.unregisterReceiver(mTimerReceiver);
+        }
+        if (mContext != null && mNetChangeReceiver != null) {
+            mContext.unregisterReceiver(mNetChangeReceiver);
         }
         cancelAlarmRepeat();
         if (mTimer != null) {
