@@ -24,7 +24,7 @@ public class InnerMessageHelper {
      */
     public static void sendReconnectingCallbackMessage() {
         CallbackMessage message = new CallbackMessage();
-        message.type = CallbackMessage.MSG_TYPE_RECONNECTING;
+        message.type = CallbackMessage.MSG_TYPE_RECONNECT;
         ExecutorFactory.submitCallbackTask(new CallbackTask(message));
     }
 
@@ -32,21 +32,9 @@ public class InnerMessageHelper {
      * 发送设备断开连接回调消息
      *
      */
-    public static void sendInActiveCallbackMessage() {
+    public static void sendDisconnectCallbackMessage() {
         CallbackMessage message = new CallbackMessage();
-        message.type = CallbackMessage.MSG_TYPE_INACTIVE;
-        ExecutorFactory.submitCallbackTask(new CallbackTask(message));
-    }
-
-    /**
-     * 发送用户直连成功回调消息
-     *
-     * @param host
-     */
-    public static void sendConnectSuccByUserMessage(String host) {
-        CallbackMessage message = new CallbackMessage();
-        message.type = CallbackMessage.MSG_TYPE_CONNECT_SUCC_BY_USER;
-        message.from = host;
+        message.type = CallbackMessage.MSG_TYPE_DISCONNECT;
         ExecutorFactory.submitCallbackTask(new CallbackTask(message));
     }
 

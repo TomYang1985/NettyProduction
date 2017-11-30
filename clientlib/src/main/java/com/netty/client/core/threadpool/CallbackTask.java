@@ -49,14 +49,14 @@ public class CallbackTask implements Runnable {
             return;
         }
 
-        if (message.type == CallbackMessage.MSG_TYPE_RECONNECTING) {
+        if (message.type == CallbackMessage.MSG_TYPE_RECONNECT) {//重连
             for (EMConnectionListener listener : EMConnectManager.getInstance().getListener()) {
                 if (listener != null) {
                     listener.onReconnect();
                 }
             }
         } else
-            if (message.type == CallbackMessage.MSG_TYPE_INACTIVE) {
+            if (message.type == CallbackMessage.MSG_TYPE_DISCONNECT) {//断开
             List<EMConnectionListener> list = EMConnectManager.getInstance().getListener();
             if(list != null) {
                 Iterator iterator = list.iterator();
@@ -70,23 +70,17 @@ public class CallbackTask implements Runnable {
                     }
                 }
             }
-        } else if (message.type == CallbackMessage.MSG_TYPE_NOT_WIFI) {
+        } else if (message.type == CallbackMessage.MSG_TYPE_NOT_CONNECT_WIFI) {//上层连接时WIFI未连接
             connectError(Code.CODE_NOT_WIFI);
-        } else if (message.type == CallbackMessage.MSG_TYPE_CONNECTING) {
+        } else if (message.type == CallbackMessage.MSG_TYPE_CONNECTING) {//正在进行连接
             connectError(Code.CODE_CONNECTING);
-        } else if (message.type == CallbackMessage.MSG_TYPE_CONNECTED) {
+        } else if (message.type == CallbackMessage.MSG_TYPE_CONNECTED) {//已连接状态
             connectError(Code.CODE_CONNECTED);
-        } else if (message.type == CallbackMessage.MSG_TYPE_HOST_NULL) {
+        } else if (message.type == CallbackMessage.MSG_TYPE_HOST_NULL) {//上层连接时host为空
             connectError(Code.CODE_HOST_NULL);
-        } else if (message.type == CallbackMessage.MSG_TYPE_CONNECT_FAIL) {
+        } else if (message.type == CallbackMessage.MSG_TYPE_CONNECT_FAIL) {//连接失败
             connectError(Code.CODE_CONNECT_FAIL);
-        } else if (message.type == CallbackMessage.MSG_TYPE_CONNECT_SUCC_BY_USER) {
-//            for (EMConnectionListener listener : EMConnectManager.getInstance().getListener()) {
-//                if (listener != null) {
-//                    listener.onConnectSuccByUser(message.from);
-//                }
-//            }
-        } else if (message.type == CallbackMessage.MSG_TYPE_RECV_MSG) {
+        } else if (message.type == CallbackMessage.MSG_TYPE_RECV_MSG) {//业务消息
             switch (message.recvMessage.msgType) {
                 case Header.MsgType.PAYLOAD: {
                     PayloadProto.Payload chatMsg = (PayloadProto.Payload) message.recvMessage.body;

@@ -17,6 +17,7 @@ import com.netty.client.innermsg.CallbackMessage;
 import com.netty.client.msg.EMDevice;
 import com.netty.client.utils.HostUtils;
 import com.netty.client.utils.L;
+import com.netty.client.utils.NetUtils;
 
 import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
@@ -81,6 +82,11 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
     }
 
     public void connectDevice(String host, String name) {
+        if(NetUtils.isWifi(mContext)){
+            handlerUserSpaceCallback(TRIGGER_FROM_USER, CallbackMessage.MSG_TYPE_NOT_CONNECT_WIFI);
+            return;
+        }
+
         EMDevice newDevice = new EMDevice(host, name);
 
         if (mDevice == null) {
@@ -92,7 +98,7 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
                 connect(TRIGGER_FROM_USER);
             } else {
                 /**
-                 * 如果切换设备，先关闭Watchdog的功能，因为此时不需要断线重连和定时功能；然后关闭当前连接；最后再重新初始化，建立新的连接
+                 * 如果切换设备，先关闭Watchdog的功能，因为此时不需要断线重连、定时功能、wifi连接监听；然后关闭当前连接；最后再重新初始化，建立新的连接
                  */
                 mWatchdog.disableWatchdog();
                 shutdownGracefully();
@@ -158,7 +164,7 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
             @Override
             public void unValidationServer() {
                 /**
-                 * 连接的是非法的服务设备，先关闭Watchdog的功能，因为此时不需要断线重连和定时功能功能；
+                 * 连接的是非法的服务设备，先关闭Watchdog的功能，因为此时不需要断线重连、定时功能、wifi连接监听功能；
                  * 然后关闭当前连接；最后再重新初始化，建立新的连接
                  */
                 mWatchdog.disableWatchdog();
@@ -268,7 +274,6 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
                     switch (triggerType) {
                         case TRIGGER_FROM_USER:
                             L.writeFile("user启动连接成功" + currentPort);
-                            //InnerMessageHelper.sendConnectSuccByUserMessage(mDevice.id);
                             break;
                         case TRIGGER_FROM_DISCONNECT_RETRY:
                             L.writeFile("断线重连成功" + currentPort);
@@ -293,26 +298,23 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
                     }
 
                     //连接失败后必须要设置状态为STATUS_NONE
-                    mStatus.getAndSet(STATUS_NONE);
+//                    mStatus.getAndSet(STATUS_NONE);
 
                     switch (triggerType) {
                         case TRIGGER_FROM_USER:
-                            //InnerMessageHelper.sendErrorCallbackMessage(CallbackMessage.MSG_TYPE_CONNECT_FAIL);
-                            L.writeFile("user connect fail port =" + currentPort);
-                            if (currentPort >= DEAULT_PORT + MAX_TRY_COUNT) {
-                                resetCurrentPort();
-                            } else {
-                                connect(TRIGGER_FROM_USER_RETRY);
-                            }
+                            connect(TRIGGER_FROM_USER_RETRY);
                             break;
                         case TRIGGER_FROM_DISCONNECT_RETRY:
                             L.writeFile("断线重连失败" + currentPort);
+                            mStatus.getAndSet(STATUS_NONE);
                             mWatchdog.disconnectRetry();
                             break;
                         case TRIGGER_FROM_TIMER_DETECTION:
+                            mStatus.getAndSet(STATUS_NONE);
                             L.writeFile("定时重连失败" + currentPort);
                             break;
                         case TRIGGER_FROM_WIFI_CONNECTED:
+                            mStatus.getAndSet(STATUS_NONE);
                             L.writeFile("wifi connected connect fail port = " + currentPort);
                             break;
                         case TRIGGER_FROM_KEY_EXCHANGE_EXCEPTION:
@@ -328,9 +330,11 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
 
                             if (currentPort >= DEAULT_PORT + MAX_TRY_COUNT) {
                                 //如果连接的端口已经是最大端口且还未连接成功，需要通知上层，设备正在重连连接
-                                InnerMessageHelper.sendInActiveCallbackMessage();
+                                InnerMessageHelper.sendErrorCallbackMessage(CallbackMessage.MSG_TYPE_CONNECT_FAIL);
                                 resetCurrentPort();
                                 mWatchdog.enableWatchdog();//注意：如果进行3次连接后依然失败，记得使能Watchdog的断线重连和定时功能
+                                //端口递增连接结束后，才设置状态位
+                                mStatus.getAndSet(STATUS_NONE);
                             } else {
                                 connect(triggerType);
                             }

@@ -133,7 +133,7 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
         } else if (mCounter >= MAX_RETRY_NUM) {
             //mTimerEnable.set(true);//断线重连未成功时，恢复定时重连
             //如果断线重连次数超过了MAX_RETRY_NUM次，需要通知上层，设备已断开连接
-            InnerMessageHelper.sendInActiveCallbackMessage();
+            InnerMessageHelper.sendDisconnectCallbackMessage();
         }
 
         if (mCounter++ < MAX_RETRY_NUM && mTimer != null) {
@@ -142,6 +142,10 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
             int timeout = 2 * mCounter;
             mTimer.newTimeout(new DisconnectRetryTask(DisconnectRetryTask.TYPE_DISCONNECT_RETRY), timeout, TimeUnit.SECONDS);
         }
+    }
+
+    public boolean isDisconnectRetryFinish(){
+        return mCounter >= MAX_RETRY_NUM;
     }
 
     /**
@@ -235,7 +239,7 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
                         break;
                     case TYPE_DISCONNECT_DELAY:
                         if (mWifiDisable.get()) {
-                            InnerMessageHelper.sendInActiveCallbackMessage();
+                            InnerMessageHelper.sendDisconnectCallbackMessage();
                         } else {
                             disconnectRetry();
                         }
