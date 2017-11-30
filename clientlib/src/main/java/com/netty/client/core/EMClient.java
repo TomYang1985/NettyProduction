@@ -82,7 +82,7 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
     }
 
     public void connectDevice(String host, String name) {
-        if(NetUtils.isWifi(mContext)){
+        if(!NetUtils.isWifi(mContext)){
             handlerUserSpaceCallback(TRIGGER_FROM_USER, CallbackMessage.MSG_TYPE_NOT_CONNECT_WIFI);
             return;
         }

@@ -16,7 +16,7 @@ public class App extends Application{
     public void onCreate() {
         super.onCreate();
 
-        startService(new Intent(this, NettyServerService.class));
+        //startService(new Intent(this, NettyServerService.class));
     }
 
     @Override

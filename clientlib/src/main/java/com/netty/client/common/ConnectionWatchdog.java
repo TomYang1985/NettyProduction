@@ -144,10 +144,6 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
         }
     }
 
-    public boolean isDisconnectRetryFinish(){
-        return mCounter >= MAX_RETRY_NUM;
-    }
-
     /**
      * 检测密钥交换是否成功
      * 一定时间定时器触发后，检测密钥交换是否成功

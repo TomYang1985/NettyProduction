@@ -20,7 +20,16 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name="com.netty.app.devicemodule.DeviceListActivity"
+        <!--<activity android:name="com.netty.app.devicemodule.DeviceListActivity"-->
+            <!--android:theme="@style/SlideActivityAnim">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN" />-->
+
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
+        <!--</activity>-->
+
+        <activity android:name="com.netty.app.BindTestActivity"
             android:theme="@style/SlideActivityAnim">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
