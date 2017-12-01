@@ -17,4 +17,5 @@ message AppInfo {
     required bool isSystem = 5;
     required string iconUrl = 6;
     required int64 size = 7;
+    optional int64 firstInstallTime = 8;
 }

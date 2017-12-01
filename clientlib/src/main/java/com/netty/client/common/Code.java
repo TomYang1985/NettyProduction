@@ -9,12 +9,10 @@ public class Code {
     public static final int CODE_NOT_WIFI = 1;//当前Wifi未连接
     public static final int CODE_CONNECTING = 2;//正在连接
     public static final int CODE_CONNECTED = 3;//已连接
-    public static final int CODE_DISCONNECT = 4;//连接断开
-    public static final int CODE_HOST_NULL = 5;//host为null
-    public static final int CODE_CONNECT_FAIL = 6;//连接失败
-    public static final int CODE_CONNECT_SUCC_BY_USER = 7;//用户点击连接成功
-    public static final int CODE_UPDATE_PHONE = 8;//手机端需要更新
-    public static final int CODE_UPDATE_TV = 9;//TV端需要更新
+    public static final int CODE_HOST_NULL = 4;//host为null
+    public static final int CODE_CONNECT_FAIL = 5;//连接失败
+    public static final int CODE_UPDATE_PHONE = 6;//手机端需要更新
+    public static final int CODE_UPDATE_TV = 7;//TV端需要更新
     //服务端错误码
     public static final int RESULT_OK = 200;
     public static final int CODE_CLEAN_ERROR = 1000;//清理错误

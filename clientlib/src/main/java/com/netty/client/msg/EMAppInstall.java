@@ -12,8 +12,10 @@ public class EMAppInstall extends EMMessage {
     public boolean isSystem;
     public String iconUrl;
     public long size;
+    public long firstInstallTime;
 
-    public EMAppInstall(String packageName, String appName, int versionCode, String versionName, boolean isSystem, String iconUrl, long size) {
+    public EMAppInstall(String packageName, String appName, int versionCode, String versionName, boolean isSystem,
+                        String iconUrl, long size, long firstInstallTime) {
         msgType = MSG_TYPE_APP_ADDED;
         this.packageName = packageName;
         this.appName = appName;
@@ -22,5 +24,6 @@ public class EMAppInstall extends EMMessage {
         this.isSystem = isSystem;
         this.iconUrl = iconUrl;
         this.size = size;
+        this.firstInstallTime = firstInstallTime;
     }
 }

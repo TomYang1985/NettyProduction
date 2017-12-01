@@ -125,7 +125,7 @@ public class CallbackTask implements Runnable {
             case Header.BusinessType.RESPONSE_APP_ADDED: {
                 AppActionResponseProto.AppActionResponse body = (AppActionResponseProto.AppActionResponse) message.recvMessage.body;
                 callbackMessage(new EMAppInstall(body.getPackageName(), body.getAppName(), body.getVersionCode()
-                        , body.getVersionName(), body.getIsSystem(), body.getIconUrl(), body.getSize()));
+                        , body.getVersionName(), body.getIsSystem(), body.getIconUrl(), body.getSize(), body.getFirstInstallTime()));
 
             }
             break;
@@ -146,7 +146,7 @@ public class CallbackTask implements Runnable {
                 EMAppList installedApps = new EMAppList();
                 for (AppListResponseProto.AppInfo appInfo : body.getListList()) {
                     installedApps.add(appInfo.getPackageName(), appInfo.getAppName(), appInfo.getVersionCode()
-                            , appInfo.getVersionName(), appInfo.getIsSystem(), appInfo.getIconUrl(), appInfo.getSize());
+                            , appInfo.getVersionName(), appInfo.getIsSystem(), appInfo.getIconUrl(), appInfo.getSize(), appInfo.getFirstInstallTime());
                 }
                 callbackMessage(installedApps);
             }
