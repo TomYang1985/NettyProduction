@@ -16,7 +16,8 @@ import java.util.List;
 
 public class Config {
     public static final String TAG = "Netty";
-    public static boolean isDebug = true;// 是否需要打印log
+    public static final String VERSION = "1.2";
+    public static boolean isDebug = false;// 是否需要打印log
 
     //log过期天数
     public static final int LOG_RETENTION_PERIOD = 7;

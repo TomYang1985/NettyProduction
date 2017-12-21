@@ -3,8 +3,6 @@ package com.example.client.sample.chatmodule;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,12 +17,9 @@ import com.netty.client.listener.EMConnectionListener;
 import com.netty.client.listener.EMMessageListener;
 import com.netty.client.msg.EMDevice;
 import com.netty.client.msg.EMMessage;
-import com.netty.client.msg.EMPayload;
 import com.netty.client.utils.GsonUtils;
 import com.netty.client.utils.L;
 import com.netty.client.utils.T;
-
-import java.io.File;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -81,10 +76,10 @@ public class ChatActivity extends BaseFragmentActivity implements View.OnClickLi
             mContext.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if(mChatContentText != null){
+                    if (mChatContentText != null) {
                         //if(message.msgType != EMMessage.MSG_TYPE_APP_LIST){
-                            mContentBuilder.append(GsonUtils.toJson(message)).append("\n---------------");
-                            mChatContentText.setText(mContentBuilder.toString());
+                        mContentBuilder.append(GsonUtils.toJson(message)).append("\n---------------");
+                        mChatContentText.setText(mContentBuilder.toString());
                         //}
                         L.d(message);
                     }

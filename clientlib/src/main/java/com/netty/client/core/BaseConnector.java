@@ -69,9 +69,9 @@ public abstract class BaseConnector implements Connector {
         return bootstrap;
     }
 
-    public void shutdownGracefully() {
+    protected void shutdownGracefully() {
         worker.shutdownGracefully();
     }
 
-    public abstract ChannelHandler[] handlers();
+    protected abstract ChannelHandler[] handlers();
 }

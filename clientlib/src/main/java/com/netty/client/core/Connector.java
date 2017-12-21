@@ -5,6 +5,5 @@ package com.netty.client.core;
  */
 
 public interface Connector {
-//    void connect();
-    void shutdownGracefully();
+
 }

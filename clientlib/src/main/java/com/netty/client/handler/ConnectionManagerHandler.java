@@ -39,7 +39,7 @@ public class ConnectionManagerHandler extends ChannelDuplexHandler {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        super.exceptionCaught(ctx, cause);
+        //super.exceptionCaught(ctx, cause);
         L.writeFile(cause.toString());
     }
 }

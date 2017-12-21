@@ -21,6 +21,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
 import io.netty.util.TimerTask;
@@ -46,7 +48,8 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
      * 就是通过mWatchdogEnable来控制的
      */
     private AtomicBoolean mWatchdogEnable;
-    private AtomicBoolean mWifiDisable;//WIFI是否关闭
+    private AtomicBoolean mWifiDisable;//WIFI是否正在关闭或已关闭
+    private volatile boolean isServerLose = false;//检测不到服务端心跳
 
     public ConnectionWatchdog(Context context) {
         mContext = context;
@@ -80,6 +83,7 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
      */
     public void reset() {
         mCounter = 0;
+        isServerLose = false;
         mWatchdogEnable.set(true);
     }
 
@@ -91,6 +95,23 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
 
         checkKeyExchange();
         ctx.fireChannelActive();
+    }
+
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if (evt instanceof IdleStateEvent) {
+            IdleState state = ((IdleStateEvent) evt).state();
+            if (state == IdleState.WRITER_IDLE) {
+                L.print("send ping");
+                InnerMessageHelper.sendPing(ctx.channel());
+            } else if (state == IdleState.READER_IDLE) {
+                L.writeFile("server " + ctx.channel().remoteAddress() + " lose");
+                isServerLose = true;
+                ctx.channel().close();//server失联，关闭channel，一定要关闭连接，否则userEventTriggered会被不停调用
+            }
+        } else {
+            super.userEventTriggered(ctx, evt);
+        }
     }
 
     /**
@@ -107,12 +128,15 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
             mWatchdogListener.channelInActive(ctx);
         }
 
-        /**
-         * wifi断开才进行断线重连，wifi关闭直接通知上层设备连接已断开
-         * 但是，channelInactive回调的速度比监听WIFI状态的回调速度快，所以进行一个延时后，在对网络进行判断后决定
-         * 进行断线重连还是通知上层设备连接已断开
-         */
-        if (mWatchdogEnable.compareAndSet(true, true) && mTimer != null) {
+        if(isServerLose){
+            //如果是检测到服务端lose而自动断开的，则不进行断开重连机制
+            InnerMessageHelper.sendDisconnectCallbackMessage();
+        }else if (mWatchdogEnable.compareAndSet(true, true) && mTimer != null) {
+            /**
+             * wifi断开才进行断线重连，wifi关闭直接通知上层设备连接已断开
+             * 但是，channelInactive回调的速度比监听WIFI状态的回调速度快，所以进行一个延时后，再对网络进行判断后决定
+             * 进行断线重连还是通知上层设备连接已断开
+             */
             mTimer.newTimeout(new DisconnectRetryTask(DisconnectRetryTask.TYPE_DISCONNECT_DELAY),
                     DisconnectRetryTask.DELAY, TimeUnit.MILLISECONDS);
         } else {
@@ -138,8 +162,7 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter {
 
         if (mCounter++ < MAX_RETRY_NUM && mTimer != null) {
             //重连的间隔时间会越来越长
-            //int timeout = 2 << mCounter;
-            int timeout = 2 * mCounter;
+            int timeout = 2 << mCounter;
             mTimer.newTimeout(new DisconnectRetryTask(DisconnectRetryTask.TYPE_DISCONNECT_RETRY), timeout, TimeUnit.SECONDS);
         }
     }

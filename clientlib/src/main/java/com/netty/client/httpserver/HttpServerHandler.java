@@ -208,7 +208,7 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<FullHttpReque
         sendResponse(ctx, request, response, chunkedInput);
     }
 
-    private void sendResponse(ChannelHandlerContext ctx, FullHttpRequest request, HttpResponse response, Object data) {
+    private void sendResponse(final ChannelHandlerContext ctx, final FullHttpRequest request, HttpResponse response, Object data) {
         // Write the initial line and the header.
         ctx.write(response);
 
@@ -227,21 +227,25 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<FullHttpReque
 
             @Override
             public void operationComplete(ChannelProgressiveFuture future) {
-                L.print(future.channel() + " Transfer complete.");
+                if (future.isSuccess()) {
+                    L.print(" Transfer succ = ");
+                } else {
+                    L.print(future.cause().toString() + " Transfer fail = ");
+                }
+
+                /**
+                 * 当发送完数据之后，由于采用的是Transfer-Encoding：chunk模式来传输数据，因此需要在发送一个长度为0的chunk用来标记数据传输完成。
+                 * 参考：HTTP协议头部与Keep-Alive模式详解
+                 */
+                ChannelFuture lastContentFuture = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+                // Decide whether to close the connection or not.
+                //使用Keep-Alive，可以减少HTTP连接建立的次数，在HTTP1.1中该选项是默认开启的
+                if (!HttpUtil.isKeepAlive(request)) {
+                    // Close the connection when the whole content is written out.
+                    lastContentFuture.addListener(ChannelFutureListener.CLOSE);
+                }
             }
         });
-
-        /**
-         * 当发送完数据之后，由于采用的是Transfer-Encoding：chunk模式来传输数据，因此需要在发送一个长度为0的chunk用来标记数据传输完成。
-         * 参考：HTTP协议头部与Keep-Alive模式详解
-         */
-        ChannelFuture lastContentFuture = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-        // Decide whether to close the connection or not.
-        //使用Keep-Alive，可以减少HTTP连接建立的次数，在HTTP1.1中该选项是默认开启的
-        if (!HttpUtil.isKeepAlive(request)) {
-            // Close the connection when the whole content is written out.
-            lastContentFuture.addListener(ChannelFutureListener.CLOSE);
-        }
     }
 
     /**

@@ -27,7 +27,7 @@ public interface EMConnectionListener {
     /**
      * 连接错误
      *
-     * @param type 1:当前Wifi未连接;2:正在连接;3:已连接;4:host为null;5:CODE_CONNECT_FAIL
+     * @param type 1:当前Wifi未连接2:正在连接;3:已连接;4:host为null;5:连接失败
      */
     void onError(int type);
 }
