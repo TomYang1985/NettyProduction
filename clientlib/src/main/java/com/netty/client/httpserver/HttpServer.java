@@ -53,18 +53,14 @@ public final class HttpServer {
     private volatile static HttpServer sInstance;
     private EventLoopGroup mBossGroup;
     private EventLoopGroup mWorkerGroup;
-    private Object mLock = new Object();;
+    private final Object mLock = new Object();
     private ServerBootstrap mServerBootstrap;
     private boolean isInited = false;
     private int mBindStatus = STATUS_NONE;
     private Handler mHandler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
-            if(++mPort <= DEFAULT_PORT + MAX_TRY_COUNT){
-                start();
-            }else {
-                mPort = DEFAULT_PORT;
-            }
+            start();
             return true;
         }
     });
@@ -85,7 +81,7 @@ public final class HttpServer {
         return sInstance;
     }
 
-    private void init(){
+    private void init() {
         mBossGroup = new NioEventLoopGroup(1);
         mWorkerGroup = new NioEventLoopGroup();
 
@@ -106,15 +102,15 @@ public final class HttpServer {
     }
 
     public void start() {
-        synchronized (mLock){
-            if(mBindStatus == STATUS_BINDED || mBindStatus == STATUS_BINDING){
-                L.writeFile("mBindStatus is binding or binded return");
+        synchronized (mLock) {
+            if (mBindStatus == STATUS_BINDED || mBindStatus == STATUS_BINDING) {
+                L.writeFile("HttpFileServer mBindStatus is binding or binded return");
                 return;
             }
 
             mBindStatus = STATUS_BINDING;
 
-            if(!isInited){
+            if (!isInited) {
                 isInited = true;
                 init();
             }
@@ -123,56 +119,63 @@ public final class HttpServer {
         mServerBootstrap.bind(mPort).addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                if (channelFuture.isSuccess()) {
-                    synchronized (mLock){
+                synchronized (mLock) {
+                    if (channelFuture.isSuccess()) {
                         mBindStatus = STATUS_BINDED;
-                    }
-                    L.writeFile("HttpFileServer bind succ port = " + mPort);
-                } else {
-                    L.writeFile("HttpFileServer bind fail");
+                        ETvModelID.saveActionData(ETvModelID.EMID_Secure_RemoteControl_TVcommunication_HTTP_SERVER_Bind_Succ);
+                        L.writeFile("HttpFileServer bind succ port = " + mPort);
+                    } else {
+                        L.writeFile("HttpFileServer bind fail port = " + mPort);
 
-                    //当端口数已经测试到不可用后，记录统计点
-                    if(mPort == DEFAULT_PORT + MAX_TRY_COUNT) {
-                        ETvModelID.saveActionData(ETvModelID.EMID_Secure_RemoteControl_TVcommunication_HTTP_SERVER_Bind_Fail);
-                        Throwable throwable = channelFuture.cause();
-                        if (throwable != null) {
-                            if (throwable instanceof BindException) {//bind异常(bind failed: EADDRINUSE (Address already in use))
-                                L.writeFile("HttpFileServer BindException Address already in use");
-                                ETvModelID.saveActionData(ETvModelID.EMID_Secure_RemoteControl_TVcommunication_HTTP_SERVER_Address_Already_In_Use);
-                            } else if (throwable instanceof SocketException) {
-                                String cause = throwable.toString();
-                                if (cause != null && cause.contains("EADDRINUSE")) {
+                        //当端口数已经测试到不可用后，记录统计点
+                        if (mPort == DEFAULT_PORT + MAX_TRY_COUNT) {
+                            ETvModelID.saveActionData(ETvModelID.EMID_Secure_RemoteControl_TVcommunication_HTTP_SERVER_Bind_Fail);
+                            Throwable throwable = channelFuture.cause();
+                            if (throwable != null) {
+                                if (throwable instanceof BindException) {//bind异常(bind failed: EADDRINUSE (Address already in use))
+                                    L.writeFile("HttpFileServer BindException Address already in use");
                                     ETvModelID.saveActionData(ETvModelID.EMID_Secure_RemoteControl_TVcommunication_HTTP_SERVER_Address_Already_In_Use);
-                                    L.writeFile("HttpFileServer SocketException Address already in use");
+                                } else if (throwable instanceof SocketException) {
+                                    String cause = throwable.toString();
+                                    if (cause != null && cause.contains("EADDRINUSE")) {
+                                        ETvModelID.saveActionData(ETvModelID.EMID_Secure_RemoteControl_TVcommunication_HTTP_SERVER_Address_Already_In_Use);
+                                        L.writeFile("HttpFileServer SocketException Address already in use");
+                                    } else {
+                                        L.writeFile("HttpFileServer bind fail : " + throwable.toString());
+                                    }
                                 } else {
                                     L.writeFile("HttpFileServer bind fail : " + throwable.toString());
                                 }
-                            } else {
-                                L.writeFile("HttpFileServer bind fail : " + throwable.toString());
                             }
                         }
-                    }
 
-                    //放在业务逻辑后面执行
-                    synchronized (mLock){
                         mBindStatus = STATUS_NONE;
-                    }
-                    //需要放在设置STATUS_NONE后执行
-                    if(mHandler != null) {
-                        mHandler.sendEmptyMessage(MSG_RETRY);
+                        if (mPort < DEFAULT_PORT + MAX_TRY_COUNT) {
+                            mPort++;
+                            if (mHandler != null) {
+                                mHandler.sendEmptyMessage(MSG_RETRY);
+                            }
+                        } else {
+                            mPort = DEFAULT_PORT;
+                        }
                     }
                 }
             }
         });
     }
 
+    public boolean isBindingOrBinded(){
+        return mBindStatus != STATUS_NONE;
+    }
+
     /**
      * 获取本地文件url
-     * @param ip 本地ip
+     *
+     * @param ip   本地ip
      * @param path 本地文件路径
      * @return
      */
-    public String getLocalUrl(String ip, String path){
+    public String getLocalUrl(String ip, String path) {
         StringBuilder builder = new StringBuilder();
         try {
             //拼接的URL中不能有中文，所以对path进行URLEncoder
@@ -184,7 +187,8 @@ public final class HttpServer {
         return builder.toString();
     }
 
-    public void destory(){
+    public void destory() {
+        L.print("EmClient destory");
         sInstance = null;
         mHandler.removeMessages(MSG_RETRY);
         mHandler = null;

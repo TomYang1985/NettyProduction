@@ -128,6 +128,7 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
         mainLock.lock();
         try {
             if (isInited) {
+                L.print("EMClient inited");
                 return;
             }
             isInited = true;
@@ -141,7 +142,9 @@ public class EMClient extends BaseConnector implements ChannelHandlerHolder {
 
         L.init();//log的初始化，需要放在mContext的初始化后面
 
-        HttpServer.getInstance().start();//启动http server
+        if(NetUtils.isWifi(mContext)) {
+            HttpServer.getInstance().start();//启动http server
+        }
         mStatus = new AtomicInteger(STATUS_NONE);
 
         mWatchdog = new ConnectionWatchdog(context);

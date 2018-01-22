@@ -36,6 +36,7 @@ public class ETvModelID implements Serializable {
     public static final int EMID_Secure_RemoteControl_TVcommunication_Recieve_Response_Install_Application = 383232;//接收安装软件响应
     public static final int EMID_Secure_RemoteControl_TVcommunication_HTTP_SERVER_Bind_Fail = 383233;//HttpServer绑定端口失败
     public static final int EMID_Secure_RemoteControl_TVcommunication_HTTP_SERVER_Address_Already_In_Use = 383234;//HttpServer绑定端口已被占用
+    public static final int EMID_Secure_RemoteControl_TVcommunication_HTTP_SERVER_Bind_Succ = 383309;//HttpServer绑定端口成功
 
 
     public static void saveActionData(int modelId){
